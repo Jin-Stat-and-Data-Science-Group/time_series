@@ -64,3 +64,4 @@ for (i in 1:2) print(Box.test(Yt, lag=i*6))
 #所以认为Yt是白噪声序列
 
 
+
