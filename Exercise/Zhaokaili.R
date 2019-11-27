@@ -56,7 +56,7 @@ for (i in 2:length(Xt)){
   Yt[i] <- Xt[i] - Xt[i-1]
 }
 Yt <- na.omit(Yt)
-Yt <- ts(Yt, start=1965)
+Yt <- ts(Yt, start=dat3$time[2])
 plot(Yt)
 acf(Yt)#根据时序图和自相关图，易知一阶差分序列Yt是平稳序列
 for (i in 1:2) print(Box.test(Yt, lag=i*6))
