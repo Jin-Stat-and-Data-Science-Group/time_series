@@ -34,7 +34,6 @@ link-citations: true
 ---
 # 平稳性检验
 ## 概率分布特征统计量
-
 1. 概率分布
 
   任取正整数m，任取$t_{1}, t_{2}, \cdots, t_{m} \in T$，则m维随机向量$\left(X_{t_{1}}, X_{t_{2}}, \cdots,\right.\left.X_{t_{m}}\right)^{\prime}$的联合概率分布记为$\ {F_{{t_1},{t_2}, \cdots ,{t_m}}}({x_1},{x_2}, \cdots ,{x_m}) {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt}$,由这些有限维分布函数构成的全体
