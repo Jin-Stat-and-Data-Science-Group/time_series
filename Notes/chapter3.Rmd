@@ -140,7 +140,44 @@ $\mu  = \frac{{{\varphi _0}}}{{1 - {\varphi _1} -  \cdots  - {\varphi _p}}},{y_t
 判别原因：AR模型是常用的平稳序列的拟合模型之一，但并非所有的AR模型都是平稳的 
 
 1. arima.sim函数拟合
+
+拟合平稳ar序列、MA序列、平稳ARMA序列和ARIMA序列
+```
+命令格式:arima.sim(n,list(ar=,ma=,order=),sd=)
+n:拟合序列的长度
+list:具体模型参数系数
+   list(ar=c()):平稳AR(p)模型的自回归系数，非平稳AR模型会报错
+   list(ma=c()):MA(q)模型的移动平均系数
+   list(ar=c(),ma=c()):ARMA(p,q)模型的系数，非平稳ARMA模型会报错
+   list(ar=,ma=,order=C(p,d,q)):ARIMA(p,d,q)模型，d为差分阶数
+sd:指定序列标准差，默认为1
+```
+```{r echo=TRUE}
+ts1 <- arima.sim(n=100, list(ar=c(-0.4,0.5)), sd=2)
+plot(ts1, type = "l")
+#从图中可以看出该AR(2)模型平稳
+```
+
 2. filter函数拟合
+
+拟合AR序列（无论是否平稳）和MA序列
+```
+命令格式为filter(e,filter=,method=,circular=)
+-e:随机波动序列的变量名
+-filter:模型系数
+        AR(p)模型：filter=c(系数)
+        MA(q)模型：filter=c(系数)
+-method:指定拟合模型
+      method="recursive" 为AR模型
+      method="convolution" 为MA模型
+-circular:拟合MA模型专用选项，circular=T避免NA数据出现
+```
+```{r echo=TRUE}
+e <- rnorm(100)
+ts2 <- filter(e,filter = -1.1,method = "recursive")
+plot(ts2, type = "l")
+#从图中可以看出该AR(1)模型非平稳
+```
 
 #### 单位根判别法
 1. 自回归方程的解
