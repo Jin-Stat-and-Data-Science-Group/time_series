@@ -93,9 +93,9 @@ p阶差分：对P-1阶差分后的序列再进行一次一阶差分
 
 1. 不相等实数根场合(${\lambda _1},{\lambda _2}, \cdots ,{\lambda _p}$均不相同)
 \[{z_t} = {c_1}\lambda _1^t + {c_2}\lambda _2^t +  \cdots  + {c_p}\lambda _p^t\]
-2. 有相等实根场合(${\lambda _1} = {\lambda _2} =  \cdots  = {\lambda _d}$)
+2. 有相等实根场合(${\lambda _1} = {\lambda _2} =  \cdots  = {\lambda _d},而\lambda_{d+1}, \lambda_{d+2}, \cdots, \lambda_{p}$为互不相同实根)
 \[{z_t} = ({c_1} + {c_2}t +  \cdots  + {c_d}{t^{d - 1}})\lambda _1^t + {c_{d + 1}}\lambda _{d + 1}^t +  \cdots  + {c_p}\lambda _p^t\]
-3. 有复根
+3. ${\lambda _1,\lambda _2, \cdots ,\lambda _p}$中有复根
 \[{z_t} = {r^t}({c_1}{e^{it\omega }} + {c_2}{e^{ - it\omega }}) + {c_3}\lambda _3^t +  \cdots  + {c_p}\lambda _p^t\]
 
 ### 非齐次线性差分方程的解 
@@ -299,8 +299,13 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 \[{\gamma _k} = {\varphi _1}{\gamma _{k - 1}} + {\varphi _2}{\gamma _{k - 2}} +  \cdots  + {\varphi _p}{\gamma _{k - p}},\forall k \ge 1\]
 
 平稳AR(1)模型的协方差
-
+\[{\gamma _k} = \phi _1^k\frac{{{\kern 1pt} \sigma _\varepsilon ^2}}{{1 - \phi _1^2}}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,\forall k \ge 1\]
 平稳AR(2)模型的协方差
+\[\left\{ \begin{array}{l}
+{\gamma _0} = \frac{{1 - {\phi _2}}}{{(1 + {\phi _2})(1 - {\phi _1} - {\phi _2})(1 + {\phi _1} - {\phi _2})}}\sigma _\varepsilon ^2\\
+{\gamma _1} = \frac{{{\phi _1}{\gamma _0}}}{{1 - {\phi _2}}}\\
+{\gamma _k} = {\phi _1}{\gamma _{k - 1}} + {\phi _2}{\gamma _{k - 2}}，k \ge 2
+\end{array} \right.\]
 
 #### 自相关系数
 1. 平稳AR模型自相关系数递推公式
@@ -311,22 +316,25 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 \[{\rho _k} = {\phi _1}{\rho _{k - 1}} + {\phi _2}{\rho _{k - 2}} +  \cdots  + {\phi _p}{\rho _{k - p}}\]
 
 平稳AR(1)模型的自相关系数递推公式
-
+\[{\rho _k} = \phi _1^k,k \ge 0\]
 平稳AR(2)模型的自相关系数递推公式
-
+\[{\rho _k} = \left\{ \begin{array}{l}
+1{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,k = 0\\
+\frac{{{\phi _1}}}{{1 - {\phi _2}}}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,k = 1\\
+{\phi _1}{\rho _{k - 1}} + {\phi _2}{\rho _{k - 2}}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt},k \ge 2
+\end{array} \right.\]
 2. 自相关系数的性质
 
-（1） AR模型自相关系数的表达式是一个齐次差分方程，设它的通解形式为
+（1） 拖尾性
+AR模型自相关系数的表达式是一个齐次差分方程，设它的通解形式为
 $${\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda _i^k}，\left| {{\lambda _i}} \right| < 1,且{c_1}, \cdots ,{c_p}不能全为零$$
+通过这个通解形式，容易推出${\rho _k}$始终有非零取值，不会在k大于某个常数之后就恒等于零，这个性质就是拖尾性。
 
 （2） 呈指数衰减
+随着时间的推移，${\rho _k}$会迅速衰减，因为$\left| {{\lambda _i}} \right| < 1$，所以$k \to \infty $时，$\lambda_{i}^{k} \rightarrow 0(i=1,2, \cdots, p)$，继而导致${\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda _i^k}  \to 0$,而这种影响是以指数$\lambda^{k}$的速度在衰减。
 $$\left| {{\lambda _i}} \right| < 1{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt}  \Rightarrow {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda _i^k}  \to 0$$
 
 自相关系数呈指数衰减表现在自相关图中判断平稳序列的“短期相关性”，这是平稳序列的重要特征。这个特征表明对于平稳序列而言，通常只有近期的序列值对现值影响明显，间隔越远的过去值对现值的影响越小。
-
-（3） 拖尾性
-$${c_1}, \cdots ,{c_p}不能全为零
-\Rightarrow {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda _i^k}始终有非零取值，\forall k > 某个常数$$
 
 
 #### 偏自相关系数
@@ -404,9 +412,9 @@ E[({x_t} - \hat E{x_t})({x_{t - k}} - \hat E{x_{t - k}})] = {\phi _{kk}}E[{({x_{
 0(\forall k > p)$
 
 AR(1)模型偏自相关系数的计算
-
+$\phi_{k k}=\left\{\begin{array}{ll}{\phi_{1},} & {k=1} \\ {0,} & {k \geqslant 2}\end{array}\right.$
 AR(2)模型偏自相关系数的计算
-
+$\phi_{k k}=\left\{\begin{array}{ll}{\frac{\phi_{1}}{1-\phi_{2}},} & {k=1} \\ {\phi_{2},} & {k=2} \\ {0,} & {k \geqslant 3}\end{array}\right.$
 
 ## MA模型(Moving Average Model)
 ## ARMA模型(Auto Regression Moving Average model)
