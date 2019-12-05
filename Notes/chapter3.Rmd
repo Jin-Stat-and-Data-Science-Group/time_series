@@ -650,7 +650,7 @@ q阶移动平均系数多项式：$\Theta (B) = 1 - {\theta _1}B - {\theta _2}{B
 
 
 
-![](E:/github_repo/time_series/Notes/建模步骤.png)
+![](./建模步骤.png)
 
 样本自相关系数
 
