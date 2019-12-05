@@ -93,9 +93,9 @@ p阶差分：对P-1阶差分后的序列再进行一次一阶差分
 
 1. 不相等实数根场合(${\lambda _1},{\lambda _2}, \cdots ,{\lambda _p}$均不相同)
 \[{z_t} = {c_1}\lambda _1^t + {c_2}\lambda _2^t +  \cdots  + {c_p}\lambda _p^t\]
-2. 有相等实根场合(${\lambda _1} = {\lambda _2} =  \cdots  = {\lambda _d}$)
+2. 有相等实根场合(${\lambda _1} = {\lambda _2} =  \cdots  = {\lambda _d},而\lambda_{d+1}, \lambda_{d+2}, \cdots, \lambda_{p}$为互不相同实根)
 \[{z_t} = ({c_1} + {c_2}t +  \cdots  + {c_d}{t^{d - 1}})\lambda _1^t + {c_{d + 1}}\lambda _{d + 1}^t +  \cdots  + {c_p}\lambda _p^t\]
-3. 有复根
+3. ${\lambda _1,\lambda _2, \cdots ,\lambda _p}$中有复根
 \[{z_t} = {r^t}({c_1}{e^{it\omega }} + {c_2}{e^{ - it\omega }}) + {c_3}\lambda _3^t +  \cdots  + {c_p}\lambda _p^t\]
 
 ### 非齐次线性差分方程的解 
@@ -140,7 +140,44 @@ $\mu  = \frac{{{\varphi _0}}}{{1 - {\varphi _1} -  \cdots  - {\varphi _p}}},{y_t
 判别原因：AR模型是常用的平稳序列的拟合模型之一，但并非所有的AR模型都是平稳的 
 
 1. arima.sim函数拟合
+
+拟合平稳ar序列、MA序列、平稳ARMA序列和ARIMA序列
+```
+命令格式:arima.sim(n,list(ar=,ma=,order=),sd=)
+n:拟合序列的长度
+list:具体模型参数系数
+   list(ar=c()):平稳AR(p)模型的自回归系数，非平稳AR模型会报错
+   list(ma=c()):MA(q)模型的移动平均系数
+   list(ar=c(),ma=c()):ARMA(p,q)模型的系数，非平稳ARMA模型会报错
+   list(ar=,ma=,order=C(p,d,q)):ARIMA(p,d,q)模型，d为差分阶数
+sd:指定序列标准差，默认为1
+```
+```{r echo=TRUE}
+ts1 <- arima.sim(n=100, list(ar=c(-0.4,0.5)), sd=2)
+plot(ts1, type = "l")
+#从图中可以看出该AR(2)模型平稳
+```
+
 2. filter函数拟合
+
+拟合AR序列（无论是否平稳）和MA序列
+```
+命令格式为filter(e,filter=,method=,circular=)
+-e:随机波动序列的变量名
+-filter:模型系数
+        AR(p)模型：filter=c(系数)
+        MA(q)模型：filter=c(系数)
+-method:指定拟合模型
+      method="recursive" 为AR模型
+      method="convolution" 为MA模型
+-circular:拟合MA模型专用选项，circular=T避免NA数据出现
+```
+```{r echo=TRUE}
+e <- rnorm(100)
+ts2 <- filter(e,filter = -1.1,method = "recursive")
+plot(ts2, type = "l")
+#从图中可以看出该AR(1)模型非平稳
+```
 
 #### 单位根判别法
 1. 自回归方程的解
@@ -262,8 +299,13 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 \[{\gamma _k} = {\varphi _1}{\gamma _{k - 1}} + {\varphi _2}{\gamma _{k - 2}} +  \cdots  + {\varphi _p}{\gamma _{k - p}},\forall k \ge 1\]
 
 平稳AR(1)模型的协方差
-
+\[{\gamma _k} = \phi _1^k\frac{{{\kern 1pt} \sigma _\varepsilon ^2}}{{1 - \phi _1^2}}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,\forall k \ge 1\]
 平稳AR(2)模型的协方差
+\[\left\{ \begin{array}{l}
+{\gamma _0} = \frac{{1 - {\phi _2}}}{{(1 + {\phi _2})(1 - {\phi _1} - {\phi _2})(1 + {\phi _1} - {\phi _2})}}\sigma _\varepsilon ^2\\
+{\gamma _1} = \frac{{{\phi _1}{\gamma _0}}}{{1 - {\phi _2}}}\\
+{\gamma _k} = {\phi _1}{\gamma _{k - 1}} + {\phi _2}{\gamma _{k - 2}}，k \ge 2
+\end{array} \right.\]
 
 #### 自相关系数
 1. 平稳AR模型自相关系数递推公式
@@ -274,22 +316,25 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 \[{\rho _k} = {\phi _1}{\rho _{k - 1}} + {\phi _2}{\rho _{k - 2}} +  \cdots  + {\phi _p}{\rho _{k - p}}\]
 
 平稳AR(1)模型的自相关系数递推公式
-
+\[{\rho _k} = \phi _1^k,k \ge 0\]
 平稳AR(2)模型的自相关系数递推公式
-
+\[{\rho _k} = \left\{ \begin{array}{l}
+1{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,k = 0\\
+\frac{{{\phi _1}}}{{1 - {\phi _2}}}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,k = 1\\
+{\phi _1}{\rho _{k - 1}} + {\phi _2}{\rho _{k - 2}}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt},k \ge 2
+\end{array} \right.\]
 2. 自相关系数的性质
 
-（1） AR模型自相关系数的表达式是一个齐次差分方程，设它的通解形式为
+（1） 拖尾性
+AR模型自相关系数的表达式是一个齐次差分方程，设它的通解形式为
 $${\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda _i^k}，\left| {{\lambda _i}} \right| < 1,且{c_1}, \cdots ,{c_p}不能全为零$$
+通过这个通解形式，容易推出${\rho _k}$始终有非零取值，不会在k大于某个常数之后就恒等于零，这个性质就是拖尾性。
 
 （2） 呈指数衰减
+随着时间的推移，${\rho _k}$会迅速衰减，因为$\left| {{\lambda _i}} \right| < 1$，所以$k \to \infty $时，$\lambda_{i}^{k} \rightarrow 0(i=1,2, \cdots, p)$，继而导致${\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda _i^k}  \to 0$,而这种影响是以指数$\lambda^{k}$的速度在衰减。
 $$\left| {{\lambda _i}} \right| < 1{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt}  \Rightarrow {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda _i^k}  \to 0$$
 
 自相关系数呈指数衰减表现在自相关图中判断平稳序列的“短期相关性”，这是平稳序列的重要特征。这个特征表明对于平稳序列而言，通常只有近期的序列值对现值影响明显，间隔越远的过去值对现值的影响越小。
-
-（3） 拖尾性
-$${c_1}, \cdots ,{c_p}不能全为零
-\Rightarrow {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda _i^k}始终有非零取值，\forall k > 某个常数$$
 
 
 #### 偏自相关系数
@@ -367,9 +412,9 @@ E[({x_t} - \hat E{x_t})({x_{t - k}} - \hat E{x_{t - k}})] = {\phi _{kk}}E[{({x_{
 0(\forall k > p)$
 
 AR(1)模型偏自相关系数的计算
-
+$\phi_{k k}=\left\{\begin{array}{ll}{\phi_{1},} & {k=1} \\ {0,} & {k \geqslant 2}\end{array}\right.$
 AR(2)模型偏自相关系数的计算
-
+$\phi_{k k}=\left\{\begin{array}{ll}{\frac{\phi_{1}}{1-\phi_{2}},} & {k=1} \\ {\phi_{2},} & {k=2} \\ {0,} & {k \geqslant 3}\end{array}\right.$
 
 ## MA模型
 
@@ -659,6 +704,129 @@ $${\hat \varphi _{kk}} = \frac{{{{\hat D}_k}}}{{\hat D}}$$
 ## 模型优化
 
 # 序列预测
+所谓预测，就是要利用序列已观测到的样本观察值对序列在未来某个时刻的取值进行估计。目前对平稳序列最常用的预测方法是线性最小方差预测。现行是指预测值为观察值序列的线性函数，最小方差是指预测方差达到最小。
+
+## 线性预测函数
+根据ARMA(p,q)模型的平稳性和可逆性，可以用传递形式和逆转形式等价描述该序列：
+$$\begin{aligned} x_{t} &=\sum_{i=0}^{\infty} G_{i} \varepsilon_{t-i} \\ \varepsilon_{t} &=\sum_{j=0}^{\infty} I_{j} x_{t-j} \end{aligned}$$
+式中，$\left\{ {{G_i}} \right\}$为Green函数值；$\left\{ {{I_i}} \right\}$为逆转函数值。
+
+整理上述公式可以得到$x_{t}$是历史数据$x_{t-1},x_{t-2},…$的线性函数，简记为：$$x_{t}=\sum_{i=0}^{\infty} C_{i} x_{t-1-i}$$
+对于任意一个未来时刻t+l而言，该时刻的序列值$x_{t+l}$也可以表示成它的历史数据$x_{t+l-1},...,x_{t+1},x_{t},x_{t-1},...$的线性函数：$$x_{t+l}=\sum_{i=0}^{\infty} C_{i} x_{t+l-1-i}$$
+其中部分未知的历史信息$x_{t+l-1},...,x_{t+1}$，可以利用
+$\widehat{x}_{t}(l)=\sum_{i=0}^{\infty} \widehat{D}_{i} x_{t-i}$估计求出,其中，$\widehat{x}_{t}(l)$称为序列$\{ {x_t}\}$的第l步预测值。
+
+## 预测方差最小原则
+用$e_{t}(l)$衡量预测误差：
+$$e_{t}(l)=x_{t+l}-\widehat{x}_{t}(l)$$
+显然，预测误差越小，预测精度就越高。因此目前最常用的预测原则就是预测方差最小原则。即
+$$Va{r_{{{\hat x}_{t(l)}}}}\left[ {{e_t}(l)} \right] = \min \left\{ {Var\left[ {{e_t}(l)} \right]} \right\}$$
+因为${{\hat x}_{t(l)}}$为$x_t,x_{t-1},...$的线性函数，所以该原则也称为现行预测方差最小原则。
+预测误差为：
+$$\begin{aligned} e_{t}(l) &=\sum_{i=0}^{l-1} G_{i} \varepsilon_{t+l-i} \end{aligned}$$
+由于$\{ {\varepsilon _t}\} $为白噪声序列，所以
+$$\begin{aligned} E\left[e_{t}(l)\right]=0 \end{aligned}$$
+$$\begin{aligned} \operatorname{Var}\left[e_{t}(l)\right]=\sum_{i=0}^{t-1} G_{i}^{2} \sigma_{e}^{2}, \quad \forall l \geqslant 1 \end{aligned}$$
+
+## 线性最小方差预测的性质
+1. 条件无偏最小方差估计值
+    1.1 序列值分解：
+\[\begin{array}{c}
+{x_{t + l}} = \left( {{\varepsilon _{t + l}} + {G_1}{\varepsilon _{t + l - 1}} +  \cdots  + {G_{l - 1}}{\varepsilon _{t + 1}}} \right) + \left( {{G_l}{\varepsilon _t} + {G_{l + 1}}{\varepsilon _{t - 1}} +  \cdots } \right)\\
+ = {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {e_t}(l){\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt}  + {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {{\hat x}_t}(l)
+\end{array}\]
+推导出：
+$$\begin{array}{l}
+E({x_{t + l}}\left| {{x_t},{x_{t - 1}}, \cdots } \right.) = \hat x(l)\\
+{\kern 1pt} {\kern 1pt} Var({x_{t + l}}\left| {{x_t},{x_{t - 1}}, \cdots } \right.) = Var[{e_t}(l)]
+\end{array}$$
+这说明在预测方差最小原则下得到的估计值$\hat x(l)$是序列值$x_{t+l}$在$x_{t},x_{t-1},...$已知的情况下得到的条件无偏最小方差估计值，且预测方差只与预测步长l有关，而与预测起始点t无关，但预测步长l越大，预测的方差也越大，因而为了保证预测的精度，时间序列数据只适合短期预测。
+    1.2 误差分析
+
+估计误差：
+\[{e_t}(l) = {\varepsilon _{t + l}} + {G_1}{\varepsilon _{t + l - 1}} +  \cdots {G_{l - 1}}{\varepsilon _{t + 1}}\]
+期望：
+\[E[{e_t}(l)] = 0\]
+方差：
+\[Var[{e_t}(l)] = \sum\limits_{i = 0}^{l - 1} {G_i^2 \cdot \sigma _\varepsilon ^2} \]
+2. AR(p)序列预测
+    2.1 预测值
+    \[\hat x(l) = {\varphi _1}{\hat x_t}(l - 1) +  \cdots  + {\varphi _p}{\hat x_t}(l - p)\]
+    2.2 预测方差
+    \[Var[{e_t}(l)] = (1 + G_1^2 +  \cdots  + G_{l - 1}^2)\sigma _\varepsilon ^2\]
+    2.3 95%置信区间
+    $$\left( {{{\hat x}_t}(l) \mp {z_{1 - \frac{\alpha }{2}}} \cdot {{\left( {1 + G_1^2 +  \cdots  + G_{l - 1}^2} \right)}^{\frac{1}{2}}} \cdot {\sigma _\varepsilon }} \right)$$
+    2.4 R实现
+    
+    下载并调用forecast程序包后，调用该函数完成预测工作，
+```
+install.packages("forecast")
+library(forecast)
+forecast(object = ,h=,level=)
+式中：
+-object:拟合信息文件名
+-h：预测期数
+-level：置信区间的置信水平，默认给出80%和95%
+```
+3. MA(q)序列预测
+    3.1 预测值
+    \[{\hat x_t}(l) = \left\{ \begin{array}{l}
+\mu  - \sum\limits_{i = l}^q {{\theta _i}{\varepsilon _{t + l - i}}} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,l \le q\\
+\mu {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,l > q
+\end{array} \right.\]
+    3.2 预测方差
+    \[Var[{e_t}(l)] = \left( \begin{array}{l}
+(1 + \theta _1^2 +  \cdots  + \theta _{l - 1}^2)\sigma _\varepsilon ^2{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,l \le q\\
+(1 + \theta _1^2 +  \cdots  + \theta _q^2)\sigma _\varepsilon ^2{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,l > q
+\end{array} \right.\]
+    3.3 95%置信区间
+    \[\left( {{{\hat x}_t}(l) - {z_{1 - \frac{\alpha }{2}}}\sqrt {{\mathop{\rm Var}\nolimits} \left[ {{e_t}(l)} \right]} ,{{\hat x}_t}(l) + {z_{1 - \frac{\alpha }{2}}}\sqrt {{\mathop{\rm Var}\nolimits} \left[ {{e_t}(l)} \right]} } \right)\]
+4. ARMA(p,q)序列预测
+    4.1 预测值
+    \[{\hat x_t}(k) = \left\{ \begin{array}{l}
+{{\hat x}_t}(k){\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,k \ge 1\\
+{x_{t + k}}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,k \le 0
+\end{array} \right.\]
+    4.2 预测方差
+    \[Var[{e_t}(l)] = (G_0^1 + G_1^2 +  \cdots  + G_{l - 1}^2)\sigma _\varepsilon ^2\]
+    4.3 95%置信区间
+    \[\left( {{{\hat x}_t}(l) - {z_{1 - \frac{\alpha }{2}}}\sqrt {{\mathop{\rm Var}\nolimits} \left[ {{e_t}(l)} \right]} ,{{\hat x}_t}(l) + {z_{1 - \frac{\alpha }{2}}}\sqrt {{\mathop{\rm Var}\nolimits} \left[ {{e_t}(l)} \right]} } \right)\]
+
+## 修正预测
+1. 定义
+
+所谓的修正预测就是研究如何利用新的信息去获得精度更高的预测值 
+2. 方法
+    2.1 在新的信息量比较大时——把新信息加入到旧的信息中，重新拟合模型
+    2.2 在新的信息量很小时——不重新拟合模型，只是将新的信息加入以修正预测值，提高预测精度
+3. 原理
+
+在旧信息的基础上，${x_{t+l}}$的预测值为
+\[{\hat x_t}(l) = {G_l}{\varepsilon _t} + {G_{l + 1}}{\varepsilon _{t - 1}} +  \cdots \]
+假设新获得p个观察值${x_{t+1}},...,{x_{t+p}}$,则${x_{t+1}}$的修正预测值为：
+\[{\hat x_{t + p}}(l - p) = {G_{l - p}}{\varepsilon _{t + p}} +  \cdots  + {G_{l - 1}}{\varepsilon _{t + 1}} + {\hat x_t}(l)\]
+修正预测误差为：
+\[{e_{t + p}}(l - p) = {G_0}{\varepsilon _{t + l}} +  \cdots  + {G_{l - p - 1}}{\varepsilon _{t + p + 1}}\]
+预测方差为：
+\[Var[{e_{t + p}}(l - p)] = (G_0^2 +  \cdots  + G_{l - p - 1}^2)\sigma _\varepsilon ^2\]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
