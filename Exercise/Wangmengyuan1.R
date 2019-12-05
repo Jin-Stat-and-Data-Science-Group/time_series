@@ -233,7 +233,7 @@ for (j in 2:10000) {
        }
      G[j] <- sum(vv)-theta[k]
 }
-G
+G 
 #假设随机干扰序列的均值为0，方差为1
 var3 <- sum(G[1:10000]^2)#ARMA模型方差
 var3
