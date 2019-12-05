@@ -131,7 +131,7 @@ for (i in 3:10) {
 G
 #方差
 varxt <- sum(G^2*(sigma^2))
-Varxt
+varxt 
 #自协方差函数（前10项）
 gamma =vector()
 gamma0=varxt
@@ -271,7 +271,7 @@ G0=1
 G1=0.1
 G2=0.1*G1+0.2*G0
 G3=0.1*G2+0.2*G1-0.3*G0
-G[1:4]=C(G0,G1,G2,G3)
+G[1:4]=c(G0,G1,G2,G3)
 for (i in 5:100){
   G[i] <- sum(phi*G[(i-1):(i-4)])
 }
@@ -319,3 +319,4 @@ AR.PACF <- function(k){
 }
 for (i in 1:5) AR.PACF(i) #AR(5)的PACF
 ARMAacf(ar=phi, lag.max = 5, pacf = T) #检验
+
