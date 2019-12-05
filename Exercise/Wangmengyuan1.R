@@ -1,6 +1,6 @@
 ###############时间序列分析第一次上机实验内容#######################
 rm(list = ls())
-setwd("D:/时间序列分析/习题数据、案例数据、R代码/")
+setwd("D:/github_repo/time_series/习题数据、案例数据、R代码")
 library(readxl)
 #生成向量，并转为时间序列数据
 dat1 <- c(10,20,30,40,50,60,70,80,99,89,79,69)
@@ -132,3 +132,119 @@ corr5$acf
 Box.test(z,lag = 6,type = "Box-Pierce")
 #P值为0.116，大于显著性水平0.05，没有充分的理由拒绝原假设，
 #因此，二次查分后的序列是白噪声序列，具有纯随机性和平稳性
+
+
+
+######################时间序列分析第三次上机实验内容################################
+
+
+
+#1.使用arima.sim函数模拟时间序列数据，并作图
+x1 <- arima.sim(n=100,list(ar=c(1,-0.5),order(method = "auto")),sd=1)#模拟xt=xt-1-0.5xt-2+et
+ts.plot(x1)#可以直观判断时间序列平稳
+#2.判断时间序列的平稳性
+
+#3.分别得到3个模型的格林函数的序列（前10项）
+#################AR模型##########
+#xt=xt-1-0.5xt-2+et,AR(2)格林函数
+G <- c()
+ss <- c()
+G[1]=1
+phi=c(1,-0.5)
+p=2
+for (j in 2:11){ 
+  for (k in 1:(j-1)) {
+    if(k<=p) phi[k]=phi[k] else phi[k]=0
+    ss[k] <- phi[k]*G[j-k]
+  }
+  G[j] <- sum(ss)
+}
+G[2:11]#格林函数前10项
+#假设随机干扰序列的均值为0，方差为1
+var1 <- (1-phi[2])/((1+phi[2])*(1-phi[1]-phi[2])*(1+phi[1]-phi[2]))#模型方差
+gamma0=var1
+gamma1=(phi[1]/(1-phi[2]))*gamma0
+gamma <- c()
+gamma[1] <- gamma0
+gamma[2] <- gamma1
+for (i in 3:11) {
+  gamma[i]=phi[1]*gamma[i-1]+phi[2]*gamma[i-2]
+}
+gamma[2:11]#自协方差函数前10项
+rho1 <- gamma[2:11]/gamma0#自相关系数前11项
+#############MA模型#####################
+x2 <- arima.sim(n=1000,list(ma=-2))
+acf(x2)
+#MA(2)模型逆函数
+I <- c()
+tt <- c()
+I[1]=1
+theta=c(4/5,-16/25)
+q=2
+for (j in 2:11){ 
+  for (k in 1:(j-1)) {
+    if(k<=q) theta[k]=theta[k] else theta[k]=0
+    tt[k] <- theta[k]*I[j-k]
+  }
+  I[j] <- sum(tt)
+}
+I
+#假设随机干扰序列的均值为0，方差为1,求自协方差函数（前10项）
+var2 <- 1+theta[1]^2+theta[2]^2#方差
+GAMMA <- c()
+mid <- c()
+for (k in 1:q) {
+  for (i in 1:(q-k)) {
+    mid[i] <- theta[i]*theta[k+i]
+  }
+  GAMMA[k] <- -theta[k]+sum(mid)
+}
+GAMMA[3:10] <- 0
+GAMMA#自协方差函数（前10项）
+rho2 <- GAMMA/var2#自相关系数（前10项）
+#############ARMA(1,1)模型#####################
+rm(list = ls())
+x3 <- arima.sim(n=1000,list(ar=0.5,ma=-0.8))
+acf(x3)
+pacf(x3)
+phi <- 0.5
+theta <- 0.8
+G <- c()
+I <- c()
+G[1]=1
+I[1]=1
+q=1
+p=1
+vv <- c()
+for (j in 2:11) {
+  for (k in 1:(j-1)) {
+    if(k<=p) phi[k]=phi[k] else phi[k]=0
+    if(k<=q) theta[k]=theta[k] else theta[k]=0
+    vv[k] <- phi[k]*G[j-k]
+  }
+  G[j] <- sum(vv)-theta[k]
+}
+G[2:11]#ARMA模型格林函数前10项
+for (j in 2:10000) {
+    for (k in 1:(j-1)) {
+         if(k<=p) phi[k]=phi[k] else phi[k]=0
+         if(k<=q) theta[k]=theta[k] else theta[k]=0
+         vv[k] <- phi[k]*G[j-k]
+       }
+     G[j] <- sum(vv)-theta[k]
+}
+G
+#假设随机干扰序列的均值为0，方差为1
+var3 <- sum(G[1:10000]^2)#ARMA模型方差
+var3
+GAmma <- c()
+Mid <- c()
+for (k in 1:10) {
+  for (i in 1:9990) {
+    Mid[i] <- G[i]*G[i+k]
+  }
+  GAmma[k] <- sum(Mid)
+}
+GAmma#自协方差函数的前10项
+rho3 <- GAmma/var3
+rho3#自相关系数的前10项
