@@ -416,9 +416,293 @@ $\phi_{k k}=\left\{\begin{array}{ll}{\phi_{1},} & {k=1} \\ {0,} & {k \geqslant 2
 AR(2)模型偏自相关系数的计算
 $\phi_{k k}=\left\{\begin{array}{ll}{\frac{\phi_{1}}{1-\phi_{2}},} & {k=1} \\ {\phi_{2},} & {k=2} \\ {0,} & {k \geqslant 3}\end{array}\right.$
 
-## MA模型(Moving Average Model)
-## ARMA模型(Auto Regression Moving Average model)
+## MA模型
+
+### 定义
+
+  具有如下结构的模型称为p 阶移动平均模型，简记为MA(q)
+
+  $$\left\{ \begin{array}{l}
+  {x_t} = \mu  + {\varepsilon _t} - {\theta _1}{\varepsilon _{t - 1}} - {\theta _2}{\varepsilon _{t - 2}} -  \cdots  - {\theta _q}{\varepsilon _{t - q}}\\
+  {\theta _q} \ne 0\\
+  E({\varepsilon _t}) = 0,Var({\varepsilon _t}) = \sigma _\varepsilon ^2,E({\varepsilon _t}{\varepsilon _s}) = 0,s \ne t
+  \end{array} \right.$$
+
+  特别当$\mu  = 0$时，称为中心化MA(q)模型
+
+  引进延迟算子，中心化MA(q)模型又可以简记为
+
+  $${x_t} = \Theta (B){\varepsilon _t}$$
+
+  q阶移动平均系数多项式为
+
+  $$\Theta (B) = 1 - {\theta _1}B - {\theta _2}{B^2} -  \cdots  - {\theta _q}{B^q}$$
+
+### MA模型的统计性质
+
+- 常数均值
+
+  $$\begin{array}{c}
+  E{x_t} = E\mu  + {\varepsilon _t} - {\theta _1}{\varepsilon _{t - 1}} - {\theta _2}{\varepsilon _{t - 2}} -  \cdots  - {\theta _q}{\varepsilon _{t - q}}= \mu 
+  \end{array}$$
+
+- 常数方差
+
+  $$\begin{array}{c}
+  Var({x_t}) = Var(\mu  + {\varepsilon _t} - {\theta _1}{\varepsilon _{t - 1}} - {\theta _2}{\varepsilon _{t - 2}} -  \cdots  - {\theta _q}{\varepsilon _{t - q}})\\
+   = (1 + \theta _1^2 +  \cdots  + \theta _q^2)\sigma _\varepsilon ^2
+  \end{array}$$
+
+- 自协方差函数q阶截尾
+  
+  $${\gamma _k} = \left\{ \begin{array}{l}
+  (1 + \theta _1^2 +  \cdots  + \theta _q^2)\sigma _\varepsilon ^2,{\rm{  }}k = 0\\
+  ( - {\theta _k} + \sum\limits_{i = 1}^{q - k} {{\theta _i}{\theta _{k + i}}} )\sigma _\varepsilon ^2,{\rm{  }}1 \le k \le q\\
+  0,{\rm{                              }} k > q
+\end{array} \right.$$
+  
+- 自相关系数q阶截尾
+
+  $${\rho _k} = \left\{ \begin{array}{l}
+  1,{\rm{                          }}k = 0\\
+  \frac{{ - {\theta _k} + \sum\limits_{i = 1}^{q - k} {{\theta _i}{\theta _{k + i}}} }}{{1 + \theta _1^2 +  \cdots  + \theta _q^2}},{\rm{  }}1 \le k \le q\\
+  0,{\rm{                         }}k > q
+  \end{array} \right.$$
+
+### 常用MA模型的自相关系数
+
+- MA(1)模型
+
+  $${\rho _k} = \left\{ \begin{array}{l}
+  1{\rm{             ,}}k = 0\\
+  \frac{{ - {\theta _1}}}{{1 + \theta _1^2}}{\rm{   }}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\rm{,}}k = 1\\
+  0{\rm{         }}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\rm{ ,}}k \ge 2
+  \end{array} \right.$$
+
+- MA(2)模型
+
+  $${\rho _k} = \left\{ \begin{array}{l}
+  1{\rm{                        ,}}k = 0\\
+  \frac{{ - {\theta _1} + {\theta _1}{\theta _2}}}{{1 + \theta _1^2 + \theta _2^2}}{\rm{       ,}}k = 1\\
+  \frac{{ - {\theta _2}}}{{1 + \theta _1^2 + \theta _2^2}}{\rm{       ,}}k = 2\\
+  0{\rm{                       ,}}k \ge 3
+  \end{array} \right.$$
+
+### MA模型的可逆性
+
+  一个自相关系数未必唯一对应一个平稳时间序列模型，当两个AR或MA模型对应系数分别互为倒数时，他们的自相关系数正好相等。如果自相关系数和模型之间不是一一对应关系，就将导致拟合模型和随机序列之间不会是一一对应关系，这会给我们将来的工作增加麻烦。
+
+  为了保证一个给定的自相关函数能够对应唯一的模型，我们就要给模型增加约束条件。这个约束条件称为模型的可逆性条件。
+
+- 可逆MA模型定义
+
+  若一个MA模型能够表示称为收敛的AR模型形式，那么该MA模型称为可逆MA模型。一个自相关系数列唯一对应一个可逆MA模型。
+
+- MA(q)模型的可逆条件是：
+
+  MA(q)模型的特征根都在单位圆内
+
+  即$\left| {{\lambda _i}} \right| < 1$
+
+  等价条件是移动平滑系数多项式的根都在单位圆外
+
+  即$\left| {\frac{1}{{{\lambda _i}}}} \right| > 1$
+
+  MA(1)可逆条件：$- 1 < {\theta _1} < 1$
+
+  MA(2)可逆条件：$\left| {{\theta _2}} \right| < 1,且{\theta _2} \pm {\theta _{\rm{1}}} < 1$
+
+- 逆函数递推公式
+
+  原理：
+
+  $$\left\{ \begin{array}{l}
+  {x_t} = \Theta (B){\varepsilon _t}\\
+  {\varepsilon _t} = I(B){x_t}
+  \end{array} \right. \Rightarrow \Theta (B)I(B){x_t} = {x_t}$$
+
+  方法：待定系数法
+
+  递推公式：
+
+  $$\left\{ \begin{array}{l}
+  {I_0} = 1\\
+  {I_j} = \sum\limits_{k = 1}^j {{{\theta '}_k}} {I_{j - k}},j = 1,2, \cdots 
+  \end{array} \right.,{\theta '_k} = \left\{ \begin{array}{l}
+  {\theta _k},k \le q\\
+  0,k > q
+  \end{array} \right.$$
+
+### MA模型偏自相关系数拖尾
+
+对于一个可逆MA(q)模型，可以等价写成$AR(\infty )$模型形式$I(B){x_t}{\kern 1pt}  = {\varepsilon _t}$
+
+ 其中$\left\{ \begin{array}{l}{I_0} = 1\\
+{I_j} = \sum\limits_{k = 1}^l {{{\theta '}_k}{I_{j - k}}} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,j \ge 1
+\end{array} \right.$
+
+ AR(p)模型偏自相关系数p阶截尾，所以可逆MA(q)模型偏自相关系数$\infty$阶截尾，即具有偏自相关系数拖尾属性。
+
+  一个可逆MA(q)模型一定对应着一个与它具有相同自相关系数和偏自相关系数的不可逆MA(q)模型，这个不可逆MA(q)模型也同样具有偏自相关系数拖尾特性。
+
+## ARMA模型
+
+### 定义
+
+具有如下结构的模型称为自回归移动平均模型，简记为$ARMA(p,q)$
+
+$$\left\{ \begin{array}{l}
+{x_t} = {\phi _0} + {\phi _1}{x_{t - 1}} +  \cdots  + {\phi _p}{x_{t - p}} + {\varepsilon _t} - {\theta _1}{\varepsilon _{t - 1}} -  \cdots  - {\theta _q}{\varepsilon _{t - q}}\\
+{\phi _p} \ne 0,{\theta _q} \ne 0\\
+E({\varepsilon _t}) = 0,Var({\varepsilon _t}) = \sigma _\varepsilon ^2,E({\varepsilon _t}{\varepsilon _s}) = 0,s \ne t\\
+E({x_s}{\varepsilon _t}) = 0,\forall s < t
+\end{array} \right.$$
+
+特别当${\varphi _0} = 0$v时，称为中心化$ARMA(p,q)$模型
+
+引进延迟算子，中心化$ARMA(p,q)$模型又可以简记为：$\Phi (B){x_t} = \Theta (B){\varepsilon _t}$
+
+p阶自回归系数多项式：$\Phi (B) = 1 - {\varphi _1}B - {\varphi _2}{B^2} -  \cdots  - {\varphi _p}{B^p}$
+
+q阶移动平均系数多项式：$\Theta (B) = 1 - {\theta _1}B - {\theta _2}{B^2} -  \cdots  - {\theta _q}{B^q}$
+
+### 平稳条件与可逆条件
+
+- ARMA(p,q)模型的平稳条件
+
+  P阶自回归系数多项式$\Phi (B) = 0$的根都在单位圆外
+
+  即$ARMA(p,q)$模型的平稳性完全由其自回归部分的平稳性决定
+
+- $ARMA(p,q)$模型的可逆条件
+
+  q阶移动平均系数多项式$\Theta (B) = 0$的根都在单位圆外
+
+  即$ARMA(p,q)$模型的可逆性完全由其移动平滑部分的可逆性决定
+
+### 传递形式与逆转形式
+
+- 传递形式
+
+  $$\begin{array}{c}
+  {x_t} = {\Phi ^{ - 1}}(B)\Theta (B){\varepsilon _t}= \sum\limits_{j = 0}^\infty  {{G_j}{\varepsilon _{t - j}}} 
+  \end{array}$$
+
+  $$\begin{array}{l}
+  \left\{ \begin{array}{l}
+  {G_0} = 1\\
+  {G_k} = \sum\limits_{j = 1}^k {{{\phi '}_j}{G_{k - j}} - {{\theta '}_k}} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} k \ge 1
+  \end{array} \right.\\
+  其中：{{\phi '}_j} = \left\{ \begin{array}{l}
+  {\phi _j}{\rm{   }},{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} 1 \le j \le q\\
+  0{\rm{     ,}}{\kern 1pt} {\kern 1pt} j > q
+  \end{array} \right.
+  \end{array}$$
+
+- 逆转形式
+
+  $$\begin{array}{c}
+  {\varepsilon _t} = {\Theta ^{ - 1}}(B)\Phi (B){x_t}= \sum\limits_{j = 0}^\infty  {{I_j}{x_{t - j}}} 
+  \end{array}$$
+
+  $$\begin{array}{l}
+  \left\{ \begin{array}{l}
+  {I_0} = 1\\
+  {I_k} = \sum\limits_{j = 1}^k {{{\theta '}_j}{I_{k - j}} - {{\phi '}_k}} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} k \ge 1
+  \end{array} \right.\\
+  其中：{{\theta '}_j} = \left\{ \begin{array}{l}
+  {\theta _j}{\rm{   }},{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} 1 \le j \le q\\
+  0{\rm{     ,}}{\kern 1pt} {\kern 1pt} j > q
+  \end{array} \right.
+  \end{array}$$
+
+### ARMA(p,q)模型的统计性质
+
+- 均值
+
+  $$E{x_t} = \frac{{{\varphi _0}}}{{1 - {\varphi _1} -  \cdots  - {\varphi _p}}}$$
+
+- 协方差
+
+  $$\gamma (k) = \sigma _\varepsilon ^2\sum\limits_{i = 0}^\infty  {{G_i}{G_{i + k}}} $$
+
+- 自相关系数
+
+  $$\rho (k) = \frac{{\gamma (k)}}{{\gamma (0)}} = \frac{{\sum\limits_{j = 0}^\infty  {{G_j}{G_{j + k}}} }}{{\sum\limits_{j = 0}^\infty  {G_j^2} }}$$
+
+### $ARMA(p,q)$模型的相关性
+
+- 自相关系数拖尾
+
+- 偏自相关系数拖尾
+
+- 相关性特征
+
+  |   模型    | 自相关系数 | 偏自相关系数 |
+  | :-------: | :--------: | :----------: |
+  |   AR(P)   |    拖尾    |   P阶截尾    |
+  |   MA(q)   |  q阶截尾   |     拖尾     |
+  | ARMA(p,q) |    拖尾    |     拖尾     |
+
 # 平稳序列建模
+
+## 建模步骤
+
+
+
+![](D:/github_repo/time_series/Notes/建模步骤.png)
+
+样本自相关系数
+
+$${\hat \rho _k} = \frac{{\sum\limits_{t = 1}^{n - k} {({x_t} - \bar x)({x_{t + k}} - \bar x)} }}{{\sum\limits_{t = 1}^n {{{({x_t} - \bar x)}^2}} }}$$
+
+样本偏自相关系数
+
+$${\hat \varphi _{kk}} = \frac{{{{\hat D}_k}}}{{\hat D}}$$
+
+## 模型识别
+
+- 基本原则
+
+| ${\rho _k}$ | ${\hat \varphi _{kk}}$ | 选择模型  |
+| :---------: | :--------------------: | :-------: |
+|    拖尾     |        P阶截尾         |   AR(P)   |
+|   q阶截尾   |          拖尾          |   MA(q)   |
+|    拖尾     |          拖尾          | ARMA(p,q) |
+
+- 定阶存在的困难：
+
+由于样本的随机性，样本的相关系数不会呈现出理论截尾的完美情况，本应截尾的${\hat \rho _k}$或${\hat \varphi _{kk}}$仍会呈现出小值振荡的情况。
+
+由于平稳时间序列通常都具有短期相关性，随着延迟阶数$k \to \infty $，${\hat \rho _k}$与${\hat \varphi _{kk}}$都会衰减至零值附近作小值波动。
+
+- 样本相关系数的近似分布
+
+  Barlett
+
+  $${\hat \rho _k}\~N(0,\frac{1}{n}){\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,n \to \infty $$
+
+  Quenouille
+
+  $${\hat \varphi _{kk}}\~N(0,\frac{1}{n}){\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,n \to \infty $$
+
+- 95％的置信区间
+
+  $$\begin{array}{l}
+  \Pr \left( { - \frac{2}{{\sqrt n }} \le {{\hat \rho }_k} \le \frac{2}{{\sqrt n }}} \right) \ge 0.95\\
+  \Pr \left( { - \frac{2}{{\sqrt n }} \le {{\hat \phi }_{kk}} \le \frac{2}{{\sqrt n }}} \right) \ge 0.95
+  \end{array}$$
+
+- 模型定阶的经验方法
+
+  如果样本(偏)自相关系数在最初的d阶明显大于两倍标准差范围，而后几乎95％的自相关系数都落在2倍标准差的范围以内，而且通常由非零自相关系数衰减为小值波动的过程非常突然。这时，通常视为(偏)自相关系数截尾。截尾阶数为d。
+
+## 参数估计
+
+## 模型检验
+
+## 模型优化
+
 # 序列预测
 所谓预测，就是要利用序列已观测到的样本观察值对序列在未来某个时刻的取值进行估计。目前对平稳序列最常用的预测方法是线性最小方差预测。现行是指预测值为观察值序列的线性函数，最小方差是指预测方差达到最小。
 
@@ -525,6 +809,7 @@ forecast(object = ,h=,level=)
 \[{e_{t + p}}(l - p) = {G_0}{\varepsilon _{t + l}} +  \cdots  + {G_{l - p - 1}}{\varepsilon _{t + p + 1}}\]
 预测方差为：
 \[Var[{e_{t + p}}(l - p)] = (G_0^2 +  \cdots  + G_{l - p - 1}^2)\sigma _\varepsilon ^2\]
+
 
 
 
