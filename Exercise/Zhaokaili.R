@@ -18,6 +18,7 @@ auto_acf <- function(ts,k){
   return(auto_acf)
 }
 
+
 #实验一
 dat1 <- read.csv("data/file2.csv", header=T)
 plot(dat1$Year, dat1$index, type='l')
