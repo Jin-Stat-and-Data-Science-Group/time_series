@@ -699,15 +699,13 @@ $${\hat \varphi _{kk}} = \frac{{{{\hat D}_k}}}{{\hat D}}$$
 
 ## 参数估计
 
-###待估参数
+待估参数
 $p + q + 2$个未知参数
 $${\phi _1}, \cdots ,{\phi _p},{\theta _1}, \cdots ,{\theta _q},\mu ,\sigma _\varepsilon ^2$$
 
-###常用估计方法
-
-####矩估计
-#####原理
-- 样本自相关系数估计总体自相关系数
+###矩估计
+1. 原理
+  - 样本自相关系数估计总体自相关系数
 
 $$\left\{ \begin{array}{l}
 {\rho _1}({\phi _1}, \cdots ,{\phi _p},{\theta _1}, \cdots ,{\theta _q}) = {{\hat \rho }_1}\\
@@ -715,19 +713,19 @@ $$\left\{ \begin{array}{l}
 {\rho _{p + q}}({\phi _1}, \cdots ,{\phi _p},{\theta _1}, \cdots ,{\theta _q}) = {{\hat \rho }_{p + q}}
 \end{array} \right.$$
 
-- 样本一阶均值估计总体均值，样本方差估计总体方差
+  - 样本一阶均值估计总体均值，样本方差估计总体方差
 
 $$\hat \mu  = \bar x = \frac{{\sum\limits_{i = 1}^n {{x_i}} }}{n}$$
 $$\hat \sigma _\varepsilon ^2 = \frac{{1 + \hat \varphi _1^2 +  \cdots  + \hat \varphi _p^2}}{{1 + \hat \theta _1^2 +  \cdots  + \hat \theta _q^2}}\hat \sigma _x^2$$
 
-#####例子
-1.求AR(2)模型系数的矩估计
+2. 例子
+- 求AR(2)模型系数的矩估计
 
-- Yule-Walker方程
+Yule-Walker方程
 
 $${x_t} = {\varphi _1}{x_{t - 1}} + {\varphi _2}{x_{t - 2}} + {\varepsilon _t}$$
 
-- 矩估计（Yule-Walker方程的解）
+矩估计（Yule-Walker方程的解）
 
 $$\left\{ \begin{array}{l}
 {\rho _1} = {\varphi _1} + {\varphi _2}{\rho _1}\\
@@ -736,13 +734,13 @@ $$\left\{ \begin{array}{l}
 $${\hat \varphi _1} = \frac{{1 - {{\hat \rho }_2}}}{{1 - \hat \rho _1^2}}{\hat \rho _1}$$
 $${\hat \varphi _2} = \frac{{{{\hat \rho }_2} - \hat \rho _1^2}}{{1 - \hat \rho _1^2}}$$
 
-2.求MA(1)模型系数的矩估计
+- 求MA(1)模型系数的矩估计
 
-- 方程
+方程
 
 $${x_t} = {\varepsilon _t} - {\theta _1}{\varepsilon _{t - 1}}$$
 
-- 矩估计
+矩估计
 
 $$\left\{ \begin{array}{l}
 {\gamma _0} = (1 + \theta _1^2)\sigma _\varepsilon ^2\\
@@ -750,13 +748,13 @@ $$\left\{ \begin{array}{l}
 \end{array} \right. \Rightarrow {\rho _1} = \frac{{{\gamma _1}}}{{{\gamma _0}}} = \frac{{ - {\theta _1}}}{{1 + \theta _1^2}}$$
 $${\hat \theta _1} = \frac{{ - 1 + \sqrt {1 - 4\hat \rho _1^2} }}{{2{{\hat \rho }_1}}}$$
 
-3.求ARMA(1,1)模型系数的矩估计
+- 求ARMA(1,1)模型系数的矩估计
 
-- 方程
+方程
 
 $${x_t} = {\varphi _1}{x_{t - 1}} + {\varepsilon _t} - {\theta _1}{\varepsilon _{t - 1}}$$
 
-- 矩估计
+矩估计
 
 $$\left\{ \begin{array}{l}
 {\gamma _0} = (1 + \theta _1^2)\sigma _\varepsilon ^2\\
@@ -764,7 +762,7 @@ $$\left\{ \begin{array}{l}
 \end{array} \right. \Rightarrow {\rho _1} = \frac{{{\gamma _1}}}{{{\gamma _0}}} = \frac{{ - {\theta _1}}}{{1 + \theta _1^2}}$
 \[{\hat \theta _1} = \frac{{ - 1 + \sqrt {1 - 4\hat \rho _1^2} }}{{2{{\hat \rho }_1}}}$$
 
-#####对矩估计的评价
+3. 对矩估计的评价
 
 - 优点
 
@@ -783,7 +781,7 @@ $$\left\{ \begin{array}{l}
 - 通常矩估计方法被用作极大似然估计和最小二乘估计迭代计算的初始值 
 
 
-####极大似然估计
+###极大似然估计
 
 - 原理
 
@@ -806,8 +804,8 @@ $$L({\hat \beta _1},{\hat \beta _2}, \cdots ,{\hat \beta _k};{x_1},\tilde x) = \
 需要假定总体分布
 
 
-####最小二乘估计
-- 原理
+###最小二乘估计
+1. 原理
 
 使残差平方和达到最小的那组参数值即为最小二乘估计值 
 
@@ -816,7 +814,7 @@ Q(\hat \beta ) = \min Q(\tilde \beta ){\kern 1pt} \\
  = \min {\sum\limits_{t = 1}^n {({x_t} - {\varphi _1}{x_{t - 1}} -  \cdots  - {\varphi _p}{x_{t - p}} - {\theta _1}{\varepsilon _{t - 1}} -  \cdots  - {\theta _q}{\varepsilon _{t - q}})} ^2}
 \end{array}$$
 
-#####条件最小二乘估计
+2. 条件最小二乘估计
 
 **实际中最常用的参数估计方法**
 
@@ -873,11 +871,11 @@ $${H_1}:至少存在某个{\rho _k} \ne 0,\forall m \ge 1k \le m$$
 
 $$LB = n(n + 2)\sum\limits_{k = 1}^m {(\frac{{\hat \rho _k^2}}{{n - k}})} \~{\chi ^2}(m)$$
 
-- 模型的显著性检验
+### 模型的显著性检验
 
 整个模型对信息的提取是否充分
 
-###参数的显著性检验
+### 参数的显著性检验
 
 - 目的
 
@@ -923,7 +921,7 @@ $$AIC = n\ln (\hat \sigma _\varepsilon ^2) + 2(未知参数个数)$$
 
 $$SBC = n\ln (\hat \sigma _\varepsilon ^2) + \ln (n)(未知参数)$$
 
-##序列预测
+#序列预测
 所谓预测，就是要利用序列已观测到的样本观察值对序列在未来某个时刻的取值进行估计。目前对平稳序列最常用的预测方法是线性最小方差预测。现行是指预测值为观察值序列的线性函数，最小方差是指预测方差达到最小。
 
 ## 线性预测函数
@@ -950,7 +948,7 @@ $$\begin{aligned} \operatorname{Var}\left[e_{t}(l)\right]=\sum_{i=0}^{t-1} G_{i}
 
 ## 线性最小方差预测的性质
 1. 条件无偏最小方差估计值
-    1.1 序列值分解：
+- 序列值分解：
 \[\begin{array}{c}
 {x_{t + l}} = \left( {{\varepsilon _{t + l}} + {G_1}{\varepsilon _{t + l - 1}} +  \cdots  + {G_{l - 1}}{\varepsilon _{t + 1}}} \right) + \left( {{G_l}{\varepsilon _t} + {G_{l + 1}}{\varepsilon _{t - 1}} +  \cdots } \right)\\
  = {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {e_t}(l){\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt}  + {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {{\hat x}_t}(l)
@@ -961,8 +959,7 @@ E({x_{t + l}}\left| {{x_t},{x_{t - 1}}, \cdots } \right.) = \hat x(l)\\
 {\kern 1pt} {\kern 1pt} Var({x_{t + l}}\left| {{x_t},{x_{t - 1}}, \cdots } \right.) = Var[{e_t}(l)]
 \end{array}$$
 这说明在预测方差最小原则下得到的估计值$\hat x(l)$是序列值$x_{t+l}$在$x_{t},x_{t-1},...$已知的情况下得到的条件无偏最小方差估计值，且预测方差只与预测步长l有关，而与预测起始点t无关，但预测步长l越大，预测的方差也越大，因而为了保证预测的精度，时间序列数据只适合短期预测。
-    1.2 误差分析
-
+- 误差分析
 估计误差：
 \[{e_t}(l) = {\varepsilon _{t + l}} + {G_1}{\varepsilon _{t + l - 1}} +  \cdots {G_{l - 1}}{\varepsilon _{t + 1}}\]
 期望：
@@ -970,15 +967,15 @@ E({x_{t + l}}\left| {{x_t},{x_{t - 1}}, \cdots } \right.) = \hat x(l)\\
 方差：
 \[Var[{e_t}(l)] = \sum\limits_{i = 0}^{l - 1} {G_i^2 \cdot \sigma _\varepsilon ^2} \]
 2. AR(p)序列预测
-    2.1 预测值
+- 预测值
     \[\hat x(l) = {\varphi _1}{\hat x_t}(l - 1) +  \cdots  + {\varphi _p}{\hat x_t}(l - p)\]
-    2.2 预测方差
+- 预测方差
     \[Var[{e_t}(l)] = (1 + G_1^2 +  \cdots  + G_{l - 1}^2)\sigma _\varepsilon ^2\]
-    2.3 95%置信区间
+- 95%置信区间
     $$\left( {{{\hat x}_t}(l) \mp {z_{1 - \frac{\alpha }{2}}} \cdot {{\left( {1 + G_1^2 +  \cdots  + G_{l - 1}^2} \right)}^{\frac{1}{2}}} \cdot {\sigma _\varepsilon }} \right)$$
-    2.4 R实现
-    
-    下载并调用forecast程序包后，调用该函数完成预测工作，
+- R实现
+
+下载并调用forecast程序包后，调用该函数完成预测工作，
 ```
 install.packages("forecast")
 library(forecast)
@@ -989,36 +986,38 @@ forecast(object = ,h=,level=)
 -level：置信区间的置信水平，默认给出80%和95%
 ```
 3. MA(q)序列预测
-    3.1 预测值
+- 预测值
     \[{\hat x_t}(l) = \left\{ \begin{array}{l}
 \mu  - \sum\limits_{i = l}^q {{\theta _i}{\varepsilon _{t + l - i}}} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,l \le q\\
 \mu {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,l > q
 \end{array} \right.\]
-    3.2 预测方差
+- 预测方差
     \[Var[{e_t}(l)] = \left( \begin{array}{l}
 (1 + \theta _1^2 +  \cdots  + \theta _{l - 1}^2)\sigma _\varepsilon ^2{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,l \le q\\
 (1 + \theta _1^2 +  \cdots  + \theta _q^2)\sigma _\varepsilon ^2{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,l > q
 \end{array} \right.\]
-    3.3 95%置信区间
+- 95%置信区间
     \[\left( {{{\hat x}_t}(l) - {z_{1 - \frac{\alpha }{2}}}\sqrt {{\mathop{\rm Var}\nolimits} \left[ {{e_t}(l)} \right]} ,{{\hat x}_t}(l) + {z_{1 - \frac{\alpha }{2}}}\sqrt {{\mathop{\rm Var}\nolimits} \left[ {{e_t}(l)} \right]} } \right)\]
 4. ARMA(p,q)序列预测
-    4.1 预测值
+- 预测值
     \[{\hat x_t}(k) = \left\{ \begin{array}{l}
 {{\hat x}_t}(k){\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,k \ge 1\\
 {x_{t + k}}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,k \le 0
 \end{array} \right.\]
-    4.2 预测方差
+- 预测方差
     \[Var[{e_t}(l)] = (G_0^1 + G_1^2 +  \cdots  + G_{l - 1}^2)\sigma _\varepsilon ^2\]
-    4.3 95%置信区间
+- 95%置信区间
     \[\left( {{{\hat x}_t}(l) - {z_{1 - \frac{\alpha }{2}}}\sqrt {{\mathop{\rm Var}\nolimits} \left[ {{e_t}(l)} \right]} ,{{\hat x}_t}(l) + {z_{1 - \frac{\alpha }{2}}}\sqrt {{\mathop{\rm Var}\nolimits} \left[ {{e_t}(l)} \right]} } \right)\]
 
 ## 修正预测
 1. 定义
 
 所谓的修正预测就是研究如何利用新的信息去获得精度更高的预测值 
+
 2. 方法
-    2.1 在新的信息量比较大时——把新信息加入到旧的信息中，重新拟合模型
-    2.2 在新的信息量很小时——不重新拟合模型，只是将新的信息加入以修正预测值，提高预测精度
+
+- 在新的信息量比较大时——把新信息加入到旧的信息中，重新拟合模型
+- 在新的信息量很小时——不重新拟合模型，只是将新的信息加入以修正预测值，提高预测精度
 3. 原理
 
 在旧信息的基础上，${x_{t+l}}$的预测值为
