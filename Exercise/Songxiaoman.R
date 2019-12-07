@@ -320,3 +320,86 @@ AR.PACF <- function(k){
 for (i in 1:5) AR.PACF(i) #AR(5)的PACF
 ARMAacf(ar=phi, lag.max = 5, pacf = T) #检验
 
+#################第五次上机实验##################
+rm(list=ls())
+setwd("F:/github_repo/time_series/习题数据、案例数据、R代码")
+#运用附录1.9的数据
+
+#1、拟合模型ma（1），arma（1,1）
+library(xlsx)
+dat<- read.xlsx('案例数据/附录1.9.xlsx',1)
+overshort <- ts(dat$overshort)
+plot(overshort)#时序图显示为平稳序列
+##白噪声检验
+for (i in 1:2)  print(Box.test(overshort,type = 'Lj',lag = 6*i))
+### 拒绝原假设，为非白噪声序列
+acf(overshort)
+### 延迟1阶的自相关系数在2倍标准差之外，其他阶数均在2倍标准差内，具有短期相关性，1阶截尾
+pacf(overshort)
+### 偏相关系数轨迹呈正弦波动，具有拖尾特征
+### 综上初步确定拟合模型为MA(1)模型
+## ma(1)参数估计
+overshort.fit1 <- arima(overshort,order=c(0,0,1),method = "CSS-ML")
+overshort.fit1 
+coef(overshort.fit1)
+### ma(1)为：xt=-4.7945338 +et-0.8476717et-1
+## ma(1)拟合模型残差检验
+for (i in 1:2)  print(Box.test(overshort.fit1$residuals,type = 'Lj',lag = 6*i))
+### 不能拒绝原假设残差模型可视为白噪声序列，说明ma(1)显著有效
+## 参数显著性检验
+t1.ma1=-0.8477/0.1206
+t1.ma1
+pt(t1.ma1,df=55,lower.tail = T)
+t1.machang=-4.7945/ 1.0252
+t1.machang
+pt(t1.machang,df=55,lower.tail = T)
+### 检验结果显示，系数均显著非零
+## 拟合arma(1,1)
+overshort.fit2 <- arima(overshort,order=c(1,0,1),include.mean = F,method = "CSS-ML")
+overshort.fit2
+### arma(1,1)为：xt=-0.0742xt-1+et-0.6169et-1
+## arma(1,1)拟合模型残差检验
+for (i in 1:2)  print(Box.test(overshort.fit2$residuals,type = 'Lj',lag = 6*i))
+### 不能拒绝原假设残差模型可视为白噪声序列，说明arma(1,1)显著有效
+## 参数显著性检验
+t2.ar1=-0.0742/ 0.1805 
+t2.ar1
+pt(t2.ar1,df=55,lower.tail = T)
+t2.ma1=-0.6169/0.1291 
+t2.ma1
+pt(t2.ma1,df=55,lower.tail = T)
+### 检验结果显示，ar1系数不显著，ma1系数显著系数均显著非零
+
+#2、根据公式计算两个模型的AIC和BIC，据此判断最优模型
+##ma(1)
+AIC1 <- -2*overshort.fit1$loglik+2*3
+BIC1 <- -2*overshort.fit1$loglik+log(57)*3
+##arma(1,1)
+AIC2 <- -2*overshort.fit2$loglik+2*3
+BIC2 <- -2*overshort.fit2$loglik+log(57)*3
+AIC1-AIC2
+BIC1-BIC2
+### MA(1)模型的AIC和BIC均比ARMA(1,1)的要小，因此选择MA(1)
+
+#3、计算arma（1,1）的预测值，并计算58,59,60期的预测方差
+##arma（1,1）的预测值
+et <- resid(overshort.fit2)
+overshort.58hat=-0.0742*overshort[57]-0.6169*e[57]
+overshort.59hat=-0.0742*overshort.58hat
+overshort.60hat=-0.0742*overshort.59hat
+predict(overshort.fit2, n.ahead = 3) #检验
+##58,59,60期的预测方差
+G0=1
+G1=-0.0742*G0-0.6169
+G2=-0.0742*G1
+G=vector()
+G[1:3]=c(G0,G1,G2)
+var.overshort.58hat=(G0^2)*overshort.fit2$sigma2
+var.overshort.59hat=sum(G[1:2]^2)*overshort.fit2$sigma2
+var.overshort.60hat=sum(G[1:3]^2)*overshort.fit2$sigma2
+##检验
+green <- ARMAtoMA(ar=-0.0742,ma=-0.6169,lag.max=10)
+v <- vector()
+v[1] <- overshort.fit2$sigma2
+v[2] <- (1+green[1]^2)*overshort.fit2$sigma2
+v[3] <- (1+green[1]^2+green[2]^2)*overshort.fit2$sigma2
