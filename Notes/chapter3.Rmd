@@ -644,6 +644,7 @@ q阶移动平均系数多项式：$\Theta (B) = 1 - {\theta _1}B - {\theta _2}{B
   |   MA(q)   |  q阶截尾   |     拖尾     |
   | ARMA(p,q) |    拖尾    |     拖尾     |
 
+
 # 平稳序列建模
 
 ## 建模步骤
@@ -664,7 +665,7 @@ $${\hat \varphi _{kk}} = \frac{{{{\hat D}_k}}}{{\hat D}}$$
 
 - 基本原则
 
-| ${\rho _k}$ | ${\hat \varphi _{kk}}$ | 选择模型  |
+| ${\hat\rho _k}$ | ${\hat \varphi _{kk}}$ | 选择模型  |
 | :---------: | :--------------------: | :-------: |
 |    拖尾     |        P阶截尾         |   AR(P)   |
 |   q阶截尾   |          拖尾          |   MA(q)   |
@@ -696,6 +697,17 @@ $${\hat \varphi _{kk}} = \frac{{{{\hat D}_k}}}{{\hat D}}$$
 - 模型定阶的经验方法
 
   如果样本(偏)自相关系数在最初的d阶明显大于两倍标准差范围，而后几乎95％的自相关系数都落在2倍标准差的范围以内，而且通常由非零自相关系数衰减为小值波动的过程非常突然。这时，通常视为(偏)自相关系数截尾。截尾阶数为d。
+  
+- R函数定阶
+
+下载zoo和forecast包，运用auto.arima函数，该函数基于信息量最小原则自动识别模型阶数，并给出模型的参数估计值。
+```
+auto.arima(x,max.p=5,max.q=,ic=)
+-x:定阶序列名
+-max.p:自相关系数最高阶数，默认值为5
+-max.q:移动平均系数最高阶数，默认值为5
+-ic:指定信息量准则"aicc"、"aic"、"bic"，默认AIC准则
+```  
 
 ## 参数估计
 
@@ -703,7 +715,7 @@ $${\hat \varphi _{kk}} = \frac{{{{\hat D}_k}}}{{\hat D}}$$
 $p + q + 2$个未知参数
 $${\phi _1}, \cdots ,{\phi _p},{\theta _1}, \cdots ,{\theta _q},\mu ,\sigma _\varepsilon ^2$$
 
-###矩估计
+### 矩估计
 1. 原理
   - 样本自相关系数估计总体自相关系数
 
@@ -843,7 +855,21 @@ $$Q(\tilde \beta ) = \sum\limits_{i = 1}^n {\varepsilon _t^2} {\kern 1pt}  = \su
 
 需要假定总体分布
 
-   
+### 用R进行参数估计
+
+参数估计通过调用arima()函数完成
+```
+arima(x,order=,include.mean=,method=)
+-x:进行模型拟合的序列名
+-order:指定模型阶数.order=c(p,d,q)
+-include.mean:要不要包含常数项
+include.mean=T 需要拟合常数项(默认)
+-method:指定参数估计方法
+method="CSS-ML",默认条件最小二乘与极大似然估计混合方法
+method="ML"，极大似然估计
+method="CSS",条件最小二乘估计
+```
+
 ## 模型检验
 - 目的
 
@@ -872,6 +898,7 @@ $${H_1}:至少存在某个{\rho _k} \ne 0,\forall m \ge 1k \le m$$
 - 检验统计量
 
 $$LB = n(n + 2)\sum\limits_{k = 1}^m {(\frac{{\hat \rho _k^2}}{{n - k}})} \~{\chi ^2}(m)$$
+若拒绝原假设，说明残差序列中还残留相关信息，拟合模型不显著；如果不拒绝原假设，认为拟合模型显著有效。
 
 ### 模型的显著性检验
 
@@ -890,6 +917,23 @@ $${H_0}:{\beta _j} = 0{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt
 - 检验统计量
 
 $$T = \sqrt {n - m} \frac{{{{\hat \beta }_j} - {\beta _j}}}{{\sqrt {{a_{jj}}Q(\tilde \beta )} }}\~t(n - m)$$
+
+拒绝原假设，说明参数显著，否则认为参数不显著，这时，剔除不显著参数所对应的自变量重新拟合模型。
+
+R不提供参数的显著性检验结果，一般默认输出的参数均显著非零。需要自己计算参数的t统计量值和统计量的p值。
+
+- t统计量
+
+\[t = \frac{{{{\hat \phi }_i}}}{\delta }\]
+再调用t分布P值函数pt获得p值
+```
+pt(t,df=,lower.tail=)
+-t:t统计量值
+-df:自由度
+-lower.tail:确定计算概率的方向
+lower.tail=T 对应参数估计值为负时选择T
+lower.tail=F 对应参数估计值为正时选择F
+```
 
 ## 模型优化
 
@@ -913,6 +957,7 @@ $$T = \sqrt {n - m} \frac{{{{\hat \beta }_j} - {\beta _j}}}{{\sqrt {{a_{jj}}Q(\t
 - AIC统计量
 
 $$AIC = n\ln (\hat \sigma _\varepsilon ^2) + 2(未知参数个数)$$
+使AIC函数达到最小的模型为最优模型。
 
 ### SBC准则
 - AIC准则的缺陷
@@ -1030,29 +1075,6 @@ forecast(object = ,h=,level=)
 \[{e_{t + p}}(l - p) = {G_0}{\varepsilon _{t + l}} +  \cdots  + {G_{l - p - 1}}{\varepsilon _{t + p + 1}}\]
 预测方差为：
 \[Var[{e_{t + p}}(l - p)] = (G_0^2 +  \cdots  + G_{l - p - 1}^2)\sigma _\varepsilon ^2\]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
