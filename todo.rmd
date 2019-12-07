@@ -41,3 +41,10 @@ cbind(x,y)
 fit1 <- lm(y~x)
 summary(fit1)
 ```
+
+# 12月7号（第13周）讨论
+完成chapter5
+
+要求：增加一个garch(1,2)数据模拟的作业
+
+
