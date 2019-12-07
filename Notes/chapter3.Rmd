@@ -759,8 +759,10 @@ $${x_t} = {\varphi _1}{x_{t - 1}} + {\varepsilon _t} - {\theta _1}{\varepsilon _
 $$\left\{ \begin{array}{l}
 {\gamma _0} = (1 + \theta _1^2)\sigma _\varepsilon ^2\\
 {\gamma _1} =  - {\theta _1}\sigma _\varepsilon ^2
-\end{array} \right. \Rightarrow {\rho _1} = \frac{{{\gamma _1}}}{{{\gamma _0}}} = \frac{{ - {\theta _1}}}{{1 + \theta _1^2}}$
-\[{\hat \theta _1} = \frac{{ - 1 + \sqrt {1 - 4\hat \rho _1^2} }}{{2{{\hat \rho }_1}}}$$
+\end{array} \right. \Rightarrow {\rho _1} = \frac{{{\gamma _1}}}{{{\gamma _0}}}
+  = \frac{{ - {\theta _1}}}{{1 + \theta _1^2}}$$
+  
+$${\hat \theta _1} = \frac{{ - 1 + \sqrt {1 - 4\hat \rho _1^2} }}{{2{{\hat \rho }_1}}}$$
 
 3. 对矩估计的评价
 
@@ -781,7 +783,7 @@ $$\left\{ \begin{array}{l}
 - 通常矩估计方法被用作极大似然估计和最小二乘估计迭代计算的初始值 
 
 
-###极大似然估计
+### 极大似然估计
 
 - 原理
 
@@ -804,7 +806,7 @@ $$L({\hat \beta _1},{\hat \beta _2}, \cdots ,{\hat \beta _k};{x_1},\tilde x) = \
 需要假定总体分布
 
 
-###最小二乘估计
+### 最小二乘估计
 1. 原理
 
 使残差平方和达到最小的那组参数值即为最小二乘估计值 
@@ -889,7 +891,7 @@ $${H_0}:{\beta _j} = 0{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt
 
 $$T = \sqrt {n - m} \frac{{{{\hat \beta }_j} - {\beta _j}}}{{\sqrt {{a_{jj}}Q(\tilde \beta )} }}\~t(n - m)$$
 
-##模型优化
+## 模型优化
 
 - 问题提出
 
@@ -899,7 +901,7 @@ $$T = \sqrt {n - m} \frac{{{{\hat \beta }_j} - {\beta _j}}}{{\sqrt {{a_{jj}}Q(\t
 
 选择相对最优模型 
 
-###AIC准则
+### AIC准则
 - 最小信息量准则（An Information Criterion） 
 
 - 指导思想
@@ -912,7 +914,7 @@ $$T = \sqrt {n - m} \frac{{{{\hat \beta }_j} - {\beta _j}}}{{\sqrt {{a_{jj}}Q(\t
 
 $$AIC = n\ln (\hat \sigma _\varepsilon ^2) + 2(未知参数个数)$$
 
-###SBC准则
+### SBC准则
 - AIC准则的缺陷
 
 在样本容量趋于无穷大时，由AIC准则选择的模型不收敛于真实模型，它通常比真实模型所含的未知参数个数要多 
@@ -921,7 +923,7 @@ $$AIC = n\ln (\hat \sigma _\varepsilon ^2) + 2(未知参数个数)$$
 
 $$SBC = n\ln (\hat \sigma _\varepsilon ^2) + \ln (n)(未知参数)$$
 
-#序列预测
+# 序列预测
 所谓预测，就是要利用序列已观测到的样本观察值对序列在未来某个时刻的取值进行估计。目前对平稳序列最常用的预测方法是线性最小方差预测。现行是指预测值为观察值序列的线性函数，最小方差是指预测方差达到最小。
 
 ## 线性预测函数
