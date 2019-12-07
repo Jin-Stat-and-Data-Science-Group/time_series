@@ -57,7 +57,7 @@ p阶差分：对P-1阶差分后的序列再进行一次一阶差分
 \[\begin{array}{l}
 {x_{t - 1}} = B{x_t}\\
 {x_{t - 2}} = {B^2}{x_t}\\
-{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt}  \vdots \\
+                                             \vdots \\
 {x_{t - p}} = {B^p}{x_t},\forall p \ge 1
 \end{array}\]
 
@@ -225,7 +225,7 @@ $\left| \phi  \right| < 1$
 * 方程结构
 ${x_t} = {\phi _1}{x_{t - 1}} + {\phi _2}{x_{t - 2}} + {\varepsilon _t}$
 * 特征根
-${\lambda _1} = \frac{{{\phi _1} + \sqrt {\phi _1^2 + 4{\phi _2}} }}{2}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\lambda _2} = \frac{{{\phi _1} - \sqrt {\phi _1^2 + 4{\phi _2}} }}{2}$
+${\lambda _1} = \frac{{{\phi _1} + \sqrt {\phi _1^2 + 4{\phi _2}} }}{2}                                                                        {\lambda _2} = \frac{{{\phi _1} - \sqrt {\phi _1^2 + 4{\phi _2}} }}{2}$
 * 平稳域
 
 $\begin{array}{l}
@@ -241,7 +241,7 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 如果AR(p)模型满足平稳性条件，则有
 \[E{x_t} = E({\varphi _0} + {\varphi _1}{x_{t - 1}} +  \cdots  + {\varphi _p}{x_{t - p}} + {\varepsilon _t})\]
 根据平稳序列均值为常数，且$\{ \varepsilon _t\}$为白噪声序列，有
-\[E{x_t} = \mu ,E({\varepsilon _t}) = 0{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,\forall t \in T\]
+\[E{x_t} = \mu ,E({\varepsilon _t}) = 0                      ,\forall t \in T\]
 推导出
 \[\mu  = \frac{{{\varphi _0}}}{{1 - {\varphi _1} -  \cdots  - {\varphi _p}}}\]
 特别地，对于中心化AR(p)模型，有$E{x_t} =0$
@@ -282,7 +282,7 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 **平稳AR模型的方差**
 
 对平稳AR模型${x_t} = \sum\limits_{j = 0}^\infty  {{G_j}} {\varepsilon _{t - j}}$两边求方差
-\[Var({x_t}) = \sum\limits_{j = 0}^\infty  {G_j^2} \sigma _\varepsilon ^2{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {G_j}为Green函数\]
+\[Var({x_t}) = \sum\limits_{j = 0}^\infty  {G_j^2} \sigma _\varepsilon ^2        ,        {G_j}为Green函数\]
 
 因为$G_j$呈指数下降，所以$\sum\limits_{j = 0}^\infty  {G_j^2}<\infty$,这说明平稳序列${x_t}$方差有界，等于常数$\sum\limits_{j = 0}^\infty  {G_j^2} \sigma _\varepsilon ^2$
 
@@ -299,7 +299,7 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 \[{\gamma _k} = {\varphi _1}{\gamma _{k - 1}} + {\varphi _2}{\gamma _{k - 2}} +  \cdots  + {\varphi _p}{\gamma _{k - p}},\forall k \ge 1\]
 
 平稳AR(1)模型的协方差
-\[{\gamma _k} = \phi _1^k\frac{{{\kern 1pt} \sigma _\varepsilon ^2}}{{1 - \phi _1^2}}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,\forall k \ge 1\]
+\[{\gamma _k} = \phi _1^k\frac{{  \sigma _\varepsilon ^2}}{{1 - \phi _1^2}}              ,\forall k \ge 1\]
 平稳AR(2)模型的协方差
 \[\left\{ \begin{array}{l}
 {\gamma _0} = \frac{{1 - {\phi _2}}}{{(1 + {\phi _2})(1 - {\phi _1} - {\phi _2})(1 + {\phi _1} - {\phi _2})}}\sigma _\varepsilon ^2\\
@@ -310,7 +310,7 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 #### 自相关系数
 1. 平稳AR模型自相关系数递推公式
 
-自相关系数的定义\[{\rho _k} = \frac{{{\gamma _k}}}{{{\gamma _0}}}{\kern 1pt} {\kern 1pt} \]
+自相关系数的定义\[{\rho _k} = \frac{{{\gamma _k}}}{{{\gamma _0}}}    \]
 
 平稳AR(P)模型的自相关系数递推公式
 \[{\rho _k} = {\phi _1}{\rho _{k - 1}} + {\phi _2}{\rho _{k - 2}} +  \cdots  + {\phi _p}{\rho _{k - p}}\]
@@ -319,9 +319,9 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 \[{\rho _k} = \phi _1^k,k \ge 0\]
 平稳AR(2)模型的自相关系数递推公式
 \[{\rho _k} = \left\{ \begin{array}{l}
-1{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,k = 0\\
-\frac{{{\phi _1}}}{{1 - {\phi _2}}}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,k = 1\\
-{\phi _1}{\rho _{k - 1}} + {\phi _2}{\rho _{k - 2}}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt},k \ge 2
+1            ,k = 0\\
+\frac{{{\phi _1}}}{{1 - {\phi _2}}}            ,k = 1\\
+{\phi _1}{\rho _{k - 1}} + {\phi _2}{\rho _{k - 2}}                   ,k \ge 2
 \end{array} \right.\]
 2. 自相关系数的性质
 
@@ -332,7 +332,7 @@ $${\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda _i^k}，\left| {{\lambda _i}} 
 
 （2） 呈指数衰减
 随着时间的推移，${\rho _k}$会迅速衰减，因为$\left| {{\lambda _i}} \right| < 1$，所以$k \to \infty $时，$\lambda_{i}^{k} \rightarrow 0(i=1,2, \cdots, p)$，继而导致${\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda _i^k}  \to 0$,而这种影响是以指数$\lambda^{k}$的速度在衰减。
-$$\left| {{\lambda _i}} \right| < 1{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt}  \Rightarrow {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda _i^k}  \to 0$$
+$$\left| {{\lambda _i}} \right| < 1                                         \Rightarrow                                         {\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda _i^k}  \to 0$$
 
 自相关系数呈指数衰减表现在自相关图中判断平稳序列的“短期相关性”，这是平稳序列的重要特征。这个特征表明对于平稳序列而言，通常只有近期的序列值对现值影响明显，间隔越远的过去值对现值的影响越小。
 
@@ -343,15 +343,15 @@ $$\left| {{\lambda _i}} \right| < 1{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1p
 
 对于平稳$AR(p)$序列，所谓滞后k偏自相关系数就是指在给定中间k-1个随机变量${x_{t - 1}},{x_{t - 2}}, \cdots ,{x_{t - k + 1}}$的条件下，或者说，在剔除了中间k-1个随机变量的干扰之后，${x_{t - k}}$对$x_t$影响的相关度量。用数学语言描述就是
 \[{\rho _{{x_t},{x_{t - k}}\left| {{x_{t - 1}}, \cdots ,{x_{t - k + 1}}} \right.}} = \frac{{E[({x_t} - \hat E{x_t})({x_{t - k}} - \hat E{x_{t - k}})]}}{{E[{{({x_{t - k}} - \hat E{x_{t - k}})}^2}}}\]
-式中，$\hat E{x_t} = E[{x_t}\left| {{x_{t - 1}}, \cdots ,{x_{t - k + 1}}} \right.]{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} \hat E{x_{t - k}} = E[{x_{t - k}}\left| {{x_{t - 1}}, \cdots ,{x_{t - k + 1}}} \right.]$
+式中，$\hat E{x_t} = E[{x_t}\left| {{x_{t - 1}}, \cdots ,{x_{t - k + 1}}} \right.]        ,        \hat E{x_{t - k}} = E[{x_{t - k}}\left| {{x_{t - 1}}, \cdots ,{x_{t - k + 1}}} \right.]$
 
 2. 偏自相关系数的计算
 
 假定${x_t}$是中心化平稳序列，用过去的k期序列值${{x_{t - 1}}, \cdots ,{x_{t - k}}}$作k阶自回归拟合，即
 \[\begin{array}{l}
-{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {x_t} = {\phi _{k1}}{x_{t - 1}} + {\phi _{k2}}{x_{t - 2}} +  \cdots {\phi _{k(k - 1)}}{x_{t - k + 1}} + {\phi _{kk}}{x_{t - k}}\\
+        {x_t} = {\phi _{k1}}{x_{t - 1}} + {\phi _{k2}}{x_{t - 2}} +  \cdots {\phi _{k(k - 1)}}{x_{t - k + 1}} + {\phi _{kk}}{x_{t - k}}\\
 \hat E{x_t} = {\phi _{k1}}{x_{t - 1}} + {\phi _{k2}}{x_{t - 2}} +  \cdots {\phi _{k(k - 1)}}{x_{t - k + 1}} + {\phi _{kk}}\hat E({x_{t - k}}) + E{\varepsilon _t}\left| {{x_{t - 1}}, \cdots ,{x_{t - k + 1}}} \right.)\\
-{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt}  = {\phi _{k1}}{x_{t - 1}} + {\phi _{k2}}{x_{t - 2}} +  \cdots {\phi _{k(k - 1)}}{x_{t - k + 1}} + {\phi _{kk}}\hat E({x_{t - k}})\\
+                                       = {\phi _{k1}}{x_{t - 1}} + {\phi _{k2}}{x_{t - 2}} +  \cdots {\phi _{k(k - 1)}}{x_{t - k + 1}} + {\phi _{kk}}\hat E({x_{t - k}})\\
 则{x_t}-\hat E{x_t}={\phi _{kk}}({x_{t - k}}-\hat E({x_{t - k}})+\varepsilon _t\\
 两边同时乘以x_{t - k}-\hat E({x_{t - k}}),并求期望：\\
 E[({x_t} - \hat E{x_t})({x_{t - k}} - \hat E{x_{t - k}})] = {\phi _{kk}}E[{({x_{t - k}} - \hat E{x_{t - k}})^2}]\\
@@ -363,7 +363,7 @@ E[({x_t} - \hat E{x_t})({x_{t - k}} - \hat E{x_{t - k}})] = {\phi _{kk}}E[{({x_{
 3. Yule-Walker方程组
 
 在${x_t} = {\phi _{k1}}{x_{t - 1}} + {\phi _{k2}}{x_{t - 2}} +  \cdots {\phi _{k(k - 1)}}{x_{t - k + 1}} + {\phi _{kk}}{x_{t - k}}$方程等号两边同时乘以$x_{t-k}$，并取期望，得
-\[{\rho _l} = {\phi _{k1}}{\rho _{l - 1}} + {\phi _{k2}}{\rho _{l - 2}} +  \cdots  + {\phi _{kk}}{\rho _{l - k}}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,\forall l > 0\]
+\[{\rho _l} = {\phi _{k1}}{\rho _{l - 1}} + {\phi _{k2}}{\rho _{l - 2}} +  \cdots  + {\phi _{kk}}{\rho _{l - k}}            ,\forall l > 0\]
 
 取前k个方程构成的方程组即Yule-Walker方程组
 \[\left\{ {\begin{array}{*{20}{c}}
@@ -393,13 +393,13 @@ E[({x_t} - \hat E{x_t})({x_{t - k}} - \hat E{x_{t - k}})] = {\phi _{kk}}E[{({x_{
  \vdots \\
 {{\rho _k}}
 \end{array}} \right)\]
-根据Cramer法则 $${\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\phi _{kk}} = \frac{{{D_k}}}{D}$$ 
+根据Cramer法则 $$          {\phi _{kk}} = \frac{{{D_k}}}{D}$$ 
 其中$$D = \left| {\begin{array}{*{20}{c}}
 1&{{\rho _1}}& \cdots &{{\rho _{k - 1}}}\\
 {{\rho _1}}&1& \cdots &{{\rho _{k - 2}}}\\
  \vdots & \vdots & \vdots & \vdots \\
 {{\rho _{k - 1}}}&{{\rho _{k - 2}}}& \cdots &1
-\end{array}} \right|{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {D_k} = \left| {\begin{array}{*{20}{c}}
+\end{array}} \right|                            ,                          {D_k} = \left| {\begin{array}{*{20}{c}}
 1&{{\rho _1}}& \cdots &{{\rho _1}}\\
 {{\rho _1}}&1& \cdots &{{\rho _2}}\\
  \vdots & \vdots & \vdots & \vdots \\
@@ -475,8 +475,8 @@ $\phi_{k k}=\left\{\begin{array}{ll}{\frac{\phi_{1}}{1-\phi_{2}},} & {k=1} \\ {\
 
   $${\rho _k} = \left\{ \begin{array}{l}
   1{\rm{             ,}}k = 0\\
-  \frac{{ - {\theta _1}}}{{1 + \theta _1^2}}{\rm{   }}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\rm{,}}k = 1\\
-  0{\rm{         }}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\rm{ ,}}k \ge 2
+  \frac{{ - {\theta _1}}}{{1 + \theta _1^2}}{\rm{   }}        {\rm{,}}k = 1\\
+  0{\rm{         }}            {\rm{ ,}}k \ge 2
   \end{array} \right.$$
 
 - MA(2)模型
@@ -535,10 +535,10 @@ $\phi_{k k}=\left\{\begin{array}{ll}{\frac{\phi_{1}}{1-\phi_{2}},} & {k=1} \\ {\
 
 ### MA模型偏自相关系数拖尾
 
-对于一个可逆MA(q)模型，可以等价写成$AR(\infty )$模型形式$I(B){x_t}{\kern 1pt}  = {\varepsilon _t}$
+对于一个可逆MA(q)模型，可以等价写成$AR(\infty )$模型形式$I(B){x_t}   = {\varepsilon _t}$
 
  其中$\left\{ \begin{array}{l}{I_0} = 1\\
-{I_j} = \sum\limits_{k = 1}^l {{{\theta '}_k}{I_{j - k}}} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,j \ge 1
+{I_j} = \sum\limits_{k = 1}^l {{{\theta '}_k}{I_{j - k}}}                     ,j \ge 1
 \end{array} \right.$
 
  AR(p)模型偏自相关系数p阶截尾，所以可逆MA(q)模型偏自相关系数$\infty$阶截尾，即具有偏自相关系数拖尾属性。
@@ -591,11 +591,11 @@ q阶移动平均系数多项式：$\Theta (B) = 1 - {\theta _1}B - {\theta _2}{B
   $$\begin{array}{l}
   \left\{ \begin{array}{l}
   {G_0} = 1\\
-  {G_k} = \sum\limits_{j = 1}^k {{{\phi '}_j}{G_{k - j}} - {{\theta '}_k}} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} k \ge 1
+  {G_k} = \sum\limits_{j = 1}^k {{{\phi '}_j}{G_{k - j}} - {{\theta '}_k}}                       ,                            k \ge 1
   \end{array} \right.\\
   其中：{{\phi '}_j} = \left\{ \begin{array}{l}
-  {\phi _j}{\rm{   }},{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} 1 \le j \le q\\
-  0{\rm{     ,}}{\kern 1pt} {\kern 1pt} j > q
+  {\phi _j}{\rm{   }},        1 \le j \le q\\
+  0{\rm{     ,}}    j > q
   \end{array} \right.
   \end{array}$$
 
@@ -608,11 +608,11 @@ q阶移动平均系数多项式：$\Theta (B) = 1 - {\theta _1}B - {\theta _2}{B
   $$\begin{array}{l}
   \left\{ \begin{array}{l}
   {I_0} = 1\\
-  {I_k} = \sum\limits_{j = 1}^k {{{\theta '}_j}{I_{k - j}} - {{\phi '}_k}} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} k \ge 1
+  {I_k} = \sum\limits_{j = 1}^k {{{\theta '}_j}{I_{k - j}} - {{\phi '}_k}}                       ,                            k \ge 1
   \end{array} \right.\\
   其中：{{\theta '}_j} = \left\{ \begin{array}{l}
-  {\theta _j}{\rm{   }},{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} 1 \le j \le q\\
-  0{\rm{     ,}}{\kern 1pt} {\kern 1pt} j > q
+  {\theta _j}{\rm{   }},        1 \le j \le q\\
+  0{\rm{     ,}}    j > q
   \end{array} \right.
   \end{array}$$
 
@@ -681,11 +681,11 @@ $${\hat \varphi _{kk}} = \frac{{{{\hat D}_k}}}{{\hat D}}$$
 
   Barlett
 
-  $${\hat \rho _k}\~N(0,\frac{1}{n}){\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,n \to \infty $$
+  $${\hat \rho _k}\~N(0,\frac{1}{n})            ,n \to \infty $$
 
   Quenouille
 
-  $${\hat \varphi _{kk}}\~N(0,\frac{1}{n}){\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,n \to \infty $$
+  $${\hat \varphi _{kk}}\~N(0,\frac{1}{n})            ,n \to \infty $$
 
 - 95％的置信区间
 
@@ -721,7 +721,7 @@ $${\phi _1}, \cdots ,{\phi _p},{\theta _1}, \cdots ,{\theta _q},\mu ,\sigma _\va
 
 $$\left\{ \begin{array}{l}
 {\rho _1}({\phi _1}, \cdots ,{\phi _p},{\theta _1}, \cdots ,{\theta _q}) = {{\hat \rho }_1}\\
-{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt}  \vdots \\
+                                                                                                                     \vdots \\
 {\rho _{p + q}}({\phi _1}, \cdots ,{\phi _p},{\theta _1}, \cdots ,{\theta _q}) = {{\hat \rho }_{p + q}}
 \end{array} \right.$$
 
@@ -824,7 +824,7 @@ $$L({\hat \beta _1},{\hat \beta _2}, \cdots ,{\hat \beta _k};{x_1},\tilde x) = \
 使残差平方和达到最小的那组参数值即为最小二乘估计值 
 
 $$\begin{array}{c}
-Q(\hat \beta ) = \min Q(\tilde \beta ){\kern 1pt} \\
+Q(\hat \beta ) = \min Q(\tilde \beta )  \\
  = \min {\sum\limits_{t = 1}^n {({x_t} - {\varphi _1}{x_{t - 1}} -  \cdots  - {\varphi _p}{x_{t - p}} - {\theta _1}{\varepsilon _{t - 1}} -  \cdots  - {\theta _q}{\varepsilon _{t - q}})} ^2}
 \end{array}$$
 
@@ -834,11 +834,11 @@ Q(\hat \beta ) = \min Q(\tilde \beta ){\kern 1pt} \\
 
 - 假设条件
 
-$${x_t} = 0{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} t \le 0$$
+$${x_t} = 0        ,        t \le 0$$
 
 - 残差平方和方程
 
-$$Q(\tilde \beta ) = \sum\limits_{i = 1}^n {\varepsilon _t^2} {\kern 1pt}  = \sum\limits_{i = 1}^n {{{[{x_t} - \sum\limits_{i = 1}^t {{\pi _i}{x_{t - 1}}} ]}^2}} $$
+$$Q(\tilde \beta ) = \sum\limits_{i = 1}^n {\varepsilon _t^2}    = \sum\limits_{i = 1}^n {{{[{x_t} - \sum\limits_{i = 1}^t {{\pi _i}{x_{t - 1}}} ]}^2}} $$
 
 - 解法
 
@@ -912,7 +912,7 @@ $$LB = n(n + 2)\sum\limits_{k = 1}^m {(\frac{{\hat \rho _k^2}}{{n - k}})} \~{\ch
 
 - 假设条件
 
-$${H_0}:{\beta _j} = 0{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt}  \leftrightarrow {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {H_1}:{\beta _j} \ne 0{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} \forall 1 \le j \le m$$
+$${H_0}:{\beta _j} = 0                                   \leftrightarrow                                   {H_1}:{\beta _j} \ne 0                                                          \forall 1 \le j \le m$$
 
 - 检验统计量
 
@@ -998,12 +998,12 @@ $$\begin{aligned} \operatorname{Var}\left[e_{t}(l)\right]=\sum_{i=0}^{t-1} G_{i}
 - 序列值分解：
 \[\begin{array}{c}
 {x_{t + l}} = \left( {{\varepsilon _{t + l}} + {G_1}{\varepsilon _{t + l - 1}} +  \cdots  + {G_{l - 1}}{\varepsilon _{t + 1}}} \right) + \left( {{G_l}{\varepsilon _t} + {G_{l + 1}}{\varepsilon _{t - 1}} +  \cdots } \right)\\
- = {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {e_t}(l){\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt}  + {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {{\hat x}_t}(l)
+ =                                                                                                             {e_t}(l)                                                                                                                                   +                                                               {{\hat x}_t}(l)
 \end{array}\]
 推导出：
 $$\begin{array}{l}
 E({x_{t + l}}\left| {{x_t},{x_{t - 1}}, \cdots } \right.) = \hat x(l)\\
-{\kern 1pt} {\kern 1pt} Var({x_{t + l}}\left| {{x_t},{x_{t - 1}}, \cdots } \right.) = Var[{e_t}(l)]
+    Var({x_{t + l}}\left| {{x_t},{x_{t - 1}}, \cdots } \right.) = Var[{e_t}(l)]
 \end{array}$$
 这说明在预测方差最小原则下得到的估计值$\hat x(l)$是序列值$x_{t+l}$在$x_{t},x_{t-1},...$已知的情况下得到的条件无偏最小方差估计值，且预测方差只与预测步长l有关，而与预测起始点t无关，但预测步长l越大，预测的方差也越大，因而为了保证预测的精度，时间序列数据只适合短期预测。
 - 误差分析
@@ -1035,21 +1035,21 @@ forecast(object = ,h=,level=)
 3. MA(q)序列预测
 - 预测值
     \[{\hat x_t}(l) = \left\{ \begin{array}{l}
-\mu  - \sum\limits_{i = l}^q {{\theta _i}{\varepsilon _{t + l - i}}} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,l \le q\\
-\mu {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,l > q
+\mu  - \sum\limits_{i = l}^q {{\theta _i}{\varepsilon _{t + l - i}}}                               ,l \le q\\
+\mu                                                                                                                                                   ,l > q
 \end{array} \right.\]
 - 预测方差
     \[Var[{e_t}(l)] = \left( \begin{array}{l}
-(1 + \theta _1^2 +  \cdots  + \theta _{l - 1}^2)\sigma _\varepsilon ^2{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,l \le q\\
-(1 + \theta _1^2 +  \cdots  + \theta _q^2)\sigma _\varepsilon ^2{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,l > q
+(1 + \theta _1^2 +  \cdots  + \theta _{l - 1}^2)\sigma _\varepsilon ^2                        ,l \le q\\
+(1 + \theta _1^2 +  \cdots  + \theta _q^2)\sigma _\varepsilon ^2                                ,l > q
 \end{array} \right.\]
 - 95%置信区间
     \[\left( {{{\hat x}_t}(l) - {z_{1 - \frac{\alpha }{2}}}\sqrt {{\mathop{\rm Var}\nolimits} \left[ {{e_t}(l)} \right]} ,{{\hat x}_t}(l) + {z_{1 - \frac{\alpha }{2}}}\sqrt {{\mathop{\rm Var}\nolimits} \left[ {{e_t}(l)} \right]} } \right)\]
 4. ARMA(p,q)序列预测
 - 预测值
     \[{\hat x_t}(k) = \left\{ \begin{array}{l}
-{{\hat x}_t}(k){\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,k \ge 1\\
-{x_{t + k}}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} ,k \le 0
+{{\hat x}_t}(k)                    ,k \ge 1\\
+{x_{t + k}}                                ,k \le 0
 \end{array} \right.\]
 - 预测方差
     \[Var[{e_t}(l)] = (G_0^1 + G_1^2 +  \cdots  + G_{l - 1}^2)\sigma _\varepsilon ^2\]
