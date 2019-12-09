@@ -1,5 +1,5 @@
 ---
-title: "第五章 非平稳序列的随机分析"
+title: "第五章&ensp;非平稳序列的随机分析"
 author: "Jin's students"
 date: "2019-11-23"
 output:
@@ -32,3 +32,123 @@ bibliography: Bibfile.bib
 csl: ./style/chinese-gb7714-2005-numeric.csl
 link-citations: true
 ---
+```{r setup, echo=F}
+knitr::opts_knit$set(root.dir = 'F:/github_repo/time_series/习题数据、案例数据、R代码/data')
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+```
+# 差分运算
+## 差分运算的实质
+差分方法是一种非常简便、有效的确定性信息提取方法。Cramer分解定理在理论上保证了**适当阶数的差分一定可以充分提取确定性信息**。
+
+差分运算的实质是使用**自回归**的方式提取确定性信息  
+\[{\nabla ^d}{x_t} = {(1 - B)^d}{x_t} = \sum\limits_{i = 0}^d {{{( - 1)}^i}C_d^i{x_{t - i}}} \]
+
+它实质是一个d阶自回归过程
+\[{x_t}{\rm{ = }}\sum\limits_{i = {\rm{1}}}^d {{{( - 1)}^{i{\rm{ + 1}}}}C_d^i{x_{t - i}}} {\rm{ + }}{\nabla ^d}{x_t}\]
+用延迟1到d期的历史数据${\{x_{t-1}}\}、{\{x_{t-2}}\}\cdots {\{x_{t-d}}\}$作为自变量来解释当期序列值${\{x_t}\}$的变动状况，差分序列${\nabla ^d}{x_t}$度量的是${\{x_t}\}$d阶自回归过程中产生的随机误差的大小。
+
+R中差分运算
+```
+diff(x,lag=,differences=)
+-x:变量名
+-lag:差分步长，默认为1
+-differences:差分次数，默认为1
+diff(x,d,k):进行k次d步差分
+```
+常用的差分运算相关命令
+```
+1阶差分:diff(x)
+2阶差分:diif(x,1,2)
+k阶差分:diff(x,1,k)
+d步差分：diff(x,d,1)或diff(x,d)
+一阶差分后再进行d步差分:diff(diff(x),d)
+```
+## 差分方式的选择
+
+1. 序列蕴含着显著的线性趋势(递增或递减)，一阶差分就可以实现趋势平稳
+```{r}
+a<-read.table("file4.csv",sep=",",header = T)
+x<-ts(a$output,start = 1964)
+par(mfrow=c(1,2)) 
+plot(x,main='原时序图')
+x.dif<-diff(x)
+plot(x.dif,main='1阶差分后')
+
+```
+
+ 1阶差分运算成功从原序列中提取出线性趋势，差分后序列呈现出平稳随机波动。
+
+2. 序列蕴含着曲线趋势，通常低阶（二阶或三阶）差分就可以提取出曲线趋势的影响 
+```{r}
+b<-read.table("file15.csv",sep=",",header = T)
+x<-ts(b$vehicle,start = 1950)
+par(mfrow=c(2,2)) 
+plot(x,main='原时序图')
+#1阶差分，并绘制出差分后序列的时序图
+x.dif<-diff(x)
+plot(x.dif,main='1阶差分后')
+#2阶差分，并绘制出差分后序列的时序图
+x.dif2<-diff(x,1,2)
+plot(x.dif2,main='2阶差分后')
+x.dif3<-diff(x,1,3)
+plot(x.dif2,main='3阶差分后')
+```
+
+1阶差分提取了原序列中部分长期趋势，但长期趋势信息提取不充分，仍蕴含长期递增趋势，再做1次差分，2阶差分比较充分的提取了原序列中蕴含的长期趋势，3阶差分基本无提取信息
+
+3. 对于蕴含着固定周期的序列进行步长为周期长度的差分运算，通常可以较好地提取周期信息 
+```{r}
+c<-read.table("file16.csv",sep=",",header = T)
+x<-ts(c$export,start = c(2001,1),frequency = 12)
+par(mfrow=c(2,2)) 
+plot(x,main='原时序图')
+#1阶差分，并绘制出差分后序列的时序图
+x.dif<-diff(x)
+plot(x.dif,main='1阶差分后')
+#1阶差分加12步差分，并绘制出差分后序列的时序图
+x.dif1_12<-diff(diff(x),12)
+plot(x.dif1_12,main='1阶12步差分后')
+```
+
+时序图显示线性递增且周期长度为一年的稳定季节性变动，先做1阶差分提取线性递增趋势。1阶差分后呈现稳定的季节波动和随机波动，再进行12步的周期差分，提取季节波动信息。
+
+## 过差分
+从理论上而言，足够多次的差分运算可以充分地提取原序列中的非平稳确定性信息。但应当注意的是，差分运算的阶数并不是越多越好。因为差分运算是一种对信息的提取、加工过程，每次差分都会有信息的损失。在实际应用中差分运算的阶数得适当，应当避免过度差分的现象 。
+
+假设序列如下
+\[{x_t} = {\beta _0} + {\beta _1}t + {a_t}\]
+\[E({a_t}) = 0,Var({a_t}) = {\sigma ^2},Cov({a_t},{a_{t - i}}) = 0,\forall i \ge 1\]
+考察一阶差分后序列和二阶差分序列的平稳性与方差 
+
+- 一阶差分
+
+$\begin{array}{c}
+\nabla {x_t} = {x_t} - {x_{t - 1}}\\
+ = {\beta _1} + {a_t} - {a_{t - 1}}
+\end{array}$ (平稳)
+
+$\begin{array}{c}
+Var(\nabla {x_t}) = Var({a_t} - {a_{t - 1}})\\
+ = 2{\sigma ^2}
+\end{array}$(方差小)
+
+- 二阶差分（过差分）
+
+$\begin{array}{c}
+{\nabla ^2}{x_t} = \nabla {x_t} - \nabla {x_{t - 1}}\\
+ = {a_t} - 2{a_{t - 1}} + {a_{t - 2}}
+\end{array}$ (平稳)
+
+$\begin{array}{c}
+Var({\nabla ^2}{x_t}) = Var({a_t} - 2{a_{t - 1}} + {a_{t - 2}})\\
+ = 6{\sigma ^2}
+\end{array}$ (方差大)
+
+过差分导致有效信息的无畏浪费而降低了估计的精度。
+
+# ARIMA模型
+# Auto-Regressive模型
+# 异方差的性质
+# 条件异方差模型
+
