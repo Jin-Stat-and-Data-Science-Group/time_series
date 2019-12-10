@@ -350,7 +350,98 @@ seasonal=list(order=c(P,D,Q),period=π)
 $$\begin{array}{l}{\Theta(B)=1-\theta_{1} B-\cdots-\theta_{q} B^{q}} \\ {\Phi(B)=1-\phi_{1} B-\cdots-\phi_{p} B^{p}} \\ {\Theta_{S}(B)=1-\theta_{1} B^{S}-\cdots-\theta_{Q} B^{Q S}} \\ {\Phi_{S}(B)=1-\phi_{1} B^{S}-\cdots-\phi_{P} B^{P S}}\end{array}$$
 该乘积模型简记为ARIMA(p,d,q)x(P,D,Q)s
 
-# Auto-Regressive模型
+# 残差自回归(Auto-Regressive)模型
+## 模型结构
+- 构造思想
+
+首先通过**确定性因素分解方法**提取序列中主要的确定性信息：
+\[{x_t} = {T_t} + {S_t} + {\varepsilon _t}\]
+式中，$T_t$为趋势效应拟合，$S_t$为季节效应拟合
+
+然后对残差序列拟合自回归模型，以便充分提取相关信息 
+\[{\varepsilon _t} = {\phi _1}{\varepsilon _{t - 1}} +  \cdots  + {\phi _p}{\varepsilon _{t - p}} + {a_t}\]
+
+- (残差)自回归模型(auto-regressive model)
+
+\[\left\{ \begin{array}{l}
+  {x_t} = {T_t} + {S_t} + {\varepsilon _t}\\
+{\varepsilon _t} = {\phi _1}{\varepsilon _{t - 1}} +  \cdots  + {\phi _p}{\varepsilon _{t - p}} + {a_t}\\
+E({a_t}) = 0,Var({a_t}) = {\sigma ^2},Cov({a_t},{a_{t - i}}) = 0,\forall i \ge 1
+\end{array} \right.\]
+
+- 对趋势效应的常用拟合方法
+
+（1）自变量为时间t的幂函数
+\[{T_t} = {\beta _0} + {\beta _1} \cdot t +  \cdots  + {\beta _k} \cdot {t^k} + {\varepsilon _t}\]
+
+（2）自变量为历史观察值${x_{t-1},x_{t-2},\cdots,x_{t-k}}$
+  \[{T_t} = {\beta _0} + {\beta _1} \cdot {x_{t - 1}} +  \cdots  + {\beta _k} \cdot {x_{t - k}} + {\varepsilon _t}\]
+
+- 对季节效应的常用拟合方法
+
+（1）给定季节指数
+\[{S_t} = {S'_t}\]
+式中，$S'_t$是某个已知的季节指数
+  
+（2）建立季节自回归模型
+\[{S_t} = {\alpha _0} + {\alpha _1} \cdot {x_{t - m}} +  \cdots  + {\alpha _l} \cdot {x_{t - lm}}\]
+式中，假定固定周期为m
+  
+## 残差自相关检验
+### 检验原理
+回归模型拟合充分，残差的性质
+\[E({\varepsilon _t},{\varepsilon _{t - j}}) = 0， \forall j \ge 1\]
+  
+回归模型拟合得不充分，残差的性质
+\[E({\varepsilon _t},{\varepsilon _{t - j}}) \ne ，j \ge 1\]
+  
+### Durbin-Waston检验（DW检验） 
+- 假设条件
+  
+原假设：残差序列不存在一阶自相关性 
+\[{H_0}:E({\varepsilon _t},{\varepsilon _{t - 1}}) = 0 \Leftrightarrow {H_0}:\rho  = 0\]
+  
+备择假设：残差序列存在一阶自相关性 
+  \[{H_0}:E({\varepsilon _t},{\varepsilon _{t - 1}}) \ne 0 \Leftrightarrow {H_0}:\rho  \ne 0\]
+  
+- 检验统计量 （自变量独立）
+  
+\[DW = \frac{{\sum\limits_{t = 2}^n {{{({\varepsilon _t} - {\varepsilon _{t - 1}})}^2}} }}{{\sum\limits_{t = 1}^n {\varepsilon _t^2} }}\]
+  
+DW统计量和自相关系数的关系
+\[DW \cong 2\left( {1 - \rho } \right)\]
+  
+- DW统计量的判定结果
+  
+```{r fig2,eval=T, echo=F,fig.cap="DW统计量的判定",dev="png",results='markup', cache=F}
+knitr::include_graphics("./DW判定.png")
+```
+  
+- R函数
+  
+```
+library(lmtest)
+dwtest(x.fit)
+```
+### Durbin h检验 
+- DW统计量的缺陷
+  
+当回归因子包含延迟因变量时(内生变量)，残差序列的DW统计量是一个有偏统计量。在这种场合下使用DW统计量容易产生残差序列正自相关性不显著的误判。基于这个原因，在ARIMA模型中，我们使用Durbin h检验
+  
+- Durbin h检验(自变量与因变量具有相关关系时)
+  
+\[Dh = DW\frac{n}{{1 - n\sigma _\beta ^2}}\]
+  
+- R函数
+  
+```
+dwtest(x.fit,order.by=xlag)
+order.by:指定延迟因变量
+```
+  
+## 残差自相关模型拟合
+当残差自相关检验显示残差序列高度自相关时，我们需要对残差序列进行二次拟合，对第一次确定性拟合模型的残差序列拟合自相关模型，进一步提取残差序列中的信息。拟合残差自相关模型步骤与命令和构建ARIMA模型的步骤和命令一样。
+
 # 异方差的性质
 # 条件异方差模型
 
