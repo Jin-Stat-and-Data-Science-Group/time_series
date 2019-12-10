@@ -100,7 +100,7 @@ for(i in 1:2)print(Box.test(yrob,lag=6*i))
 #################第三次上机实验##################
 rm(list = ls())
 #使用airma.sim函数模拟时间序列数据，并作图,格林函数的序列（前10项）,方差,自协方差函数（前10项）,自相关系数（前10项）
-##AR(1):xt=0.8xt-1
+##AR(1):xt=0.8xt-1+et
 set.seed(111)
 n=100
 sigma=1
@@ -248,7 +248,29 @@ rho=gamma/gamma0
 rho  #近似相关系数
 ARMAacf(ar=c(0.3,0.18,-0.04), lag.max = 10) #检验
 
+# MA(2)的数据模拟
+#xt=et-0.3et-1-0.5et-2
+set.seed(123)
+n=100
+sigma=1
+et <- rnorm(n, 0, sigma)
+et
+xt <- vector()
+et0=0
+etfu1=0
+xt[1]=et[1]-0.3*et0-0.5*etfu1
+xt[2]=et[2]-0.3*et[1]-0.5*et0
+xt[3]=et[3]-0.3*et[2]-0.5*et[1]
+for (i in 3:100) {
+  xt[i]=et[i]-0.3*et[i-1]-0.5*et[i-2]
+}
+xt
+plot(xt,type = "l")
+arima(xt,order=c(0,0,2),include.mean = F)
+
+
 #################第四次上机实验##################
+library(Ryacas) 
 #1.ARMA(4，3)
 #AR的根为0.1,0.2,-0.3,0.4
 #MA的根为0.6,0.7,0.8
@@ -302,6 +324,7 @@ expr2 #求AR(5)的表达式
 phi <- c(2.9,-3.2675,1.77625,-0.46125,0.045)#AR(5)的系数
 rho <- ARMAacf(ar=phi,lag.max = 6) #AR(5)的6个自相关系数
 rho
+##pcaf函数
 shift <- function(v,k){
   if (k==0) v else c(tail(v,k),head(v,-k))
 } #矩阵转换
@@ -319,6 +342,21 @@ AR.PACF <- function(k){
 }
 for (i in 1:5) AR.PACF(i) #AR(5)的PACF
 ARMAacf(ar=phi, lag.max = 5, pacf = T) #检验
+##另一种方法
+ar.pacf <- function(k){
+  D = matrix(rep(0,k^2),k,k)
+  for (i in 1:k) {
+    D[i,(i:k)]=rho[1:(k-i+1)] #上三角
+    }
+  D=t(D)+D #对称阵
+  diag(D)=1  #对角线=1
+  Dk=D
+  Dk[,k]=rho[2:(k+1)]
+  phikk=det(Dk)/det(D)
+  ar.pacf=phikk
+  print(ar.pacf)
+}
+for (i in 1:5) ar.pacf(i)
 
 #################第五次上机实验##################
 rm(list=ls())
@@ -397,9 +435,4 @@ G[1:3]=c(G0,G1,G2)
 var.overshort.58hat=(G0^2)*overshort.fit2$sigma2
 var.overshort.59hat=sum(G[1:2]^2)*overshort.fit2$sigma2
 var.overshort.60hat=sum(G[1:3]^2)*overshort.fit2$sigma2
-##检验
-green <- ARMAtoMA(ar=-0.0742,ma=-0.6169,lag.max=10)
-v <- vector()
-v[1] <- overshort.fit2$sigma2
-v[2] <- (1+green[1]^2)*overshort.fit2$sigma2
-v[3] <- (1+green[1]^2+green[2]^2)*overshort.fit2$sigma2
+

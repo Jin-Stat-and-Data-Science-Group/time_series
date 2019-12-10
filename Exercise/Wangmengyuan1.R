@@ -235,11 +235,11 @@ vv <- c()
 for (j in 2:11) {
   for (k in 1:(j-1)) {
     if(k<=p) phi[k]=phi[k] else phi[k]=0
-    if(k<=q) theta[k]=theta[k] else theta[k]=0
     vv[k] <- phi[k]*G[j-k]
   }
-  G[j] <- sum(vv)-theta[k]
+  G[j] <- sum(vv)
 }
+G[2] <- G[2]-theta
 G[2:11]#ARMA模型格林函数前10项
 for (j in 2:10000) {
     for (k in 1:(j-1)) {
@@ -264,3 +264,60 @@ for (k in 1:10) {
 GAmma#自协方差函数的前10项
 rho3 <- GAmma/var3
 rho3#自相关系数的前10项
+
+######################时间序列分析第四次上机实验内容###########################
+#1.ARMA(4，3)
+#AR的根为0.1,0.2,-0.3,0.4
+#MA的根为0.6,0.7,0.8
+#把序列转化为AR(∞) 求前100项
+#把序列转化为MA(∞) 求前100项
+rm(list = ls())
+Phi <- c(0.1,0.2,-0.3,0.4)
+Theta <- c(0.6,0.7,0.8)
+#传递形式
+Green <- c()
+Green[1]=1
+p=4
+VV <- c()
+for (j in 2:100) {
+  for (k in 1:(j-1)) {
+    if(k<=p) Phi[k]=Phi[k] else Phi[k]=0
+    VV[k] <- Phi[k]*Green[j-k]
+  }
+  Green[j] <- sum(VV)
+}
+Green[2:4] <- Green[2:4]-Theta[1:3]
+Green
+#逆转形式
+q=3
+I <- c()
+I[1]=1
+TT <- c()
+for (j in 2:100){ 
+  for (k in 1:(j-1)) {
+    if(k<=q) Theta[k]=Theta[k] else Theta[k]=0
+    TT[k] <- Theta[k]*I[j-k]
+  }
+  I[j] <- sum(TT)
+}
+I[2:5] <- I[2:5]-Phi[1:4]
+I
+#2.写出MA(4)的ACF
+#根为0.2，0.3,0.6，0.9
+rm(list = ls())
+library(Ryacas)
+yacas("Expand((x-0.2)*(x-0.3)*(x-0.6)*(x-0.9))")
+theta <- c(-2,1.35,-0.36,0.0324)
+ma_rho <- c()
+ma_rho[1] <- 1
+ma_rho[5] <- -theta[4]/(1+sum(theta^2))
+for (k in 2:4) {
+  ma_rho[k] <- (-theta[k]+sum(theta[1:(5-k)]*theta[k:4]))/(1+sum(theta^2))
+}
+ma_rho[6:10] <- 0
+ma_rho#自协方差函数（前10项）
+ARMAacf(ma=c(-2,1.35,-0.36,0.0324),lag.max = 10)
+
+#3.写出AR(5)的PACF
+#根为0.25，0.5，0.6，0.75，0.8
+

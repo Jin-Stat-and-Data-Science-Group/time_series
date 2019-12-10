@@ -120,3 +120,64 @@ auto_box_test(dsale,lag=10,type='Ljung')
 Box.test(dsale,lag = 10,type = "Ljung")
 #该序列具有相关性
 
+######################时间序列分析第三次上机实验内容################################
+#1.使用arima.sim函数模拟时间序列数据，并作图
+#2.判断时间序列的平稳性
+#3.分别得到3个模型的格林函数的序列（前10项）
+#4.得到3个模型的方差
+#5.计算自协方差函数（前10项）
+#6.计算自相关系数（前10项）
+
+
+################################ 拟合ARMA模型  ##########################
+#xt=xt-0.5*x(t-1)-0.4*x(t-2)+et-0.1*e(t-1)-0.3*e(t-2),AR(2)格林函数
+arma.sim=function(n,model,sd){
+  x=vector(length = n)
+  p=length(model[[1]])
+  q=length(model[[2]])
+  if (abs(model[[1]][2])>1 || sum(model[[1]])>=1 ||((model[[1]][1])-(model[[1]][2]))>=1){
+    return('序列不平稳')
+  }
+  if (abs(model[[2]][2])>1 || sum(model[[2]])>=1 ||((model[[2]][1])-(model[[2]][2]))>=1){
+    return('序列不可逆')
+  }
+  n.start=p+q
+  set.seed(1234)
+  start.innov=rnorm(n.start,mean=0,sd=sd)
+  innov=rnorm(n-2)
+  e=ts(c(start.innov[c(3,4)], innov[1L:(n-2)]))
+  x[1]=start.innov[1];x[2]=start.innov[2]
+  
+  for (i in 3:n){
+    x[i]=sum(c(model[[1]])*c(x[i-1],x[i-2]))-sum(c(model[[2]])*c(e[i-1],e[i-2]))+e[i]
+  }
+  return(ts(x))
+}   
+B=arma.sim(n=1000,model=list(ar=c(-0.5,-0.4),ma=c(0.1,0.3)),sd=1)
+library(forecast)
+plot(B,lty=1,type='l')
+arima(B,include.mean = FALSE,order = c(2,0,2))
+auto.arima(B)
+################################ AR模型格林函数AR(2)(0.7，0.1) ##########################
+phi=c(0.7,0.1);phii=vector();g=vector()
+for(k in 1:100){
+  if(k<=2){
+    phii[k]=phi[k]
+  }
+  if(k>2){
+    phii[k]=0
+  }
+}
+
+g[1]=1
+for(i in 2:10){
+  g[i]=sum(phii[1:(i-1)]*g[c(seq((i-1),1,-1))])
+}
+
+g
+#############################拟合ma模型##################################################
+theta=c(0.4,0.3);x=c()
+e=c(0,0,rnorm(100))
+for(i in 1:100){
+  x[i]=e[i+2]-theta[1]*e[i+1]-theta[2]*e[i]
+}

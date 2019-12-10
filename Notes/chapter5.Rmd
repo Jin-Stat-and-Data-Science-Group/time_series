@@ -1,5 +1,5 @@
 ---
-title: "第五章 非平稳序列的随机分析"
+title: "第五章&ensp;非平稳序列的随机分析"
 author: "Jin's students"
 date: "2019-11-23"
 output:
@@ -32,3 +32,322 @@ bibliography: Bibfile.bib
 csl: ./style/chinese-gb7714-2005-numeric.csl
 link-citations: true
 ---
+```{r setup, echo=F}
+knitr::opts_knit$set(root.dir = 'F:/github_repo/time_series/')
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+```
+# 差分运算
+## 差分运算的实质
+差分方法是一种非常简便、有效的确定性信息提取方法。Cramer分解定理在理论上保证了**适当阶数的差分一定可以充分提取确定性信息**。
+
+差分运算的实质是使用**自回归**的方式提取确定性信息  
+\[{\nabla ^d}{x_t} = {(1 - B)^d}{x_t} = \sum\limits_{i = 0}^d {{{( - 1)}^i}C_d^i{x_{t - i}}} \]
+
+它实质是一个d阶自回归过程
+\[{x_t}{\rm{ = }}\sum\limits_{i = {\rm{1}}}^d {{{( - 1)}^{i{\rm{ + 1}}}}C_d^i{x_{t - i}}} {\rm{ + }}{\nabla ^d}{x_t}\]
+用延迟1到d期的历史数据${\{x_{t-1}}\}、{\{x_{t-2}}\}\cdots {\{x_{t-d}}\}$作为自变量来解释当期序列值${\{x_t}\}$的变动状况，差分序列${\nabla ^d}{x_t}$度量的是${\{x_t}\}$d阶自回归过程中产生的随机误差的大小。
+
+R中差分运算
+```
+diff(x,lag=,differences=)
+-x:变量名
+-lag:差分步长，默认为1
+-differences:差分次数，默认为1
+diff(x,d,k):进行k次d步差分
+```
+常用的差分运算相关命令
+```
+1阶差分:diff(x)
+2阶差分:diif(x,1,2)
+k阶差分:diff(x,1,k)
+d步差分：diff(x,d,1)或diff(x,d)
+一阶差分后再进行d步差分:diff(diff(x),d)
+```
+## 差分方式的选择
+
+1. 序列蕴含着显著的线性趋势，一阶差分就可以实现趋势平稳
+```{r}
+a<-read.table("习题数据、案例数据、R代码/data/file4.csv",sep=",",header = T)
+x<-ts(a$output,start = 1964)
+par(mfrow=c(1,2)) 
+plot(x,main='原时序图')
+x.dif<-diff(x)
+plot(x.dif,main='1阶差分后')
+
+```
+
+ 1阶差分运算成功从原序列中提取出线性趋势，差分后序列呈现出平稳随机波动。
+
+2. 序列蕴含着曲线趋势，通常低阶（二阶或三阶）差分就可以提取出曲线趋势的影响 
+```{r}
+b<-read.table("习题数据、案例数据、R代码/data/file15.csv",sep=",",header = T)
+x<-ts(b$vehicle,start = 1950)
+par(mfrow=c(2,2)) 
+plot(x,main='原时序图')
+#1阶差分，并绘制出差分后序列的时序图
+x.dif<-diff(x)
+plot(x.dif,main='1阶差分后')
+#2阶差分，并绘制出差分后序列的时序图
+x.dif2<-diff(x,1,2)
+plot(x.dif2,main='2阶差分后')
+x.dif3<-diff(x,1,3)
+plot(x.dif2,main='3阶差分后')
+```
+
+1阶差分提取了原序列中部分长期趋势，但长期趋势信息提取不充分，仍蕴含长期递增趋势，再做1次差分，2阶差分比较充分的提取了原序列中蕴含的长期趋势，3阶差分基本无提取信息
+
+3. 对于蕴含着固定周期的序列进行步长为周期长度的差分运算，通常可以较好地提取周期信息 
+```{r}
+c<-read.table("习题数据、案例数据、R代码/data/file16.csv",sep=",",header = T)
+x<-ts(c$export,start = c(2001,1),frequency = 12)
+par(mfrow=c(2,2)) 
+plot(x,main='原时序图')
+#1阶差分，并绘制出差分后序列的时序图
+x.dif<-diff(x)
+plot(x.dif,main='1阶差分后')
+#1阶差分加12步差分，并绘制出差分后序列的时序图
+x.dif1_12<-diff(diff(x),12)
+plot(x.dif1_12,main='1阶12步差分后')
+```
+
+时序图显示线性递增且周期长度为一年的稳定季节性变动，先做1阶差分提取线性递增趋势。1阶差分后呈现稳定的季节波动和随机波动，再进行12步的周期差分，提取季节波动信息。
+
+## 过差分
+从理论上而言，足够多次的差分运算可以充分地提取原序列中的非平稳确定性信息。但应当注意的是，差分运算的阶数并不是越多越好。因为差分运算是一种对信息的提取、加工过程，每次差分都会有信息的损失。在实际应用中差分运算的阶数得适当，应当避免过度差分的现象 。
+
+假设序列如下
+\[{x_t} = {\beta _0} + {\beta _1}t + {a_t}\]
+\[E({a_t}) = 0,Var({a_t}) = {\sigma ^2},Cov({a_t},{a_{t - i}}) = 0,\forall i \ge 1\]
+考察一阶差分后序列和二阶差分序列的平稳性与方差 
+
+- 一阶差分
+
+$\begin{array}{c}
+\nabla {x_t} = {x_t} - {x_{t - 1}}\\
+ = {\beta _1} + {a_t} - {a_{t - 1}}
+\end{array}$ (平稳)
+
+$\begin{array}{c}
+Var(\nabla {x_t}) = Var({a_t} - {a_{t - 1}})\\
+ = 2{\sigma ^2}
+\end{array}$(方差小)
+
+- 二阶差分（过差分）
+
+$\begin{array}{c}
+{\nabla ^2}{x_t} = \nabla {x_t} - \nabla {x_{t - 1}}\\
+ = {a_t} - 2{a_{t - 1}} + {a_{t - 2}}
+\end{array}$ (平稳)
+
+$\begin{array}{c}
+Var({\nabla ^2}{x_t}) = Var({a_t} - 2{a_{t - 1}} + {a_{t - 2}})\\
+ = 6{\sigma ^2}
+\end{array}$ (方差大)
+
+过差分导致有效信息的无畏浪费而降低了估计的精度。
+
+# ARIMA模型
+对差分平稳序列可以使用ARIMA模型进行拟合
+
+## ARIMA模型结构
+具有如下结构的模型称为**求和自回归移动平均模型**，ARIMA(p,d,)
+\[\left\{ \begin{array}{l}
+\Phi (B){\nabla ^d}{x_t} = \Theta (B){\varepsilon _t}\\
+E({\varepsilon _t}) = 0，Var({\varepsilon _t}) = \sigma _\varepsilon ^2,E({\varepsilon _t}{\varepsilon _s}) = 0,s \ne t\\
+E{x_s}{\varepsilon _t} = 0,\forall s < t
+\end{array} \right.\]
+
+- ARIMA 模型族
+
+d=0，ARIMA(p,d,q)=ARMA(p,q)
+
+P=0，ARIMA(P,d,q)=IMA(d,q)
+
+q=0，ARIMA(P,d,q)=ARI(p,d)
+
+d=1,P=q=0，ARIMA(P,d,q)=random walk model(随机游走模型)
+
+**随机游走模型( random walk)**
+
+- 模型结构
+\[\left\{ \begin{array}{l}
+{x_t} = {x_{t - 1}} + {\varepsilon _t}\\
+E({\varepsilon _t}) = 0，Var({\varepsilon _t}) = \sigma _\varepsilon ^2,E({\varepsilon _t}{\varepsilon _s}) = 0,s \ne t\\
+E{x_s}{\varepsilon _t} = 0,\forall s < t
+\end{array} \right.\]
+
+- 模型使用场合
+
+Karl Pearson(1905)在《自然》杂志上提问：假如有个醉汉醉得非常严重，完全丧失方向感，把他放在荒郊野外，一段时间之后再去找他，在什么地方找到他的概率最大呢？这个醉汉的行走轨迹就是一个随机游走模型。
+
+传统的经济学家普遍认为投机价格的走势类似于随机游走模型，随机游走模型也是有效市场理论的核心。
+
+## ARIMA模型性质
+1. 平稳性
+
+ARIMA(p,d,q)模型共有p+d个特征根，其中p个在单位圆内，d个在单位圆上。所以当 $d \ne 0$时，ARIMA(p,d,q)模型非平稳。
+
+例：拟合随机游走序列ARIMA(0,1,0),$x_t=x_{t-1}+{\varepsilon _t},{\varepsilon _t}\sim NID(0,100)$
+```{r}
+x<-arima.sim(n=1000,list(order=c(0,1,0)),sd=10)
+plot(x)
+```
+
+2. 方差齐性
+
+对于ARIMA(p,d,q),当$d \ne 0$,不仅均值非齐性，序列方差也非齐性。
+
+如随机游走模型ARIMA(0,1,0)
+\[\begin{array}{l}
+{x_t} = {x_{t - 1}} + {\varepsilon _t}\\
+{\rm{   }} = {x_{t - 2}} + {\varepsilon _t} + {\varepsilon _{t - 1}}\\
+{\rm{     }} \vdots \\
+{\rm{   }} = {x_0} + {\varepsilon _t} + {\varepsilon _{t - 1}} +  \cdots  + {\varepsilon _1}\\
+Var({x_t}) = Var({x_0} + {\varepsilon _t} + {\varepsilon _{t - 1}} +  \cdots {\varepsilon _1}) = t\sigma _\varepsilon ^2
+\end{array}\]
+随着时间趋向无穷，序列$\{ {x_t}\}$的方差也趋于无穷。
+
+d阶差分后，$\begin{array}{l}
+\nabla {x_t} = {\varepsilon _t}\\
+Var(\nabla {x_t}) = Var({\varepsilon _t}) = \sigma _\varepsilon ^2
+\end{array}$,差分后序列方差齐性
+
+## ARIMA模型建模
+
+```{r fig1,eval=T, echo=F,fig.cap="ARIMA建模步骤",dev="png",results='markup', cache=F}
+knitr::include_graphics("./ARIMA建模.png")
+```
+
+## ARIMA模型预测
+- 模型 
+\[\Phi (B){(1 - B)^d}{x_t} = \Theta (B){\varepsilon _t}\]
+
+- 原则：最小均方误差预测原理 
+
+- Green函数递推公式
+\[{x_t} = \Psi (B){\varepsilon _t}\]
+\[\left\{ \begin{array}{l}
+{\psi _1} = {\varphi _1} - {\theta _1}\\
+{\psi _2} = {\varphi _1}{\psi _1} + {\varphi _2} - {\theta _2}\\
+ \vdots \\
+{\psi _j} = {\varphi _1}{\psi _{j - 1}} +  \cdots  + {\varphi _{p + d}}{\psi _{j - p - d}} - {\theta _j}
+\end{array} \right.\]
+其中令$\Phi (B){(1 - B)^d} = {\rm{1 - }}{\varphi _1}B{\rm{ - }}{\varphi _{\rm{2}}}{B^2} -  \cdots$
+
+$x_{t+l}$真实值：
+
+\[{x_{t + l}} = ({\varepsilon _{t + l}} + {\psi _1}{\varepsilon _{t + l - 1}} +  \cdots  + {\psi _{l - 1}}{\varepsilon _{t + 1}}) + ({\psi _l}{\varepsilon _t} + {\psi _{l + 1}}{\varepsilon _{t - 1}} +  \cdots )\\
+={e_t}(l)+{\hat x_t}(l)\]
+
+
+l期的预测值${\hat x_t}(l)$
+$${\hat x_t}(l)={\psi _l}{\varepsilon _t} + {\psi _{l + 1}}{\varepsilon _{t - 1}} +  \cdots$$
+
+l期的预测误差${e_t}(l)$
+\[\begin{array}{l}
+{e_t}(l) = {\varepsilon _{t + l}} + {\psi _1}{\varepsilon _{t + l - 1}} +  \cdots  + {\psi _{l - 1}}{\varepsilon _{t + 1}}\\
+E[{e_t}(l)] = 0\\
+Var[{e_t}(l)] = (1 + \psi _1^2 +  \cdots  + \psi _{l - 1}^2)\sigma _\varepsilon ^2
+\end{array}\]
+
+## R程序
+```{r echo=TRUE}
+#读入数据，并绘制时序图
+d<-read.table("习题数据、案例数据、R代码/data/file17.csv",sep=",",header = T)
+x<-ts(d$index,start = 1952)
+par(mfrow=c(1,2))
+plot(x,main='时序图')
+#1阶差分，并绘制出差分后序列的时序图
+x.dif<-diff(x)
+plot(x.dif,main='一阶差分序列时序图')
+```
+
+1阶差分后，线性趋势序列变为比较平稳的序列
+```{r echo=TRUE}
+#绘制差分后序列自相关图和偏自相关图
+par(mfrow=c(1,2))
+acf(x.dif)
+pacf(x.dif)
+```
+
+自相关图显示除了延迟一阶的自相关系数显著非零，其他自相关系数均在2倍标准差内，具有很强的短期相关性，可认为1阶差分后平稳,偏相关系数1阶截尾初步确定拟合模型为ARIMA(0,1,1)
+```{r echo=TRUE}
+#拟合ARIMA(0,1,1)模型
+x.fit<-arima(x,order=c(0,1,1))
+x.fit
+#残差白噪声检验
+for(i in 1:2) print(Box.test(x.fit$residual,lag=6*i))
+```
+$$x_t=x_{t-1}+{\varepsilon _t}+0.7355{\varepsilon _{t-1}}, {\varepsilon _t}\sim N(61.59)$$
+残差序列白噪声检验未通过，说明该模型显著成立，ARIMA(0,1,1)模型对该序列拟合成功。
+
+```{r echo=TRUE}
+#预测
+library(zoo)
+library(forecast)
+x<-ts(d$index,start = 1952)
+x.fit<-arima(x,order=c(0,1,1))
+x.fore<-forecast(x.fit,h=10)
+plot(x.fore)
+```
+
+## 疏系数模型
+ARIMA(p,d,q)模型是指d阶差分后自相关最高阶数为p，移动平均最高阶数为q的模型，通常它包含p+q个独立的未知系数：${\phi _1}, \cdots ,{\phi _p},{\theta _1}, \cdots ,{\theta _q}$
+
+如果该模型中有部分自相关系数${\phi _j},1 \le j < p$或部分移动平滑系数     ${\theta _k},1 \le k<q$为零，即原模型中有部分系数省缺了，那么该模型称为疏系数模型。
+
+如果只是自相关部分有省缺系数，那么该疏系数模型可以简记为$ARIMA(({p_1}, \cdots ,{p_m}),d,q)$
+
+- ${p_1}, \cdots ,{p_m}$为非零自相关系数的阶数
+
+如果只是移动平滑部分有省缺系数，那么该疏系数模型可以简记为$ARIMA(p,d,({q_1}, \cdots ,{q_n}))$
+
+- ${q_1}, \cdots ,{q_n}$为非零移动平均系数的阶数
+
+如果自相关和移动平滑部分都有省缺，可以简记为$ARIMA(({p_1}, \cdots ,{p_m}),d,({q_1}, \cdots ,{q_n}))$
+
+arima函数拟合ARIMA疏系数模型
+```
+arima(x,order=c(p,d,q),include.mean=,method=,transform.pars=,fixed=)
+-method:指定参数估计方法
+-transform.pars:指定参数估计方法是否由系统自动完成。
+=T:系统默认设置，根据order选项设置的模型阶数自动完成参数估计
+=F:需要拟合疏系数模型
+-fixed:对疏系数模型指定疏系数的位置
+```
+
+## 季节模型
+### 简单季节模型
+简单季节模型是指序列中的季节效应和其它效应之间是加法关系
+\[{x_t} = {S_t} + {T_t} + {I_t}\]
+
+简单季节模型通过简单的趋势差分、季节差分之后序列即可转化为平稳，它的模型结构通常如下 
+\[{\nabla _D}{\nabla ^d}{x_t} = \frac{{\Theta (B)}}{{\Phi (B)}}{\varepsilon _t}\]
+式中，D为周期步长，d为提取趋势信息所用的差分阶数
+```
+arima(x,order=c(p,d,q),include.mean=,method=,transform.pars=,fixed=,seasonal=)
+-seasonal:指定季节模型的阶数与季节周期
+seasonal=list(order=c(P,D,Q),period=π)
+加法模型：P=0,Q=0
+乘法模型：P,Q不全为零
+```
+### 乘积季节模型 
+- 使用场合
+
+序列的季节效应、长期趋势效应和随机波动之间有着复杂地相互关联性，简单的季节模型不能充分地提取其中的相关关系 
+
+- 构造原理
+
+短期相关性用低阶ARMA(p,q)模型提取，季节相关性用以周期步长S为单位的ARMA(P,Q)模型提取
+
+假设短期相关和季节效应之间具有乘积关系，模型结构如下
+ \[{\nabla ^d}\nabla _S^D{x_t} = \frac{{\Theta (B)}}{{\Phi (B)}}\frac{{{\Theta _S}(B)}}{{{\Phi _S}(B)}}{\varepsilon _t}\]
+式中 
+$$\begin{array}{l}{\Theta(B)=1-\theta_{1} B-\cdots-\theta_{q} B^{q}} \\ {\Phi(B)=1-\phi_{1} B-\cdots-\phi_{p} B^{p}} \\ {\Theta_{S}(B)=1-\theta_{1} B^{S}-\cdots-\theta_{Q} B^{Q S}} \\ {\Phi_{S}(B)=1-\phi_{1} B^{S}-\cdots-\phi_{P} B^{P S}}\end{array}$$
+该乘积模型简记为ARIMA(p,d,q)x(P,D,Q)s
+
+# Auto-Regressive模型
+# 异方差的性质
+# 条件异方差模型
+

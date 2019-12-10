@@ -362,7 +362,7 @@ E[({x_t} - \hat E{x_t})({x_{t - k}} - \hat E{x_{t - k}})] = {\phi _{kk}}E[{({x_{
 
 3. Yule-Walker方程组
 
-在${x_t} = {\phi _{k1}}{x_{t - 1}} + {\phi _{k2}}{x_{t - 2}} +  \cdots {\phi _{k(k - 1)}}{x_{t - k + 1}} + {\phi _{kk}}{x_{t - k}}$方程等号两边同时乘以$x_{t-k}$，并取期望，得
+在${x_t} = {\phi _{k1}}{x_{t - 1}} + {\phi _{k2}}{x_{t - 2}} +  \cdots {\phi _{k(k - 1)}}{x_{t - k + 1}} + {\phi _{kk}}{x_{t - k}}$方程等号两边同时乘以$x_{t-l}$，并取期望，得
 \[{\rho _l} = {\phi _{k1}}{\rho _{l - 1}} + {\phi _{k2}}{\rho _{l - 2}} +  \cdots  + {\phi _{kk}}{\rho _{l - k}}            ,\forall l > 0\]
 
 取前k个方程构成的方程组即Yule-Walker方程组
@@ -420,13 +420,15 @@ $\phi_{k k}=\left\{\begin{array}{ll}{\frac{\phi_{1}}{1-\phi_{2}},} & {k=1} \\ {\
 
 ### 定义
 
-  具有如下结构的模型称为p 阶移动平均模型，简记为MA(q)
+  具有如下结构的模型称为q阶移动平均模型，简记为MA(q)
 
   $$\left\{ \begin{array}{l}
   {x_t} = \mu  + {\varepsilon _t} - {\theta _1}{\varepsilon _{t - 1}} - {\theta _2}{\varepsilon _{t - 2}} -  \cdots  - {\theta _q}{\varepsilon _{t - q}}\\
   {\theta _q} \ne 0\\
   E({\varepsilon _t}) = 0,Var({\varepsilon _t}) = \sigma _\varepsilon ^2,E({\varepsilon _t}{\varepsilon _s}) = 0,s \ne t
   \end{array} \right.$$
+  
+  当前随机冲击${\varepsilon _t}$加上前面q期随机冲击之和
 
 
 ```{r eval=T}
@@ -703,11 +705,11 @@ $${\hat \varphi _{kk}} = \frac{{{{\hat D}_k}}}{{\hat D}}$$
 
   Barlett
 
-  $${\hat \rho _k}\~N(0,\frac{1}{n})            ,n \to \infty $$
+  $${\hat \rho _k}\sim N(0,\frac{1}{n})            ,n \to \infty $$
 
   Quenouille
 
-  $${\hat \varphi _{kk}}\~N(0,\frac{1}{n})            ,n \to \infty $$
+  $${\hat \varphi _{kk}}\sim N(0,\frac{1}{n})            ,n \to \infty $$
 
 - 95％的置信区间
 
@@ -938,7 +940,7 @@ $${H_0}:{\beta _j} = 0                                   \leftrightarrow        
 
 - 检验统计量
 
-$$T = \sqrt {n - m} \frac{{{{\hat \beta }_j} - {\beta _j}}}{{\sqrt {{a_{jj}}Q(\tilde \beta )} }}\~t(n - m)$$
+$$T = \sqrt {n - m} \frac{{{{\hat \beta }_j} - {\beta _j}}}{{\sqrt {{a_{jj}}Q(\tilde \beta )} }}\sim t(n - m)$$
 
 拒绝原假设，说明参数显著，否则认为参数不显著，这时，剔除不显著参数所对应的自变量重新拟合模型。
 
@@ -990,6 +992,8 @@ $$AIC = n\ln (\hat \sigma _\varepsilon ^2) + 2(未知参数个数)$$
 
 $$SBC = n\ln (\hat \sigma _\varepsilon ^2) + \ln (n)(未知参数)$$
 
+实际建模中，arma(p,q)模型阶数不会太高，p,q一般不超过4
+
 # 序列预测
 所谓预测，就是要利用序列已观测到的样本观察值对序列在未来某个时刻的取值进行估计。目前对平稳序列最常用的预测方法是线性最小方差预测。现行是指预测值为观察值序列的线性函数，最小方差是指预测方差达到最小。
 
@@ -1011,7 +1015,7 @@ $$Va{r_{{{\hat x}_{t(l)}}}}\left[ {{e_t}(l)} \right] = \min \left\{ {Var\left[ {
 因为${{\hat x}_{t(l)}}$为$x_t,x_{t-1},...$的线性函数，所以该原则也称为现行预测方差最小原则。
 预测误差为：
 $$\begin{aligned} e_{t}(l) &=\sum_{i=0}^{l-1} G_{i} \varepsilon_{t+l-i} \end{aligned}$$
-由于$\{ {\varepsilon _t}\} $为白噪声序列，所以
+由于$\{{\varepsilon _t}\}$为白噪声序列，所以
 $$\begin{aligned} E\left[e_{t}(l)\right]=0 \end{aligned}$$
 $$\begin{aligned} \operatorname{Var}\left[e_{t}(l)\right]=\sum_{i=0}^{t-1} G_{i}^{2} \sigma_{e}^{2}, \quad \forall l \geqslant 1 \end{aligned}$$
 
