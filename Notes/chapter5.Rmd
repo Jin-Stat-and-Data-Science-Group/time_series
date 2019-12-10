@@ -32,11 +32,14 @@ bibliography: Bibfile.bib
 csl: ./style/chinese-gb7714-2005-numeric.csl
 link-citations: true
 ---
+
+
 ```{r setup, echo=F}
-knitr::opts_knit$set(root.dir = 'F:/github_repo/time_series/')
+knitr::opts_knit$set(root.dir = getwd())
 knitr::opts_chunk$set(echo = FALSE, results = 'hide')
 knitr::opts_chunk$set(warning = FALSE, message=FALSE)
 ```
+
 # 差分运算
 ## 差分运算的实质
 差分方法是一种非常简便、有效的确定性信息提取方法。Cramer分解定理在理论上保证了**适当阶数的差分一定可以充分提取确定性信息**。
@@ -68,7 +71,7 @@ d步差分：diff(x,d,1)或diff(x,d)
 
 1. 序列蕴含着显著的线性趋势，一阶差分就可以实现趋势平稳
 ```{r}
-a<-read.table("习题数据、案例数据、R代码/data/file4.csv",sep=",",header = T)
+a<-read.table("../习题数据、案例数据、R代码/data/file4.csv",sep=",",header = T)
 x<-ts(a$output,start = 1964)
 par(mfrow=c(1,2)) 
 plot(x,main='原时序图')
@@ -81,7 +84,7 @@ plot(x.dif,main='1阶差分后')
 
 2. 序列蕴含着曲线趋势，通常低阶（二阶或三阶）差分就可以提取出曲线趋势的影响 
 ```{r}
-b<-read.table("习题数据、案例数据、R代码/data/file15.csv",sep=",",header = T)
+b<-read.table("../习题数据、案例数据、R代码/data/file15.csv",sep=",",header = T)
 x<-ts(b$vehicle,start = 1950)
 par(mfrow=c(2,2)) 
 plot(x,main='原时序图')
@@ -99,7 +102,7 @@ plot(x.dif2,main='3阶差分后')
 
 3. 对于蕴含着固定周期的序列进行步长为周期长度的差分运算，通常可以较好地提取周期信息 
 ```{r}
-c<-read.table("习题数据、案例数据、R代码/data/file16.csv",sep=",",header = T)
+c<-read.table("../习题数据、案例数据、R代码/data/file16.csv",sep=",",header = T)
 x<-ts(c$export,start = c(2001,1),frequency = 12)
 par(mfrow=c(2,2)) 
 plot(x,main='原时序图')
@@ -254,7 +257,7 @@ Var[{e_t}(l)] = (1 + \psi _1^2 +  \cdots  + \psi _{l - 1}^2)\sigma _\varepsilon 
 ## R程序
 ```{r echo=TRUE}
 #读入数据，并绘制时序图
-d<-read.table("习题数据、案例数据、R代码/data/file17.csv",sep=",",header = T)
+d<-read.table("../习题数据、案例数据、R代码/data/file17.csv",sep=",",header = T)
 x<-ts(d$index,start = 1952)
 par(mfrow=c(1,2))
 plot(x,main='时序图')
