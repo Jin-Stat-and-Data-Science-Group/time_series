@@ -556,61 +556,196 @@ Portmantea Q检验（Mcleod & Li,1983)
 若残差序列方差非齐性，且具有集群效应，那么残差平方序列通常具有自相关性，所以残差非齐性检验可以转化为残差平方序列的自相关性检验。
 
 - 假设条件
-
-${H_0}:残差平方序列非随机(方差齐性)\leftrightarrow {H_1}:残差平方序列自相关(方差非齐性)$
-
-用${{\rho _k}}$表示残差平方序列$\left\{ {\varepsilon _t^2} \right\}$的延迟k阶自相关系数，则等价假设条件为：
-
-${H_0}:{\rho _1} = {\rho _2} =  \cdots  = {\rho _q} = 0 \leftrightarrow {H_1}:{\rho _1},{\rho _2}, \cdots ,{\rho _q}不全为零$
-
-- 检验统计量
-\[Q(q) = n(n + 2)\sum\limits_{i = 1}^q {\frac{{\rho _i^2}}{{n - i}}} \sim {\chi ^2}(q - 1)\]
-
+\[\begin{array}{l}
+{H_0}: 残差平方序列纯随机（方差齐性） \leftrightarrow {H_1}:残差平方序列自相关（方差非齐）\\
+\left\{ {{\rho _k}} \right\}表示残差平方序列\left\{ {\varepsilon _t^2} \right\}的延迟k阶自相关系数，则假设条件可以等价表达为：\\
+{H_0}:{\rho _1} = {\rho _2} =  \cdots  = {\rho _q} = 0 \leftrightarrow {H_1}:{\rho _1},{\rho _2}, \cdots ,{\rho _q}不全为零
+\end{array}\]
+- Portmantea Q检验统计量：
+$$
+Q(q)=n(n+2) \sum_{i=1}^{q} \frac{p_{i}^{2}}{n-i}
+$$
+n为观察值序列长度；$\rho_i$为残差序列延迟i阶自相关系数，有
+$$
+\rho_{i}=\sqrt{\frac{\sum_{t=i+1}^{n}\left(\varepsilon_{t}^{2}-\widehat{\sigma}^{2}\right)\left(\varepsilon_{t-i}^{2}-\widehat{\sigma}^{2}\right)}{\sum_{t=1}^{n}\left(\varepsilon_{t}^{2}-\widehat{\sigma}^{2}\right)^{2}}}, \quad \widehat{\sigma}^{2}=\frac{\sum_{t=1}^{n} \varepsilon_{t}^{2}}{n}
+$$
+原假设成立时，Portmantea Q检验统计量近似服从自由度为q-1的${\chi ^2}$分布
+$$
+Q(q) \dot{\sim} \chi^{2}(q-1)
+$$
 - 检验结果
 
 拒绝原假设:$Q(q)\mathop  \ge \limits^ \cdot  \chi _{1 - \alpha }^2(q - 1)$
 
 接受原假设:$Q(q)\mathop  < \limits^ \cdot  \chi _{1 - \alpha }^2(q - 1)$
 
-- R函数
-
-对残差序列进行平方运算后，调用Box.test函数完成Portmantea Q检验
-```
-for(i in 1:2) print(Box.test(x^2,lag=i))
-```
+或者，当Q(q)检验统计量的P值小于显著性水平$\alpha$时，拒绝原假设，认为该序列方差非齐且具有自相关关系。
 
 
-#### LM检验
-- 构造思想
+#### 拉格朗日乘子检验（LM检验）
+- 构造思想：如果残差序列方差非齐，且具有集群效应，那么残差平方序列通常具有自相关性，那么就可以尝试使用自回归模型（ARCH(q)模型）拟合残差平方序列
+$$
+\varepsilon_{t}^{2}=\omega+\sum_{j=1}^{q} \lambda_{j} \varepsilon_{t-j}^{2}+e_{t}
+$$
+于是方差齐性检验就可以转化为这个方程是否显著成立的检验。
 
-假如残差序列方差非齐，且具有集群效应，那么残差平方序列通常具有自相关性。那么我们就可以尝试使用自回归模型（ARCH(q)模型）拟合残差平方序列，于是方差齐性检验就可以转化为这个方程是否显著成立的检验。
-\[\varepsilon _t^2 = \omega  + \sum\limits_{j = 1}^q {{\lambda _j}\varepsilon _{t - j}^2} \, + {e_t}{\kern 1pt} \]
+如果方程显著成立（至少存在一个参数 非零），那就意味着残差平方序列具有自相关性，可以用该回归方程提取自相关信息。
+反之，如果方差不能显著成立，那就意味着残差平方序列不存在显著的自相关性，不能拒绝方差齐性假定。所以拉格朗日乘子检验实际上就是残差平法序列 自回归的方程显著性检验。
 
-如果方程显著成立（至少存在一个参数非零），那就意味着残差平方序列具有自相关性，可以用该回归方程提取自相关信息。反之，如果方差不能显著成立，那就意味着残差平方序列不存在显著的自相关性，不能拒绝方差齐性假定。所以拉格朗日乘子检验实际上就是残差平法序列自回归的方程显著性检验。
-
-- 假设条件
-
-${H_0}:残差平方序列非随机\leftrightarrow {H_1}:残差平方序列自相关$
-
-${H_0}:{\lambda _1} = {\lambda _2} =  \cdots  = {\lambda _q} = 0 \leftrightarrow {H_1}:{\lambda _1},{\lambda _2}, \cdots {\lambda _q}不全为零$
-
+- 假设条件：
+\[\begin{array}{l}
+{H_0}: 残差平方序列纯随机\leftrightarrow {H_1}:残差平方序列具有自相关性\\
+{H_0}:{\lambda _1} = {\lambda _2} =  \cdots  = {\lambda _q} = 0 \leftrightarrow {H_1}:{\lambda _1},{\lambda _2}, \cdots {\lambda _q}不全为零
+\end{array}\]
 - 检验统计量
-\[LM(q) = \frac{{(SST - SSE)/q}}{{SSE/(t - 2q - 1)}}\]
+$$
+L M(q)=\frac{(S S T-S S E) / q}{S S E /(T-2 q-1)}
+$$
+- 检验结果：
+  拒绝原假设：\[LM(q)\mathop  \ge \limits^ \cdot  \chi _{1 - \alpha }^2(q - 1)\]
+  接受原假设：\[LM(q)\mathop   <   \chi _{1 - \alpha }^2(q - 1)\]
+  
+- R程序实现
+做拉格朗日乘子检验之前，需要先下载FinTS程序包，并用library函数调用该包，其中的ArchTest函数专门作LM检验。Portmanteau Q检验其实就是对残差平方序列进行纯随机检验。所以对残差序列进行平方运算之后，只需要调用Box.test函数就可以完成检验。
 
-- 检验结果
-
-拒绝原假设:$LM(q)\mathop  \ge \limits^ \cdot  \chi _{1 - \alpha }^2(q - 1)$
-
-接受原假设:$LM(q)\mathop  < \limits^ \cdot  \chi _{1 - \alpha }^2(q - 1)$
-
-- R函数
-
+拟合ARCH模型可以调用tseries包中的garch函数
 ```
-install.packages('FinTS')
-library(FinTS)
-ArchTest函数做LM检验
+garch(x,order= )
+式中：
+-x：序列名
+-order：拟合模型阶数
+（1）拟合ARCH(q)模型为order=c(0,q).
+（2）拟合GARCH(p,q)模型为order=c(p,q).
+for(i in 1:2) print(Box.test(et^2,lag=i))#Portmantea Q检验
+
 ```
 ## GARCH模型
+### GARCH 模型产生背景
+Engle(1982)提出ARCH模型之后，在金融界引起强烈反响，以前不具有预报性的大量金融时序可以采用ARCH 模型进行进一步信息提取，创造了实用的波动性分析和预测方法。
+
+ARCH模型的实质是使用误差平方序列的q阶移动平均拟合当期异方差函数值。由于移动平均模型具有自相关系数 阶截尾性，所以ARCH模型实际上只适用于异方差函数短期自相关过程。
+\[ \sigma _t^2 = {\lambda _0} + {\lambda _1}\varepsilon _{t - 1}^2 +  \cdots  + {\lambda _q}\varepsilon _{t - q}^2\]
+但是在实践中，有些残差序列的异方差函数是具有长期自相关性的，这时如果使用ARCH模型拟合异方差函数，将会产生很高的移动平均阶数，这会增加参数估计的难度并最终影响ARCH模型的拟合精度。
+
+### GARCH 模型的定义
+- 广义自回归条件异方差模型：
+\[\left\{ \begin{array}{l}
+{x_t} = f(t,{x_{t - 1}},{x_{t - 2}}, \cdots ) + {\varepsilon _t}\\
+{\varepsilon _t} = \sqrt {{h_t}} {e_t}\\
+{h_t} = \omega  + \sum\limits_{i = 1}^p {{\eta _i}{h_{t - i}}}  + \sum\limits_{j = 1}^q {{\lambda _j}\varepsilon _{t - j}^2} 
+\end{array} \right.\]
+式中，$f(t,{x_{t - 1}},{x_{t - 2}}, \cdots )$为$\left\{ {{x_t}} \right\}$的确定性信息拟合模型；$\epsilon_{t} \stackrel{\mathrm{i.l.d}}{\sim} N\left(0, \sigma^{2}\right)$。这个模型简记为GARCH(p,q).
+- GARCH模型实质
+    1 GARCH 模型实际上就是在ARCH模型的基础上，增加考虑了异方差函数的p阶自相关性。它可以有效地拟合具有长期记忆性的异方差函数
+
+    2 ARCH模型是GARCH 模型的一种特例
+
+    3 ARCH(q)模型实际上就是p=0的GARCH(p,q)模型
+
+### AR-GARCH模型
+对序列$\left\{ {{\varepsilon _t}} \right\}$拟合GARCH模型有一个基本要求： $\left\{ {{\varepsilon _t}} \right\}$ 为零均值，纯随机、异方差序列。有时回归函数$f(t,{x_{t - 1}},{x_{t - 2}}, \cdots )$
+    不能充分提取原序列中的相关信息，     $\left\{ {{\varepsilon _t}} \right\}$可能具有自相关性，而不是纯随机的。这时需要对$\left\{ {{\varepsilon _t}} \right\}$      先拟合自回归模型，再考察自回归残差序列$\left\{ {{\nu_t}} \right\}$的方差齐性，如果$\left\{ {{\nu_t}} \right\}$     异方差，对它拟合GARCH模型。这样构造的模型称为AR-GARCH模型
+
+$AR(m) - GARCH(p,q)$模型结构：
+\[\left\{ \begin{array}{l}
+{x_t} = f(t,{x_{t - 1}},{x_{t - 2}}, \cdots ) + {\varepsilon _t}\\
+{\varepsilon _t} = \sum\limits_{k = 1}^m {{\beta _k}{\varepsilon _{t - k}}}  + {\upsilon _t}\\
+{\upsilon _t} = \sqrt {{h_t}} {e_t}\\
+{h_t} = \omega  + \sum\limits_{i = 1}^p {{\eta _i}{h_{t - i}}}  + \sum\limits_{j = 1}^q {{\lambda _j}\upsilon _{t - j}^2} 
+\end{array} \right.\]
+式中，$f(t,{x_{t - 1}},{x_{t - 2}}, \cdots )$为$\left\{ {{x_t}} \right\}$的确定性信息拟合模型；$\epsilon_{t} \stackrel{\mathrm{i.l.d}}{\sim} N\left(0, \sigma^{2}\right)$
+
+### GARCH模型拟合步骤
+1. 回归拟合
+2. 残差自相关检验
+3. 异方差自相关性检验
+4. ARCH模型定阶
+5. 参数估计
+6. 正态性检验
+
+### GARCH模型的评价
+GARCH模型类似于对条件方差构造ARMA模型，可以用更简洁的模型结构拟合波动率的长期影响
+
+ GARCH 模型的出现，为大量的金融序列提供了有效的分析方法，它是迄今为止最常用、最便捷的异方差序列拟合模型。但大量的使用经验显示，它也存在一些不足
+
+### GARCH模型的不足
+
+1. 它对参数的约束条件非常严格。
+- 无条件方差必须非负的要求，导致了参数非负的约束条件
+\[\omega  > 0,{\eta _i} \ge 0,{\lambda _j} \ge 0\]
+- 有条件方差必须平稳的要求，要求参数有界
+\[\sum\limits_{i = 1}^p {{\eta _i}}  + \sum\limits_{j = 1}^q {{\lambda _j}}  < 1\]
+2. 参数的约束条件一定程度上限制了GARCH模型的适用范围
+3. 它对正负扰动的反应是对称的。
+- 扰动项是真实值与预测值之差。如果扰动项为正，说明真实值比预测值大，对于投资者而言就是获得超预期收益。如果扰动项为负，说明真实值比预测值小，对于投资者而言就是出现了超预期的亏损。
+- 以 模型ARCH（1）为例，$\varepsilon _t^2{\rm{ = }}\phi \varepsilon _{t{\rm{ - }}1}^2$，无论${\varepsilon _{t{\rm{ - }}1}}$是正是负，它对下一期的影响系数都是 $\phi $  。这意味着无论上一期的投资是收益还是亏损，不影响投资人的下一期投资状况，这与实际情况不符。
+- 大量的实践经验显示，投资人在面对收益和亏损时的反应不是对称的。出现收益时，通常反应比较慢；出现亏损时，通常反应比较快。忽视这种信息的不对称性，有时会影响预测的精度。
+
+## GARCH衍生模型
+### EGARCH模型
+1. EGARCH模型结构
+Nelson于1991年提出EGARCH模型，该模型的结构为：
+\[\left\{ \begin{array}{l}
+{x_t} = f(t,{x_{t - 1}},{x_{t - 2}}, \cdots ) + {\varepsilon _t}\\
+{\varepsilon _t} = \sqrt {{h_t}} {e_t}\\
+\ln ({h_t}) = \omega  + \sum\limits_{i = 1}^p {{\eta _i}\ln ({h_{t - i}}} ) + \sum\limits_{j = 1}^q {{\lambda _j}g({e_t})} \\
+g({e_t}) = \theta {e_t} + \gamma [\left| {{e_t}} \right| - E\left| {{e_t}} \right|]
+\end{array} \right.\]
+
+2. EGARCH的改进
+- $\ln ({h_t})$是条件方差的对数，他可以是它可以是正数也可以是负数，所以后面表达式
+\[\omega  + \sum\limits_{i = 1}^p {{\eta _i}\ln ({h_{t - i}}} ) + \sum\limits_{j = 1}^q {{\lambda _j}g({e_t})} \]
+中的参数不需要任何非负假定，所以EGARCH模型的第一个改进是放松了对GARCH模型的参数非负约束。
+- EGARCH模型的第二个改进是引入加权扰动函数$g({e_t})$,通过特殊的函数构造，能对正、负扰动进行非对称处理。
+$$
+\begin{aligned} g\left(e_{t}\right) &=\theta e_{t}+\gamma\left[\left|e_{t}\right|-E\left|e_{t}\right|\right] \\ &=\left\{\begin{array}{ll}{(\theta+\gamma) e_{t}-\gamma E\left|e_{t}\right|,} & {e_{t}>0} \\ {(\theta-\gamma) e_{t}-\gamma E\left|e_{t}\right|,} & {e_{t}<0}\end{array}\right.\\ 
+\text {其中}, E\left[g\left(e_{t}\right)\right]=0 ; e_{t} \sim N(0,1) ; E\left|e_{t}\right| &=\sqrt{2 / \pi} \end{aligned}
+$$
+
+### IGARCH模型
+1. IGARCH模型
+把GARCH(p,q)模型的参数约束条件改写为
+\[\sum\limits_{i = 1}^p {{\eta _i}}  + \sum\limits_{j = 1}^q {{\lambda _j}}  = 1\]
+构成IGARCH模型。对IGARCH模型而言，  的无条件方差无界，所以它的无条件方差无意义。
+
+IGARCH模型适合于描述具有单位根特征（随机游走）的条件异方差。从理论角度认为，IGARCH现象可能会是波动率常有的水平移动所引起的。
+
+2. IGARCH模型的条件异方差性质
+- IGARCH(1，1)模型结构
+\[\begin{array}{l}
+\left\{ \begin{array}{l}
+{\varepsilon _t} = {\sigma _t}{e_t}\\
+\sigma _t^2 = {\alpha _0} + {\beta _1}\sigma _{t - 1}^2 + (1 - {\beta _1})e_{t - 1}^2
+\end{array} \right.\\
+{e_t}\mathop \sim\limits^{{\rm{i}}{\rm{.i}}{\rm{.d}}} N(0,1),{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} 0 < {\alpha _0} < 1,{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\beta _j} \ge 0
+\end{array}\]
+- IGARCH(1,1)模型条件异方差预测值
+\[\begin{array}{l}
+\sigma _t^21 = {\alpha _0} + \sigma _t^2\\
+\sigma _t^22 = {\alpha _0} + \sigma _t^21 = 2{\alpha _0} + \sigma _t^2\\
+ \cdots \\
+\sigma _t^2(h) = {\alpha _0} + \sigma _t^2(h - 1) = \sigma _t^2 + h{\alpha _0}
+\end{array}\]
+
+### GARCH-M模型
+1. GARCH-M模型产生
+-  金融中，风险厌恶型的投资者会要求资产的收益率与它的波动性相匹配。
+
+风险投资期望收益=无风险收益+风险溢价
+    + 无风险收益（risk-free return）：即为资金的时间价值，是投资者从事风险极小投资（诸如国库券，货币市场工具或银行存款）所获得的收益。
+    + 超额收益（excess return）：任何特定时期风险资产同无风险资产收益之差称为超额收益。
+    + 风险溢价（risk premium）：超额收益的期望称为风险溢价。风险溢价指投资者因承担风险而获得的额外报酬。风险越大，风险溢价则越高。
+
+- Engle，Lilien，Robins（1987）将风险溢价思想引入ARCH模型，允许序列的均值依赖于它的波动性，由此提出GARCH-M模型。
+
+2. GARCH-M模型结构
+GARCH-M模型的构造思想是序列均值与条件方差之间具有某种相关关系，这时可以把条件标准差作为附加回归因子建模，模型结构如下:
+\[\left\{ \begin{array}{l}
+{x_t} = f(t,{x_{t - 1}},{x_{t - 2}}, \cdots ) + \delta \sqrt {{h_t}}  + {\varepsilon _t}\\
+{\varepsilon _t} = \sqrt {{h_t}} {e_t}\\
+{h_t} = \omega  + \sum\limits_{i = 1}^p {{\eta _i}{h_{t - i}}}  + \sum\limits_{j = 1}^q {{\lambda _j}\varepsilon _{t - j}^2} 
+\end{array} \right.\]
+
 
 
 
