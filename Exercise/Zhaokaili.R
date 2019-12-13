@@ -91,7 +91,7 @@ z.dif<-diff(diff(z),12) #作1阶12步差分
 plot(z.dif) 
 acf(z.dif)#拖尾
 pacf(z.dif) #2阶截尾，拟合ARIMA(0,1,2)模型
-for(i in 1:2) print(Box.test(x.dif1,lag=i*6)) #差分序列是白噪声
+for(i in 1:2) print(Box.test(z.dif,lag=i*6)) #差分序列是白噪声
 # 模型拟合，考虑加入季节因素
 z.fit <- arima(z,order=c(0,1,2),seasonal=list(order=c(1,1,1 ),period=12))
 z.fit
