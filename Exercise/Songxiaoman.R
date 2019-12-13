@@ -436,6 +436,57 @@ var.overshort.58hat=(G0^2)*overshort.fit2$sigma2
 var.overshort.59hat=sum(G[1:2]^2)*overshort.fit2$sigma2
 var.overshort.60hat=sum(G[1:3]^2)*overshort.fit2$sigma2
 
+#################第六次上机实验##################
+rm(list=ls())
+#1.使用lh数据
+#1)	n=5，进行前置移动平均（使用前先下载TTR程序包）
+lh
+plot.ts(lh)
+library(TTR)
+##SMA()函数:计算过去n个观测值的算术平均值。
+lh.SMA5 <- vector()
+lh.SMA5[1:4] <- NA
+plot.ts(lh.SMA5)
+for (i in 5:length(lh)) {
+  lh.SMA5[i]=sum(lh[(i-4):i])/5
+}
+lh.SMA5
+#检验
+lh.SMA5 <- SMA(lh,n=5)
+lh.SMA5
+
+#2)	alpha=0.3，进行指数平滑预测
+#ythat=alpha*yt-1+(1-alpha)yt-1hat
+library(forecast)
+ses(lh,alpha =0.3)  #单指数，水平项
+#3)	找出使函数模型最优的alpha
+summary(ses(lh))
+##最优alpha = 0.9452 
+
+#2.使用airmiles数据
+#1)	使用holt模型，alpha=0.3，beta=0.1
+airmiles
+ts.plot(airmiles)
+holt(airmiles,alpha=0.3,beta=0.1) #双指数，水平和斜率
+#2)	找出使函数模型最优的alpha和beta
+summary(holt(airmiles))
+#最优alpha = 0.8258 ,beta  = 0.2954 
+
+#3.使用AirPassengers数据
+AirPassengers
+ts.plot(AirPassengers)
+#1)	使用hw模型，alpha=0.5，beta=0.05，gamma=0.3
+hw(AirPassengers,alpha=0.5,beta=0.05,gamma=0.3) #三指数,水平项、斜率、季节项
+#2)	找出使函数模型最优的alpha、beta、gamma
+hw(AirPassengers)
+summary(hw(AirPassengers))
+#最优：alpha = 0.9935 ,beta  = 2e-04 ,gamma = 6e-04
+
+#4.预测上述的模型数据
+forecast(ses(lh),h=10)
+forecast(holt(airmiles),h=8)
+forecast(hw(AirPassengers),h=24)
+
 #################第七次上机实验##################
 #根据5.1，5.2，5.3数据
 #1．	将数据转化为序列
@@ -466,7 +517,7 @@ pacf(x.dif1)#偏自相关系数具有拖尾性
 ##1阶差分后，自相关系数1阶截尾，偏自相关系数具有拖尾性，初步确定为ARIMA(0,1,1)
 x.fit <- arima(x,order=c(0,1,1))#模型拟合
 x.fit
-##拟合模型为：xt=xt-1+sigmat-0.1549*sigmat-1
+##拟合模型为：xt=xt-1+et-0.1549*et-1
 for (i in 1:2)  print(Box.test(x.fit$residuals,lag = 6*i)) #残差白噪声检验
 ##残差白噪声检验没有拒绝原假设，说明该模型显著成立
 x108hat=x[107]-0.1549*x.fit$residuals[107]
@@ -500,8 +551,8 @@ y.fit <- arima(y,order=c(1,2,1))#模型拟合
 y.fit
 for (i in 1:2)  print(Box.test(y.fit$residuals,lag = 6*i)) #残差白噪声检验
 ##残差白噪声检验没有拒绝原假设，说明该模型显著成立
-##拟合模型为：(1+0.4197B)(1-B)^2*xt=sigmat-0.8958*sigmat-1
-##即xt=2.4197*xt-1-1.8394*xt-2+0.4197*xt-3+sigmat-0.8958*sigmat-1
+##拟合模型为：(1+0.4197B)(1-B)^2*xt=et-0.8958*et-1
+##即xt=2.4197*xt-1-1.8394*xt-2+0.4197*xt-3+et-0.8958*et-1
 y61hat=2.4197*y[60]-1.8394*y[59]+0.4197*y[58]-0.8958*y.fit$residuals[60]
 y61hat
 y62hat=2.4197*y61hat-1.8394*y[60]+0.4197*y[59]
@@ -535,3 +586,63 @@ for (i in 1:6)  print(Box.test(z.fit$residuals,lag = 6*i)) #残差白噪声检�
 z.fore<-forecast(z.fit)
 z.fore #函数预测
 plot(z.fore)
+
+#################第八次上机实验##################
+rm(list=ls())
+#模拟garch(1,2)数据模拟的作业
+set.seed(123)
+n=1000
+h=numeric(n)
+ep=numeric(n)
+x=numeric(n)
+omega=0.2
+alpha1=0.2
+alpha2=0.3
+beta=0.1
+et=rnorm(1000,0,1)
+ep[1]=0
+ep[2]=0
+h[1]=(ep[1]/et[1])^2
+h[2]=(ep[2]/et[2])^2
+x[1]=0
+x[2]=0
+for (t in 3:1000){
+  h[t]=omega+beta*h[t-1]+alpha1*(ep[t-1])^2+alpha2*(ep[t-2])^2
+  ep[t]=et[t]*sqrt(h[t])
+  x[t]=0.3*x[t-1]+ep[t]
+}
+ts.plot(x)
+
+#习题5.4
+setwd('F:/github_repo/time_series/习题数据、案例数据、R代码/习题数据')
+dat<- read.table('习题5.4数据.txt',header = T)
+x <- as.matrix(dat)
+x <- c(x[,c(2,4,6,8)])
+x <- ts(x,start = 1750) 
+plot(x)
+acf(x) #1阶截尾
+pacf(x) #1阶截尾
+for (i in 1:2)  print(Box.test(x,lag =6*i)) 
+##拒绝原假设，非白噪声序列,拟合ARIMA(1,0,1)模型
+x.fit1 <- arima(x,order=c(1,0,1))
+x.fit1
+for (i in 1:6)  print(Box.test(x.fit1$residuals,lag =6*i)) 
+##不拒绝原假设，模型成立
+#条件异方差检验（Portmanteau Q检验）
+for(i in 1:6) print(Box.test(x.fit1$residuals^2,type="Lj",lag=i))
+##拒绝原假设，说明残差序列方差非齐性，具有长期相关性
+#拟合garch(0,1)模型
+library(tseries)
+x.fit2<-garch(x.fit1$residuals,order=c(0,1))
+summary(x.fit2)
+#xt=0.3016*xt-1+ep+0.2059ept-1+vt vt~N(0,26.6)
+#vt=sqr(ht)*et
+#ht=12.3532 +0.4091(vt-1)^2
+
+
+
+
+
+
+
+
