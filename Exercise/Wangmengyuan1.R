@@ -462,6 +462,12 @@ dat3.fit
 for (i in 1:2) print(Box.test(dat3.fit$residuals,lag = 6*i))#对残差序列进行白噪声检验,不拒绝原假设
 dat3.fore <- forecast(dat3.fit,h=3)
 plot(dat3.fore)
+#####################增加一个garch(1,2)数据模拟的作业#######
+
+
+
+
+
 ###########时间序列分析garch(1，1）模型拟合###############
 #读入数据绘制时序图
 rm(list = ls())
