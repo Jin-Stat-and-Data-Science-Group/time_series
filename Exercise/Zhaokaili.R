@@ -1,7 +1,9 @@
 library(tseries)
+library(FinTS)
+library(forecast)
 setwd("E:/github_repo/time_series")
 
-################################第五次作业#################################################
+################################第七次作业#################################################
 
 #1.GARCH(1,2)数据模拟
 ##y[t] = mu + c*h[t] + epsilon[t]
@@ -50,7 +52,6 @@ x109 <- 1.3395*x108-0.3395*x[107]
 x109
 x110 <- 1.3395*x109-0.3395*x108
 x110
-library(forecast)
 x.fore<-forecast(x.fit)
 x.fore
 
@@ -76,7 +77,7 @@ y61<-2*y[60]-y[59]+0.3393*y.fit$residual[59]+0.2417*y.fit$residual[58]
 y61
 y62<-2*y61-y[60]+0.3393*y.fit$residual[60]+0.2417*y.fit$residual[59]     
 y62
-y.fore<-forecast(y.fit)
+y.fore <- forecast(y.fit)
 y.fore
 
 
@@ -100,6 +101,68 @@ for (i in 1:2) {print(Box.test(z.fit$residual,lag=i*6))} #残差序列是白噪�
 z.fore <- forecast(z.fit)
 z.fore
 
+#################################第八次作业###############################################
+#习题5.4
+data4 <- read.table("习题数据、案例数据、R代码/习题数据/习题5.4数据.txt",header=T)
+x <- c(data4[,2],data4[,4],data4[,6],data4[,8])
+x <- ts(x,start=1750)
+plot(x) #平稳
+acf(x) #拖尾
+pacf(x) #1阶截尾 拟合ARIMA(0,0,1)模型
+x.fit <- arima(x,order=c(0,0,1))
+x.fit
+for (i in 1:2) {print(Box.test(x.fit$residuals,lag=i*6))}#拒绝原假设，残差不是白噪声序列
+#LM检验
+for (i in 1:5) {print(ArchTest(x.fit$residuals,lag = i))}
+#拟合garch(0,1)模型
+#拟合garch模型
+acf(x.fit$residuals^2)
+r.fit <- garch(x.fit$residuals,order = c(0,1))
+summary(r.fit)
+
+#习题5.5
+y <- scan('习题数据、案例数据、R代码/习题数据/习题5.5数据.txt')
+y <- ts(y)
+plot(y)#不平稳
+y.dif <- diff(y)
+plot(y.dif)#平稳
+for (i in 1:2) {print(Box.test(y.dif,lag = 6*i))} #检验数据为非白噪声
+acf(y.dif) #拖尾
+pacf(y.dif) #2截结尾
+#拟合ARIMA(2,1,0)模型
+z.fit <- arima(x,order = c(2,1,0))
+z.fit
+#模型诊断，对残差序列进行白噪声检验
+for (i in 1:2) {print(Box.test(z.fit$residuals,lag = 6*i))}  #残差序列为白噪声
+##条件异方差检验
+#LM检验
+for (i in 1:5) {print(ArchTest(x.fit$residuals,lag = i))} #方差齐性
+#预测
+z.fore <- forecast(z.fit,h=6)
+z.fore
+plot(z.fore)
+
+#习题5.6
+#读取数据
+z <- scan('习题数据、案例数据、R代码/习题数据/习题5.6数据.txt')
+z <- ts(z)
+plot(z) #不平稳
+z.dif <- diff(z)
+plot(z.dif) #差分序列平稳
+for (i in 1:2) {print(Box.test(z,lag = 6*i))} #序列非白噪声
+acf(z.dif) #拖尾
+pacf(z.dif) #拖尾，拟合arima(1,1,1)模型
+z.fit <- arima(z,order=c(1,1,1))
+z.fit
+for (i in 1:2) {print(Box.test(z.fit$residuals,lag = 6*i))} #残差序列为白噪声
+#检验方差齐性
+res <- z.fit$residuals
+plot(res^2) 
+#LM检验
+for (i in 1:5) {print(ArchTest(z.fit$residuals,lag = i))} #方差非齐
+#拟合garch(0,1)
+r.fit <- garch(res,order = c(0,1))
+summary(r.fit)
 
 
 

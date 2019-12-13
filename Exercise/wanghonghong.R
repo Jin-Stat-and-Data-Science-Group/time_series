@@ -181,3 +181,224 @@ e=c(0,0,rnorm(100))
 for(i in 1:100){
   x[i]=e[i+2]-theta[1]*e[i+1]-theta[2]*e[i]
 }
+
+#################第七次上机实验##################
+#根据5.1，5.2，5.3数据
+#1．	将数据转化为序列
+#2．	画时序图观测特征，判断序列是否平稳
+#3．	做差分，画差分时序图，看哪个效果比较好
+#4．	检验数据是不是白噪声
+#5．	对差分数据进行识别
+#6．	建立arima模型，模型诊断，对残差序列进行白噪声检验
+#7．	做预测，5.1和5.2计算点预测
+#8．	用forecast函数进行预测，并画图
+setwd('D:/github_repo/time_series/习题数据、案例数据、R代码/习题数据')
+#习题5.1
+data1=read.table("习题5.1数据.txt",fill=T)
+
+#1.将数据转化为序列
+data1=as.vector(t(as.matrix(data1)))
+data1=na.omit(data1)
+data1=ts(data1,frequency=12)
+
+#2.画时序图观测特征，判断序列是否平稳
+plot(data1,ylab="收盘价",type = "l")#该序列非平稳
+
+#3.做差分，画差分时序图
+data1_1=diff(data1,differences=1)
+data1_2=diff(data1,differences=2)
+plot(data1_1,ylab="一阶差分收盘价",type = "l")
+plot(data1_2,ylab="二阶差分收盘价",type = "l")
+library(tseries)
+pp.test(data1_1)#p-value =0.01，表明一阶差分收盘价序列平稳
+
+#4.检验数据是不是白噪声
+auto_box_test(data1_1,lag=10,type='Ljung')
+auto_box_test(data1_2,lag=10,type='Ljung')
+Box.test(data1_1,lag=10,type="Ljung-Box")#p-value = 0.27,表明一阶差分序列为白噪声序列
+Box.test(data1_2,lag=10,type="Ljung-Box")#p-value = 8.155e-07，二阶差分序列非白噪声序列
+
+#5.建立arima模型，模型诊断
+plot(auto_acf(data1_1,24),type = 'h',xlab='acf',ylab='lag',ylim = c(-1,1))
+abline(h=c(0,-1.96*1/sqrt(length(data1_1)),1.96*1/sqrt(length(data1_1))),lty=2)#均在两倍标准差以内
+acf(data1_1)
+pacf(data1_1)#尝试建立arima(0,1,1)
+fit0=arima(data1,order=c(0,1,1))#aic = 574.89
+fit0
+library(forecast)
+fit=auto.arima(data1)#构建ARIMA(0,1,0)，AIC=575.39
+fit
+
+#6.对残差序列进行白噪声检验
+qqnorm(fit$residuals)#如果数据满足正态分布，则数据中的点会落在图中的线上
+qqline(fit$residuals)
+Box.test(fit$residuals,lag=10,type="Ljung-Box")#p-value = 0.2576，残差序列为白噪声序列
+
+#7.模型预测
+forecast(fit,h=3)
+plot(forecast(fit,3))
+
+#习题5.2
+#1.将数据转化为序列
+data2=read.table("习题5.2数据.txt",header = TRUE)
+data2=ts(as.vector(as.matrix(data2[,c(2,4,6)])),frequency=1,start = c(1949))
+
+
+#2.画时序图观测特征，判断序列是否平稳
+plot(data2,ylab="y",type = "l")#该序列非平稳,有增长趋势
+
+#3.做差分，画差分时序图
+data2_1=diff(data2,differences=1)
+data2_2=diff(data2,differences=2)
+plot(data2_1,type = "l")
+plot(data2_2,type = "l")#二阶差分好一些
+
+
+#4.检验数据是不是白噪声
+for(i in 1:6) print(Box.test(data2_1,lag=i))#p-value =2.2e-16,表明一阶差分序列为非白噪声序列
+for(i in 1:6) print(Box.test(data2_2,lag=i))#p-value >0.05,表明二阶差分序列为白噪声序列
+#5.对差分数据进行识别
+plot(auto_acf(data2_1,24),type = 'h',xlab='acf',ylab='lag',ylim = c(-1,1))
+abline(h=c(0,-1.96*1/sqrt(length(data2_1)),1.96*1/sqrt(length(data2_1))),lty=2)
+#自相关系数一阶截尾
+acf(data2_1)
+pacf(data2_1)#偏相关系数均在两倍标准差范围内，尝试建立arima(1,1,0),arima(1,1,1)
+
+#6.建立arima模型
+library(forecast)
+fit=arima(data2,order=c(1,1,0))
+fit#aic = 1226
+fit1=arima(data2,order=c(1,1,1))
+fit1#aic =1228
+fit2=auto.arima(data2)#arima(1,2,1)
+fit2#aic = 1204
+
+#7,对残差序列进行白噪声检验
+qqnorm(fit2$residuals)#如果数据满足正态分布，则数据中的点会落在图中的线上
+qqline(fit2$residuals)
+for(i in 1:6) print(Box.test(fit2$residuals,lag=i))#p-value = 0.038，残差序列不是白噪声序列,需继续提取序列信息
+
+qqnorm(fit$residuals)#如果数据满足正态分布，则数据中的点会落在图中的线上
+qqline(fit$residuals)
+for(i in 1:6) print(Box.test(fit$residuals,lag=i))#白噪声序列
+#模型预测
+forecast(fit2,3)
+plot(forecast(fit2,3))
+
+
+#习题5.3(需要先提取周期性因素)
+#1.将数据转化为序列
+data3.1=read.table('习题5.3数据.txt',header=TRUE)
+data3.2=ts(as.vector(as.matrix(data3.1[,c(2,4,6)])),frequency=12,start=c(1973,1))
+
+
+#2.画时序图观测特征，判断序列是否平稳
+plot(data3.2,ylab="死亡人数",type = "l")#该序列非平稳,有周期性波动
+
+
+#3.做差分，画差分时序图
+data3.3=diff(diff(data3.2),lag=12)#一阶12步差分
+plot(data3.3,type = "l")
+
+pp.test(data3.3)#p-value =0.01，表明一阶差分序列平稳
+
+#4.检验数据是不是白噪声
+for(i in 1:6) print(Box.test(data3.3,lag=i))#为非白噪声序列
+
+#5.对差分数据进行识别,建立乘法模型
+acf(data3.3,lag=24)$acf
+#样本自相关系数具有周期性特征，1阶，12阶在两倍标准差以外
+pacf(data3.3,lag=24)$pacf
+#偏自相关系数具有周期性，1阶，12阶在两倍标准差以外，尝试对季节模型构建ARMA(1,1)/ARMA(1,2)/ARMA(2,2)/ARMA(2,1)
+#6.建立arima模型
+#看一个周期内的短期相关性可以发现，短期自相关系数1阶截尾，短期偏自相关系数1阶截尾,故对短期相关性用arma(1,1)拟合
+library(forecast)
+pra_order1=list(c(1,1,0),c(1,1,1),c(0,1,1),c(0,1,0))
+pra_order2=list(c(1,1,1),c(1,1,2),c(0,1,1),c(1,1,0),c(0,1,0))
+pra=expand.grid(pra_order1,pra_order2)
+fit_aic=vector()
+for (i in 1:length(pra$Var1)){
+  fit=arima(data3.2,order=c(pra$Var1[i][[1]]),seasonal = list(order=c(pra$Var2[i][[1]]),period=12))
+  fit_aic[i]=fit$aic
+}
+which(fit_aic==min(fit_aic))#第三个模型最好。即arima(0,1,1)(0,1,1)[12]
+pra[11,]
+fit3=auto.arima(data3.2)#验证上面的arima(0,1,1)(0,1,1)[12]乘法模型最好
+fit3#aic = 705.37
+#构建ARIMA(2,1,2)，AIC=644.76
+
+
+#7.对残差序列进行白噪声检验
+fit_max=arima(data3.2,order=c(pra$Var1[11][[1]]),seasonal = list(order=c(pra$Var2[11][[1]]),period=12))
+qqnorm(fit_max$residuals)#如果数据满足正态分布，则数据中的点会落在图中的线上
+qqline(fit_max$residuals)
+Box.test(fit_max$residuals,lag=10,type="Ljung-Box")#p-value = 0.468，残差序列是白噪声序列
+
+#第八次作业
+#1.模型预测
+forecast(fit_max,3)
+plot(forecast(fit_max,3))
+
+#garch(1,2)模型模拟
+beta=c(0.4,0.3);alpha=0.1;h=c();ver=c()
+e=c(rnorm(1000));omiga=0.5
+h[1]=h[2]=0.01
+ver[1]=sqrt(h[1])*e[1];ver[2]=sqrt(h[2])*e[2]
+for(i in 3:1000){
+  h[i]=omiga+alpha[1]*h[i-1]+beta[1]*(ver[i-1])^2+beta[2]*(ver[i-2])^2
+  ver[i]=sqrt(h[i])*e[i]
+}
+plot(ts(ver))
+library(FinTS)
+ArchTest(ver,12)
+#2.习题5.4
+##拟合序列发展
+data4=read.table('习题5.4数据.txt',header=TRUE)
+data4=ts(as.vector(as.matrix(data4[,c(2,4,6,8)])),frequency=1,start=c(1750))
+plot(data4)#平稳
+for(i in 1:6) print(Box.test(data4,lag=i))#为非白噪声序列
+
+plot(auto_acf(data4,24),type = 'h',xlab='lag',ylab='acf',ylim = c(-0.2,1))
+abline(h=c(0,-1.96*1/sqrt(length(data4)),1.96*1/sqrt(length(data4))),lty=2)
+#自相关系数一阶截尾
+acf(data4)
+pacf(data4)#偏自相关系数一阶截尾
+
+fit_level=arima(data4,order=c(1,0,1))
+plot(fit_level$residuals)#显示残差序列有异方差性
+for(i in 1:6) print(Box.test(fit_level$residuals),lags=i)#PQ检验显示残差序列无相关性
+for(i in 1:6) print(Box.test((fit_level$residuals)^2,lag=i))#PQ检验为非白噪声序列，存在异方差
+for(i in 1:6) print(ArchTest(fit_level$residuals),lags=i)#LM检验为非白噪声序列，存在异方差
+
+plot(auto_acf(fit_level$residuals^2,24),type = 'h',xlab='lag',ylab='acf',ylim = c(-0.2,1))
+abline(h=c(0,-1.96*1/sqrt(length(fit_level$residuals^2)),1.96*1/sqrt(length(fit_level$residuals^2))),lty=2)
+#自相关系数一阶截尾
+acf(fit_level$residuals^2)
+pacf(fit_level$residuals^2)#偏自相关系数二阶截尾
+
+#garch(1,1)
+fit_resi1=garch(fit_level$residuals,order = c(1,1))
+plot(fit_resi1$residuals)
+summary(fit_resi1)#最终的残差序列不服从正态分布，且存在相关性
+#garch(1,2)
+fit_resi2=garch(fit_level$residuals,order = c(1,2))
+plot(fit_resi2$residuals)
+summary(fit_resi2)#最终的残差序列不服从正态分布，且存在相关性
+
+#garch(2,2)
+fit_resi3=garch(fit_level$residuals,order = c(2,2))
+plot(fit_resi3$residuals)
+summary(fit_resi3)#最终的残差序列不服从正态分布，且存在相关性
+
+#garch(2,1)
+fit_resi4=garch(fit_level$residuals,order = c(2,1))
+plot(fit_resi4$residuals)
+summary(fit_resi4)#最终的残差序列不服从正态分布，且存在相关性
+
+fit_resi5=garch(fit_level$residuals,order = c(0,1))
+plot(fit_resi5$residuals)
+summary(fit_resi5)#最终的残差序列不服从正态分布，且存在相关性
+
+fit_resi6=garch(fit_level$residuals,order = c(0,2))
+plot(fit_resi6$residuals)
+summary(fit_resi6)#最终的残差序列不服从正态分布，且存在相关性
