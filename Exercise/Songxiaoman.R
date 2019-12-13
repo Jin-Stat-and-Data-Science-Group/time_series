@@ -436,3 +436,102 @@ var.overshort.58hat=(G0^2)*overshort.fit2$sigma2
 var.overshort.59hat=sum(G[1:2]^2)*overshort.fit2$sigma2
 var.overshort.60hat=sum(G[1:3]^2)*overshort.fit2$sigma2
 
+#################第七次上机实验##################
+#根据5.1，5.2，5.3数据
+#1．	将数据转化为序列
+#2．	画时序图观测特征，判断序列是否平稳
+#3．	做差分，画差分时序图，看哪个效果比较好
+#4．	检验数据是不是白噪声
+#5．	对差分数据进行识别
+#6．	建立arima模型，模型诊断，对残差序列进行白噪声检验
+#7．	做预测，5.1和5.2计算点预测
+#8．	用forecast函数进行预测，并画图
+rm(list=ls())
+setwd('F:/github_repo/time_series/习题数据、案例数据、R代码/习题数据')
+library(forecast)
+#5.1数据
+dat1 <- read.table('习题5.1数据.txt',fill=T)
+x <- as.vector(t(as.matrix(dat1)))
+x <- na.omit(x)
+x <- ts(x) #转为时间序列
+ts.plot(x)
+##从时序图可以看出，序列并不平稳
+x.dif1 <-diff(x)
+plot(x.dif1)#1阶差分
+##从差分时序图可以看出1阶差分后序列趋于平稳
+for (i in 1:2)  print(Box.test(x.dif1,lag = 6*i)) #白噪声检验
+##不拒绝原假设，说明1阶差分序列是白噪声序列
+acf(x.dif1)#自相关阶数均在2倍标准差范围内，说明原序列1阶截尾  
+pacf(x.dif1)#偏自相关系数具有拖尾性
+##1阶差分后，自相关系数1阶截尾，偏自相关系数具有拖尾性，初步确定为ARIMA(0,1,1)
+x.fit <- arima(x,order=c(0,1,1))#模型拟合
+x.fit
+##拟合模型为：xt=xt-1+sigmat-0.1549*sigmat-1
+for (i in 1:2)  print(Box.test(x.fit$residuals,lag = 6*i)) #残差白噪声检验
+##残差白噪声检验没有拒绝原假设，说明该模型显著成立
+x108hat=x[107]-0.1549*x.fit$residuals[107]
+x108hat
+x109hat=x108hat  #点预测
+x.fore<-forecast(x.fit,h=10)
+x.fore #函数预测
+plot(x.fore)
+
+#5.2数据
+dat2 <- read.table('习题5.2数据.txt',header = T)
+y <- as.matrix(dat2)
+y <- c(y[,2],y[,4],y[,6])
+y <- ts(y,start = 1949) 
+plot(y)
+## 从时序图中可以看出序列具有递增趋势，非平稳
+y.dif1 <- diff(y)
+plot(y.dif1)
+y.dif2 <- diff(y,1,2)
+plot(y.dif2)  #基本平稳
+for (i in 1:2)  print(Box.test(y.dif2,lag =6*i)) #白噪声检验
+##不拒绝原假设，说明2阶差分序列是白噪声序列
+acf(y.dif2)
+pacf(y.dif2)
+## 2阶差分后，自相关系数1阶截尾，偏自相关系数拖尾，初步确定模型为ARIMA(0,2,1)
+y.fit <- arima(y,order=c(0,2,1))#模型拟合
+y.fit
+for (i in 1:2)  print(Box.test(y.fit$residuals,lag = 6*i)) #残差白噪声检验
+##残差白噪声检验滞后6阶拒绝原假设，说明该模型不成立，拟合ARIMA(1,2,1)
+y.fit <- arima(y,order=c(1,2,1))#模型拟合
+y.fit
+for (i in 1:2)  print(Box.test(y.fit$residuals,lag = 6*i)) #残差白噪声检验
+##残差白噪声检验没有拒绝原假设，说明该模型显著成立
+##拟合模型为：(1+0.4197B)(1-B)^2*xt=sigmat-0.8958*sigmat-1
+##即xt=2.4197*xt-1-1.8394*xt-2+0.4197*xt-3+sigmat-0.8958*sigmat-1
+y61hat=2.4197*y[60]-1.8394*y[59]+0.4197*y[58]-0.8958*y.fit$residuals[60]
+y61hat
+y62hat=2.4197*y61hat-1.8394*y[60]+0.4197*y[59]
+y62hat
+y63hat=2.4197*y62hat-1.8394*y61hat+0.4197*y[60]
+y63hat
+y64hat=2.4197*y63hat-1.8394*y62hat+0.4197*y61hat
+y64hat  #点预测
+y.fore<-forecast(y.fit,h=10)
+y.fore #函数预测
+plot(y.fore)
+
+#5.3数据
+dat3 <- read.table('习题5.3数据.txt',header = T)
+z <- as.matrix(dat3)
+z <- c(z[,2],z[,4],z[,6])
+z <- as.numeric(z)
+z <- ts(z,start = c(1973,1),frequency = 12) 
+plot(z)
+## 从时序图中可以看出序列季节性波动
+z.dif<-diff(diff(z),12) #1阶12步差分
+plot(z.dif)
+acf(z.dif)
+pacf(z.dif)
+##自相关系数显示12阶以内1阶截尾，偏自相关系数12阶以内1阶截尾，尝试用ARMA(1,1)提取差分序列的短期自相关信息
+##自相关图显示延迟12阶自相关系数显著非零，而偏自相关图显示延迟12阶偏自相关系数显著非零，这时用以12步为周期的ARMA(1,1)12模型提取差分后序列的季节自相关信息
+z.fit <- arima(z,order = c(1,1,1),seasonal = list(order=c(1,1,1 ),period=12))
+z.fit
+for (i in 1:6)  print(Box.test(z.fit$residuals,lag = 6*i)) #残差白噪声检验
+##不拒绝原假设，说明该模型显著成立
+z.fore<-forecast(z.fit)
+z.fore #函数预测
+plot(z.fore)
