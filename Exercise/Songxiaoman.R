@@ -639,10 +639,45 @@ summary(x.fit2)
 #vt=sqr(ht)*et
 #ht=12.3532 +0.4091(vt-1)^2
 
+#习题5.5
+dat1<- read.table('习题5.5数据.txt')
+y<- as.vector(t(as.matrix(dat1)))
+y<- ts(y,start = 1867)
+plot(y) #序列非平稳，具有长期趋势
+y.dif <- diff(y)
+plot(y.dif)
+plot(y.dif^2)#异方差
+#做对数变换
+lny <- log(y)
+plot(lny)
+dif.lny <- diff(lny)
+plot(dif.lny)
+acf(dif.lny)
+pacf(dif.lny)
+#自相关图显示延迟4阶后自相关系数基本在2倍标准差范围内,可以认为1阶差分后序列平稳
+#偏自相关图表现出3阶截尾，偏相关系数1阶3阶显著非零，初步拟合疏系数模型ARIMA((1,3),1,0)
+lny.fit <- arima(lny ,order=c(3,1,0),transform.pars = F,fixed = c(NA,0,NA))
+lny.fit 
+for(i in 1:2) print(Box.test(lny.fit$residual,lag=6*i))#残差白噪声检验
+#白噪声检验显示该疏系数模型显著成立lny~ARIMA((1,3),1,0)
+#做5期预测，并绘制预测图
+lny.fore<-forecast(lny.fit,h=7)
+lny.fore
+plot(lny.fore)
 
-
-
-
-
+#习题5.6
+dat2<- read.table('习题5.6数据.txt')
+z<- as.vector(t(as.matrix(dat2)))
+z<- ts(z,start =c(1969,1),frequency = 12)
+plot(z)#序列存在曲线趋势
+z.dif <- diff(z)
+plot(z.dif)#1阶差分后序列趋于平稳，但大小变化较大，初步判断方差非齐性
+plot(z.dif^2) #残差序列异方差
+#Portmanteau Q检验
+for(i in 1:6) print(Box.test(z.dif^2,type="Lj",lag=i))
+#拒绝原假设，说明方差非齐性
+#拟合garch(1,1)
+z.fit <- garch(z,order = c(1,1))
+summary(z.fit)
 
 

@@ -118,5 +118,99 @@ for (i in 1:2) {
 x.fore <- forecast(x.fit,h=12)
 plot(x.fore)
 
+##################第八次上机#############
+#习题5.4
+rm(list = ls())
+xt <- read.table('习题数据、案例数据、R代码/习题数据/习题5.4数据.txt',header = T)
+xt <- c(xt[,2],xt[,4],xt[,6],xt[,8])
+x <- ts(xt,start = 1750)
+plot(x)#基本平稳
+acf(x)
+pacf(x)
+#拟合ARMA(1,1)模型
+x.fit <- arima(x,order = c(1,0,1))
+x.fit
+#模型诊断，对残差序列进行白噪声检验
+for (i in 1:2) {
+  print(Box.test(x.fit$residuals,lag = 6*i))
+}  #为白噪声
+##条件异方差检验
+#Portmanteau Q检验
+for (i in 1:5) {
+  print(Box.test(x.fit$residuals^2,lag = i))
+} 
+#LM检验
+library(FinTS)
+for (i in 1:5) {
+  print(ArchTest(x.fit$residuals,lag = i))
+} 
+#拟合garch模型
+acf(x.fit$residuals^2)
+r.fit <- garch(x.fit$residuals,order = c(0,1))
+summary(r.fit)
 
+#习题5.5
+rm(list = ls())
+xt <- scan('习题数据、案例数据、R代码/习题数据/习题5.5数据.txt')
+x <- ts(xt)
+plot(x)#不平稳
+plot(diff(x))#平稳
+#检查数据为非白噪声
+for (i in 1:2) {
+  print(Box.test(diff(x),lag = 6*i))
+}
+acf(diff(x))
+pacf(diff(x))
+#拟合ARIMA(2,1,1)模型
+x.fit <- arima(x,order = c(2,1,1))
+x.fit
+#模型诊断，对残差序列进行白噪声检验
+for (i in 1:2) {
+  print(Box.test(x.fit$residuals,lag = 6*i))
+}  #为白噪声
+##条件异方差检验
+#Portmanteau Q检验
+for (i in 1:5) {
+  print(Box.test(x.fit$residuals^2,lag = i))
+} 
+#LM检验
+for (i in 1:5) {
+  print(ArchTest(x.fit$residuals,lag = i))
+} #方差齐性
+#预测
+x.fore <- forecast(x.fit,h=6)
+x.fore
+plot(x.fore)
 
+#习题5.6
+rm(list = ls())
+xt <- scan('习题数据、案例数据、R代码/习题数据/习题5.6数据.txt')
+x <- ts(xt)
+plot(x)#不平稳
+plot(diff(x))#基本平稳
+#检查数据为非白噪声
+for (i in 1:2) {
+  print(Box.test(x,lag = 6*i))
+}
+acf(diff(x))
+pacf(diff(x))
+#拟合ARIMA(1,1,1)模型
+x.fit <- arima(x,order = c(1,1,1))
+x.fit
+#模型诊断，对残差序列进行白噪声检验
+for (i in 1:2) {
+  print(Box.test(x.fit$residuals,lag = 6*i))
+}  #为白噪声
+##条件异方差检验
+#Portmanteau Q检验
+for (i in 1:5) {
+  print(Box.test(x.fit$residuals^2,lag = i))
+} 
+#LM检验
+for (i in 1:5) {
+  print(ArchTest(x.fit$residuals,lag = i))
+} #方差非齐
+#拟合garch模型
+acf(x.fit$residuals^2)
+r.fit <- garch(x.fit$residuals,order = c(0,2))
+summary(r.fit)
