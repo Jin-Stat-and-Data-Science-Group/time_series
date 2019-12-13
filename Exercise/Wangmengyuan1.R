@@ -463,12 +463,28 @@ for (i in 1:2) print(Box.test(dat3.fit$residuals,lag = 6*i))#对残差序列进�
 dat3.fore <- forecast(dat3.fit,h=3)
 plot(dat3.fore)
 #####################增加一个garch(1,2)数据模拟的作业#######
-
-
-
-
-
-###########时间序列分析garch(1，1）模型拟合###############
+set.seed(123)
+ht=rep(0,1000)
+epsilon=rep(0,1000)
+xt=rep(0,1000)
+et=rnorm(1000)
+omega=0.2
+Ita=0.1
+lambda1=0.2
+lambda2=0.3
+et=rnorm(1000,0,1)
+ep[1]=0
+ep[2]=0
+h[1:2] <- c(0.1,0.2)
+x[1]=et[1]
+x[2]=et[2]
+for (t in 3:1000){
+  h[t]=omega+Ita*h[t-1]+lambda1*(ep[t-1])^2+lambda2*(ep[t-2])^2
+  epsilon[t]=et[t]*sqrt(h[t])
+  x[t]=0.3*x[t-1]+epsilon[t]
+}
+ts.plot(x)
+#时间序列分析garch(1，1）模型拟合
 #读入数据绘制时序图
 rm(list = ls())
 library(xlsx)
