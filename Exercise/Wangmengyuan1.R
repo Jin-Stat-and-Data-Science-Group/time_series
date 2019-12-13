@@ -320,4 +320,176 @@ ARMAacf(ma=c(-2,1.35,-0.36,0.0324),lag.max = 10)
 
 #3.写出AR(5)的PACF
 #根为0.25，0.5，0.6，0.75，0.8
+rm(list = ls())
+rho <- ARMAacf(ar=c(0.25,0.5,0.6,0.75,0.8),lag.max = 10)
+rho
+ar_pacf <- function(k){
+  D <- matrix(0,k,k)
+    for (i in 1:k) {
+      D[i,(i:k)] <- rho[1:(k-i+1)]
+    }
+    D=t(D)+D
+    diag(D) <- 1
+    DK <- D
+    DK[,k] <- rho[2:(k+1)]
+    phi_kk <- det(DK)/det(D)
+    print(phi_kk)
+  
+}
+for (k in 1:6) ar_pacf(k)
 
+###########时间序列分析第五次上机实验内容###############
+#1、拟合模型
+#ma（1），arma（1,1）
+#2、根据公式计算两个模型的AIC和BIC，据此判断最优模型
+#3、计算arma（1,1）的预测值，并计算58,59,60期的预测方差
+#ma(1)模型
+rm(list = ls())
+library(xlsx)
+x <- read.xlsx("D:/github_repo/time_series/习题数据、案例数据、R代码/案例数据/附录1.9.xlsx",1)
+x <- ts(x[,2])
+plot(x)
+for (i in 1:2) {
+  print(Box.test(x,type = "Ljung-Box",lag = 6*i))
+}
+acf(x)#1阶截尾
+pacf(x)#偏自相关系数拖尾
+#序列拟合MA（1）模型
+x.fit1 <- arima(x,order = c(0,0,1))#拟合1阶MA模型
+x.fit1
+install.packages('zoo')
+install.packages('forecast')
+library(zoo)
+library(forecast)
+for (i in 1:2) print(Box.test(x.fit1$residuals,lag = 6*i))#模型的显著性检验
+#6阶和12阶延迟下LB统计量的P值都大于显著性水平0.05，可以认为这个拟合模型的残差序列属于白噪声序列，拟合模型显著有效
+#参数的显著性检验
+n <- length(x)
+m <- 2
+ma1_t1 <- -0.8477/0.1206
+ma1_pt1 <- pt(ma1_t1,(n-m),lower.tail = T)#ma1系数的显著性检验
+ma1_pt1
+ma1_t2 <- -4.7945/1.0252
+ma1_pt2 <- pt(ma1_t2,(n-m),lower.tail = T)#常数的显著性检验
+ma1_pt2
+#经检验两个系数都显著非零
+ma1_AIC <- -2*x.fit1$loglik+2*(0+1+2)
+ma1_BIC <- -2*x.fit1$loglik+log(n)
+
+#arma（1,1）模型
+y.fit <- arima(x,order = c(1,0,1),include.mean = F)
+for (i in 1:2) print(Box.test(y.fit$residuals,lag = 6*i))#模型的显著性检验
+#6阶和12阶延迟下LB统计量的P值都大于显著性水平0.05，可以认为这个拟合模型的残差序列属于白噪声序列，拟合模型显著有效
+#参数的显著性检验
+m2 <- 3
+ma1_t1 <- 0.1231/0.1332
+ma1_pt1 <- pt(ma1_t1,(n-m2),lower.tail = F)#ar1系数的显著性检验
+ma1_pt1
+ma1_t2 <- -1/0.065
+ma1_pt2 <- pt(ma1_t2,(n-m2),lower.tail = T)#ma1系数的显著性检验
+ma1_pt2
+ma1_t3 <- -5.0268/0.3879
+ma1_pt3 <- pt(ma1_t2,(n-m2),lower.tail = F)#常数的显著性检验
+ma1_pt3
+arma11_AIC <- -2*y.fit$loglik+2*(1+1+2)
+arma11_BIC <- -2*y.fit$loglik+log(n)
+ma1_AIC - arma11_AIC
+ma1_BIC - arma11_BIC
+x.fore <- forecast(y.fit,h=3)#预测未来3期
+x.fore
+G0 <- 1
+G1 <- 0.1231*G0-1
+G2 <- 0.1231*G1
+var1_hat <- G0^2*y.fit$sigma2
+var2_hat <- (G0^2+G1^2)*y.fit$sigma2
+var3_hat <- (G0^2+G1^2+G2^2)*y.fit$sigma2
+########################时间序列分析第五次上机实验内容###############
+##############5.1##############
+rm(list = ls())
+dat1 <- scan("D:/github_repo/time_series/习题数据、案例数据、R代码/习题数据/习题5.1数据.txt")
+dat1 <- ts(dat1)
+plot(dat1)#根据时序图来看，序列明显是非平稳的
+diff_dat1 <- diff(dat1,1,2)#差分后平稳
+plot(diff_dat1)
+acf(diff_dat1)#acf一阶截尾
+pacf(diff_dat1)#pacf拖尾，因此可以对差分后的序列拟合ma(1)模型
+for (i in 1:2) print(Box.test(diff_dat1,lag = 6*i))#白噪声检验
+install.packages("zoo")
+install.packages("forecast")
+library(zoo)
+library(forecast)
+dat1.fit <- auto.arima(diff_dat1)
+dat1.fit
+for (i in 1:2) print(Box.test(dat1.fit$residuals,lag = 6*i))#对残差序列进行白噪声检验
+dat1.fore <- forecast(dat1.fit,h=5)
+plot(dat1.fore)
+############################5.2###################
+dat2 <- read.table("D:/github_repo/time_series/习题数据、案例数据、R代码/习题数据/习题5.2数据.txt",header=T)
+dat2 <- ts(c(dat2[,2],dat2[,4],dat2[,6]))
+plot(dat2)#根据时序图来看，序列明显是非平稳的
+diff_dat2 <- diff(dat2,1,2)#差分后平稳
+plot(diff_dat2)
+acf(diff_dat2)#acf拖尾
+pacf(diff_dat2)#pacf拖尾，因此可以尝试对差分后的序列拟合arma(1,2,1)模型,根据aic最小原则，可以选择arima(0,2,2)
+for (i in 1:2) print(Box.test(diff_dat2,lag = 6*i))#白噪声检验
+#二阶差分序列为白噪声序列
+auto.arima(diff_dat2)
+dat2.fit <- arima(dat2,order = c(0,2,2))
+dat2.fit 
+for (i in 1:2) print(Box.test(dat2.fit$residuals,lag = 6*i))#对残差序列进行白噪声检验
+#(1-B)^2*xt=(1-0.4427*B-0.3315*B^2)*et
+#xt=2*xt-1-xt-2+et-0.4427*et-1+0.3315*et-2
+y61hat=2*dat2[60]-dat2[59]-0.4427*dat2.fit$residuals[60]+0.3315*dat2.fit$residuals[59]
+y61hat
+y62hat=2*y61hat-dat2[60]-0.4427*dat2.fit$residuals[60]
+y62hat
+dat2.fore <- forecast(dat2.fit,h=2)
+plot(dat2.fore)
+############################5.3###################
+rm(list = ls())
+dat3 <- read.table("D:/github_repo/time_series/习题数据、案例数据、R代码/习题数据/习题5.3数据.txt",header=T)
+dat3 <- c(dat3[,2],dat3[,4],dat3[,6])
+dat3 <- ts(dat3,frequency = 12,start = c(2000,1))
+plot(dat3)#根据时序图来看，序列明显是非平稳的,存在季节性波动
+diff_dat3 <- diff(diff(dat3),12)#1阶12步差分后平稳
+plot(diff_dat3)
+acf(diff_dat3)#acf拖尾
+pacf(diff_dat3)#pacf拖尾
+for (i in 1:2) print(Box.test(diff_dat3,lag = 6*i))#白噪声检验
+#1阶差分序列d的延迟12阶为白噪声序列
+dat3.fit <- arima(dat3,order = c(1,1,1),seasonal = list(order=c(1,1,1 ),period=12))
+dat3.fit 
+for (i in 1:2) print(Box.test(dat3.fit$residuals,lag = 6*i))#对残差序列进行白噪声检验,不拒绝原假设
+dat3.fore <- forecast(dat3.fit,h=3)
+plot(dat3.fore)
+###########时间序列分析garch(1，1）模型拟合###############
+#读入数据绘制时序图
+rm(list = ls())
+library(xlsx)
+z <- read.xlsx("D:/github_repo/time_series/习题数据、案例数据、R代码/案例数据/附录1.23.xls",1)
+#z <- na.omit(z)
+z <- ts(z$exchange_rates,start = c(1979,12,31),frequency = 365)
+plot(z)
+#对差分序列性质考察
+plot(diff(z))
+acf(diff(z))#截尾
+pacf(diff(z))#拖尾
+for (i in 1:2) print(Box.test(z,lag = 6*i))#皆显著
+#拟合arima模型，提取水平相关信息
+z.fit <- auto.arima(z)
+#z.fit <- arima(z,order = c(0,1,1))
+for (i in 1:6) print(Box.test(z.fit$residuals,lag = i))#残差白噪声检验，皆不能拒绝原假设
+#水平预测
+z.fore <- forecast(z.fit,h=365)
+plot(z.fore)
+for (i in 1:6) print(Box.test(z.fit$residuals^2,lag = i))
+#拟合GARCH(1,1)模型
+library(tseries)
+r.fit <- garch(z.fit$residuals,order=c(1,1))
+summary(r.fit)
+#绘制波动置信区间
+r.pred <- predict(r.fit)
+plot(r.pred)
+#▽xt=et+0.0358et-1+vt vt~N(0,0.0002)
+#vt=sqr(ht)*et
+#ht=0.9144*ht-1 +0.07617(vt-1)^2
