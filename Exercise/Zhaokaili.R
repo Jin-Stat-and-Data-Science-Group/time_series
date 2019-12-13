@@ -1,6 +1,111 @@
 library(tseries)
 setwd("E:/github_repo/time_series")
 
+################################第五次作业#################################################
+
+#1.GARCH(1,2)数据模拟
+##y[t] = mu + c*h[t] + epsilon[t]
+##epsilon[t] = e[t]*sqrt(h[t])
+##h[t] = omega + beta*h[t-1] + lambda1*epsilon[t-1]^2 + lambda2*epsilon[t-2]^2
+set.seed(123)
+nT <- 1000;n1 <- 100;T <- n1 +nT
+h <- numeric(T)
+y <- numeric(T)
+epsilon <- numeric(T)
+e <- rnorm(T)
+mu <- 0
+omega <- 0.2
+c <- 0.2
+lambda1 <- 0.3
+lambda2 <- 0.1
+beta <- 0.8
+h[1] <- (omega/(1-lambda1-lambda2-beta))^2 #指定初始项
+epsilon[1] <- e[1]*sqrt(h[1])
+y[1] <- mu + c*h[1] + epsilon[1]
+for (t in 2:T){
+  h[t] <- omega + beta*h[t] + lambda1*epsilon[t]^2 + lambda2*epsilon[t-1]^2
+  epsilon[t] <- e[t]*sqrt(h[t])
+  y[t] <- mu + c*h[t] + epsilon[t]
+}
+data <- y[n1+1:T]#剔除前面的时期
+ts.plot(data)
+
+#习题5.1
+data1 <- scan("习题数据、案例数据、R代码/习题数据/习题5.1数据.txt")
+x <- ts(data1)
+plot(x)#序列不平稳
+x.dif <- diff(x)
+plot(x.dif)#一阶差分后数列趋于平稳
+for (i in 1:2) print(Box.test(x.dif,lag=i*6))#结果显示差分后序列是白噪声
+acf(x.dif) #拖尾
+pacf(x.dif) #拖尾 
+##拟合ARIMA(1,1,1)
+x.fit <- arima(x,order=c(1,1,1))
+x.fit
+for(i in 1:2) print(Box.test(x.fit$residuals),lag=6*i) #残差序列为白噪声
+#预测
+x108 <- 1.3395*x[107]-0.3395*x[106]+0.4889*x.fit$residuals[107]
+x108
+x109 <- 1.3395*x108-0.3395*x[107]
+x109
+x110 <- 1.3395*x109-0.3395*x108
+x110
+library(forecast)
+x.fore<-forecast(x.fit)
+x.fore
+
+#习题5.2
+data2 <- read.table("习题数据、案例数据、R代码/习题数据/习题5.2数据.txt",head=T)
+y <- as.matrix(data2)
+y <- c(y[,2],y[,4],y[,6])
+y <- ts(y,start = 1949) 
+plot(y) #不平稳
+y.dif1 <- diff(y)
+plot(y.dif1) #一阶差分序列不平稳
+y.dif2 <- diff(y.dif1)
+plot(y.dif2) #平稳
+acf(y.dif2)
+pacf(y.dif2)  #拟合ARIMA(0,1,(2,3))模型
+for(i in 1:2) print(Box.test(y.dif2,lag=i*6))#二阶差分序列是白噪声
+#模型拟合
+y.fit <- arima(y,order=c(0,2,3),transform.pars=F,fixed=c(0,NA,NA))#拟合疏系数模型
+y.fit
+for(i in 1:2) print(Box.test(y.fit$residual,lag=i*6))#残差序列是白噪声
+#预测
+y61<-2*y[60]-y[59]+0.3393*y.fit$residual[59]+0.2417*y.fit$residual[58]
+y61
+y62<-2*y61-y[60]+0.3393*y.fit$residual[60]+0.2417*y.fit$residual[59]     
+y62
+y.fore<-forecast(y.fit)
+y.fore
+
+
+#习题5.3
+data3 <- read.table("习题数据、案例数据、R代码/习题数据/习题5.3数据.txt",header=T)
+z <- as.matrix(data3)
+z <- c(z[,2],z[,4],z[,6])
+z <- as.numeric(z)
+z <- ts(z,start = c(1973,1),frequency = 12) 
+plot(z)#不平稳，且存在周期性
+z.dif<-diff(diff(z),12) #作1阶12步差分
+plot(z.dif) 
+acf(z.dif)#拖尾
+pacf(z.dif) #2阶截尾，拟合ARIMA(0,1,2)模型
+for(i in 1:2) print(Box.test(x.dif1,lag=i*6)) #差分序列是白噪声
+# 模型拟合，考虑加入季节因素
+z.fit <- arima(z,order=c(0,1,2),seasonal=list(order=c(1,1,1 ),period=12))
+z.fit
+for (i in 1:2) {print(Box.test(z.fit$residual,lag=i*6))} #残差序列是白噪声
+# 预测
+z.fore <- forecast(z.fit)
+z.fore
+
+
+
+
+
+
+###########################################################################################
 #自定义求自相关系数的函数auto_acf
 auto_acf <- function(ts,k){
   #ts表示输入的时间序列，k表示滞后阶数
