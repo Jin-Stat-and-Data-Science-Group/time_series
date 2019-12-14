@@ -359,8 +359,7 @@ plot(data4)#平稳
 for(i in 1:6) print(Box.test(data4,lag=i))#为非白噪声序列
 
 plot(auto_acf(data4,24),type = 'h',xlab='lag',ylab='acf',ylim = c(-0.2,1))
-abline(h=c(0,-1.96*1/sqrt(length(data4)),1.96*1/sqrt(length(data4))),lty=2)
-#自相关系数一阶截尾
+abline(h=c(0,-1.96*1/sqrt(length(data4)),1.96*1/sqrt(length(data4))),lty=2)#自相关系数一阶截尾
 acf(data4)
 pacf(data4)#偏自相关系数一阶截尾
 
@@ -389,16 +388,84 @@ summary(fit_resi2)#最终的残差序列不服从正态分布，且存在相关�
 fit_resi3=garch(fit_level$residuals,order = c(2,2))
 plot(fit_resi3$residuals)
 summary(fit_resi3)#最终的残差序列不服从正态分布，且存在相关性
+for(i in 1:6) print(Box.test(fit_resi3$residuals),lags=i)#PQ检验显示残差序列无相关性
+for(i in 1:6) print(ArchTest(fit_resi3$residuals),lags=i)#LM检验显示异方差
 
 #garch(2,1)
 fit_resi4=garch(fit_level$residuals,order = c(2,1))
 plot(fit_resi4$residuals)
 summary(fit_resi4)#最终的残差序列不服从正态分布，且存在相关性
+for(i in 1:6) print(Box.test(fit_resi4$residuals),lags=i)#PQ检验显示残差序列无相关性
+for(i in 1:6) print(ArchTest(fit_resi4$residuals),lags=i)#LM检验显示存在异方差
 
+#garch(0,1)为最优模型
 fit_resi5=garch(fit_level$residuals,order = c(0,1))
 plot(fit_resi5$residuals)
-summary(fit_resi5)#最终的残差序列不服从正态分布，且存在相关性
-
+summary(fit_resi5)
+for(i in 1:6) print(Box.test(fit_resi5$residuals),lags=i)#PQ检验显示残差序列无相关性
+for(i in 1:6) print(ArchTest(fit_resi5$residuals),lags=i)#LM检验显示方差齐性
+ 
+#garch(0,2)
 fit_resi6=garch(fit_level$residuals,order = c(0,2))
 plot(fit_resi6$residuals)
 summary(fit_resi6)#最终的残差序列不服从正态分布，且存在相关性
+for(i in 1:6) print(Box.test(fit_resi6$residuals),lags=i)#PQ检验显示残差序列无相关性
+for(i in 1:6) print(ArchTest(fit_resi6$residuals),lags=i)#LM检验显示存在异方差
+
+#习题5.5
+data5<- read.table('习题5.5数据.txt')
+data5=ts(as.vector(t(as.matrix(data5))),frequency=1,start=c(1867))
+plot(data5)#非平稳
+plot(diff(data5))
+data5_1=diff(data5)
+for(i in 1:6) print(Box.test(data5_1,lag=i))#为非白噪声序列
+
+plot(auto_acf(data5_1,24),type = 'h',xlab='lag',ylab='acf',ylim = c(-0.2,1))
+abline(h=c(0,-1.96*1/sqrt(length(data5_1)),1.96*1/sqrt(length(data5_1))),lty=2)#自相关系数拖尾
+acf(data5_1)
+pacf(data5_1)#偏自相关系数拖尾
+
+fit=arima(data5,order=c(1,1,1))
+summary(fit)
+
+fit=auto.arima(data5)
+summary(fit)#ARIMA(2,1,1) 
+
+plot(fit$residuals)
+for(i in 1:6) print(Box.test(fit$residuals),lags=i)#PQ检验显示残差序列无相关性
+for(i in 1:6) print(Box.test((fit$residuals)^2,lag=i))#PQ检验为方差齐性
+for(i in 1:6) print(ArchTest(fit$residuals),lags=i)#LM检验为方差齐性
+
+#习题5.6
+data6<- read.table('习题5.6数据.txt')
+data6<- as.vector(t(as.matrix(data6)))
+data6<- ts(data6,start =c(1969,1),frequency = 12)
+plot(data6)#序列可能有周期性
+data6_1 <- diff(data6)
+plot(data6_1)#1阶差分后序列趋于平稳，但方差非齐性
+
+#ARIMA(1,1,1) 
+fit_level=auto.arima(data6)
+
+for(i in 1:6) print(Box.test(fit_level$residuals,type="Lj",lag=i))#序列无自相关性
+for(i in 1:6) print(Box.test((fit_level$residuals)^2,lag=i))#PQ检验异方差
+for(i in 1:6) print(ArchTest(fit_level$residuals),lags=i)#LM检验异方差
+
+#拟合garch(0，2)
+fit <- garch(fit_level$residuals,order = c(0,1))
+AIC(fit)
+fit <- garch(fit_level$residuals,order = c(0,2))
+AIC(fit)#aic最小
+fit <- garch(fit_level$residuals,order = c(1,2))
+AIC(fit)
+fit <- garch(fit_level$residuals,order = c(1,1))
+summary(fit);AIC(fit)
+fit <- garch(fit_level$residuals,order = c(1,0))
+AIC(fit)
+
+plot(fit$residuals)
+for(i in 1:6) print(Box.test(fit$residuals),lags=i)#PQ检验显示残差序列无相关性
+for(i in 1:6) print(Box.test((fit$residuals)^2,lag=i))#PQ检验为方差齐性
+for(i in 1:6) print(ArchTest(fit$residuals),lags=i)#LM检验为方差齐性
+
+
