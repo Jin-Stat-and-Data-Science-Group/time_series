@@ -57,8 +57,7 @@ x.fore
 
 #习题5.2
 data2 <- read.table("习题数据、案例数据、R代码/习题数据/习题5.2数据.txt",head=T)
-y <- as.matrix(data2)
-y <- c(y[,2],y[,4],y[,6])
+y <- c(data2[,2],data2[,4],data2[,6])
 y <- ts(y,start = 1949) 
 plot(y) #不平稳
 y.dif1 <- diff(y)
@@ -83,8 +82,7 @@ y.fore
 
 #习题5.3
 data3 <- read.table("习题数据、案例数据、R代码/习题数据/习题5.3数据.txt",header=T)
-z <- as.matrix(data3)
-z <- c(z[,2],z[,4],z[,6])
+z <- c(data3[,2],data3[,4],data3[,6])
 z <- as.numeric(z)
 z <- ts(z,start = c(1973,1),frequency = 12) 
 plot(z)#不平稳，且存在周期性
