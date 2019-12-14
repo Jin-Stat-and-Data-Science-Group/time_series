@@ -599,17 +599,17 @@ omega=0.2
 alpha1=0.2
 alpha2=0.3
 beta=0.1
-et=rnorm(1000,0,1)
-ep[1]=0
-ep[2]=0
-h[1]=(ep[1]/et[1])^2
-h[2]=(ep[2]/et[2])^2
+e=rnorm(1000,0,1)
+h[1]=(omega/(1-beta))
+h[2]=omega+beta*h[1]
+ep[1]=sqrt(h[1])*e[1]
+ep[2]=sqrt(h[2])*e[2]
 x[1]=0
 x[2]=0
 for (t in 3:1000){
-  h[t]=omega+beta*h[t-1]+alpha1*(ep[t-1])^2+alpha2*(ep[t-2])^2
-  ep[t]=et[t]*sqrt(h[t])
-  x[t]=0.3*x[t-1]+ep[t]
+  h[t]=omega+beta*h[t-1]+alpha1*(ep[t-1])^2+alpha2*(ep[t-2])^2#方差方程
+  ep[t]=e[t]*sqrt(h[t])
+  x[t]=0.3*x[t-1]+ep[t] #均值方程
 }
 ts.plot(x)
 
@@ -619,25 +619,40 @@ dat<- read.table('习题5.4数据.txt',header = T)
 x <- as.matrix(dat)
 x <- c(x[,c(2,4,6,8)])
 x <- ts(x,start = 1750) 
-plot(x)
-acf(x) #1阶截尾
+plot(x) #初步观察序列基本平稳，但部分值波动较大，具有异方差性
+acf(x) #1阶截尾，延迟一阶后自相关系数落在2倍标准差内，说明序列具有短期相关性，序列平稳
 pacf(x) #1阶截尾
 for (i in 1:2)  print(Box.test(x,lag =6*i)) 
 ##拒绝原假设，非白噪声序列,拟合ARIMA(1,0,1)模型
 x.fit1 <- arima(x,order=c(1,0,1))
 x.fit1
-for (i in 1:6)  print(Box.test(x.fit1$residuals,lag =6*i)) 
+for (i in 1:6)  print(Box.test(x.fit1$residuals,lag =i)) #残差白噪声检验
 ##不拒绝原假设，模型成立
-#条件异方差检验（Portmanteau Q检验）
-for(i in 1:6) print(Box.test(x.fit1$residuals^2,type="Lj",lag=i))
+pt(0.3016/0.1923,97,lower.tail = F) #不拒绝原假设，系数不显著
+pt(0.2059/0.1952,97,lower.tail = F) #不拒绝原假设，系数不显著
+##重新拟合模型 拟合AR(1)
+x.fit2 <- arima(x,order=c(1,0,0))
+x.fit2
+for (i in 1:6)  print(Box.test(x.fit2$residuals,lag =i)) #残差白噪声检验,不拒绝原假设，模型成立
+pt(0.4616/0.0885,97,lower.tail = F) #拒绝原假设，系数显著
+pt(6.7627/0.9550,97,lower.tail = F) #拒绝原假设，常数项显著
+##故模型为：xt=6.7627+0.4616xt-1
+#ARCH效应检验（Portmanteau Q检验）
+for(i in 1:6) print(Box.test(x.fit2$residuals^2,type="Lj",lag=i))
 ##拒绝原假设，说明残差序列方差非齐性，具有长期相关性
-#拟合garch(0,1)模型
+acf(x.fit2$residuals^2)
+pacf(x.fit2$residuals^2)
+#自相关图1阶截尾，偏自相关图2阶截尾，试拟合ARCH(1)
 library(tseries)
-x.fit2<-garch(x.fit1$residuals,order=c(0,1))
-summary(x.fit2)
-#xt=0.3016*xt-1+ep+0.2059ept-1+vt vt~N(0,26.6)
-#vt=sqr(ht)*et
-#ht=12.3532 +0.4091(vt-1)^2
+x.fit3<-garch(x.fit2$residuals,order=c(0,1))
+summary(x.fit3)#系数均通过显著性检验
+#ARCH效应检验（Portmanteau Q检验）
+for(i in 1:6) print(Box.test(x.fit3$residuals^2,type="Lj",lag=i))
+##不拒绝原假设，说明方差齐性
+##模型为AR(1)xARCH(1)
+#xt=6.7627+0.4616xt-1+vt  vt~N(0,26.88)
+#vt=sqrt(ht)*et
+#ht= 12.0985+0.4319(vt-1)^2
 
 #习题5.5
 dat1<- read.table('习题5.5数据.txt')
@@ -660,6 +675,9 @@ lny.fit <- arima(lny ,order=c(3,1,0),transform.pars = F,fixed = c(NA,0,NA))
 lny.fit 
 for(i in 1:2) print(Box.test(lny.fit$residual,lag=6*i))#残差白噪声检验
 #白噪声检验显示该疏系数模型显著成立lny~ARIMA((1,3),1,0)
+#ARCH效应检验（Portmanteau Q检验）
+for(i in 1:6) print(Box.test(lny.fit $residuals^2,type="Lj",lag=i))
+#不拒绝原假设，说明方差齐性
 #做5期预测，并绘制预测图
 lny.fore<-forecast(lny.fit,h=7)
 lny.fore
@@ -672,12 +690,30 @@ z<- ts(z,start =c(1969,1),frequency = 12)
 plot(z)#序列存在曲线趋势
 z.dif <- diff(z)
 plot(z.dif)#1阶差分后序列趋于平稳，但大小变化较大，初步判断方差非齐性
-plot(z.dif^2) #残差序列异方差
+plot(z.dif^2) #波动较大，说明具有异方差性
+acf(z.dif)
+pacf(z.dif)
+#acf,pacf均表现出拖尾，考虑残差自回归模型
+##确定性趋势模型
+t=c(1:length(z))
+z.fit1 <- lm(z~t) #线性趋势模型
+summary(z.fit1)#模型为zt=7.51938+0.01652*t
+library(lmtest)
+dwtest(z.fit1) #拒绝原假设，存在自相关，模型不好
+zlag <- z[2:length(z)]
+z1 <- z[1:(length(z)-1)]
+z.fit2 <- lm(z1~zlag) #自回归模型
+summary(z.fit2) #模型为zt=0.991145zt-1
+dwtest(z.fit2,order.by = zlag) #不拒绝原假设，说明模型成立
 #Portmanteau Q检验
-for(i in 1:6) print(Box.test(z.dif^2,type="Lj",lag=i))
+for(i in 1:6) print(Box.test(z.fit2$residuals^2,type="Lj",lag=i))
 #拒绝原假设，说明方差非齐性
-#拟合garch(1,1)
-z.fit <- garch(z,order = c(1,1))
-summary(z.fit)
-
-
+#试拟合garch(1,1)
+z.fit3 <- garch(z.fit2$residuals,order = c(1,1))
+summary(z.fit3)#系数均通过显著性检验
+#ARCH效应检验（Portmanteau Q检验）
+for(i in 1:6) print(Box.test(z.fit3$residuals^2,type="Lj",lag=i))
+#不拒绝原假设，说明方差齐性
+##模型为zt=7.51938+0.01652*t+vt  vt~N(0,0.5245^2)
+##ht=0.013522+0.798933*ht-1+0.193754*(vt-1)^2
+##vt=sqrt(ht)*et
