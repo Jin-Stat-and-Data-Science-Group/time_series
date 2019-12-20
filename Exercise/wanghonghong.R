@@ -495,7 +495,7 @@ for(k in 1:3) print(adfTest(r1,type=c("nc"),lag=k))
 #残差序列为平稳序列，所以两者之间具有协整关系
 
 #习题6.4
-dat2=read.csv('习题6.4数据.csv')
+dat2=read.table('习题6.4数据.txt',header = T,sep = "\t",encoding = "UTF-8",skipNul = T)
 #data=read.table('习题6.4数据.txt')
 
 export <- ts(dat2[,2],start=1950)
@@ -552,3 +552,4 @@ summary(fm5)
 plot(fm5$residuals,type='l')
 for(k in 1:3) print(adfTest(fm5$residuals,type=c("nc"),lag=k))
 for(l in 1:3) print(Box.test(fm5$residuals,lag=6*l))#序列为白噪声
+
