@@ -196,3 +196,45 @@ $$
 $$
 \begin{array}{l}{\text { (1) } \hat{\sigma}^{2}=T^{-1} \sum_{i=1}^{T} \hat{\varepsilon}_{t}^{2}} \\ {\text { (2) } \hat{\sigma}_{\text {st }}^{2}=T^{-1} \sum_{i=1}^{T} \hat{\varepsilon}_{t}^{2}+2 T^{-1} \sum_{j=1}^{t} w_{j}(l) \sum_{i=j+1}^{T} \hat{\varepsilon}_{i} \hat{\varepsilon}_{t-j}} \\ {\text { (3) } \bar{x}_{t-1}=\frac{1}{T-1} \sum_{i=1}^{r-1} x_{i}}\end{array}
 $$
+
+
+
+# 协整
+## 单整的概念
+
+如果序列平稳，说明序列不存在单位根，这时称序列为零阶单整序列，简记为$${x_t}\sim I(0)$$
+
+假如原序列一阶差分后平稳，说明序列存在一个单位根，这时称序列为一阶单整序列，简记为$${x_t}\sim I(1)$$
+
+假如原序列至少需要进行d阶差分才能实现平稳，说明原序列存在d个单位根，这时称原序列为阶单整序列，简记为$${x_t}\sim I(d)$$ 
+
+## 单整的性质
+若${x_t}\sim I(0)$，对任意非零实数a，b，有$$a + b{x_t}\sim I(0)$$
+
+若${x_t}\sim I(1)$，对任意非零实数a，b，有$$a + b{x_t}\sim I(d)$$
+
+若${x_t}\sim I(0),{y_t}\sim I(0)$对任意非零实数a，b，有$${z_t} = a{x_t} + b{y_t}\sim I(0)$$
+
+若${x_t}\sim I(d),{y_t}\sim I(c)$对任意非零实数a，b，有$${z_t} = a{x_t} + b{y_t}\sim I(k),k \le \max [d,c]$$
+
+## 协整的概念
+假定自变量序列为$\{ {x_1}\} , \cdots ,\{ {x_k}\}$，响应变量序列为$\{ {y_t}\}$ ，构造回归模型${y_t} = {\beta _0} + \sum\limits_{i = 1}^k {{\beta _i}{x_{it}} +{\varepsilon _t}}$ 假定回归残差序列$\left\{ {{\varepsilon _t}}\right\}$ 平稳，我们称响应序列$\{ {y_t}\}$与自变量序列$\{ {x_1}\} , \cdots ,\{{x_k}\}$ 之间具有协整关系。
+
+## 协整检验
+- 假设条件
+
+原假设：多元非平稳序列之间不存在协整关系
+$${H_0}:{\varepsilon _t}\sim I(k),k \ge 1$$
+
+备择假设：多元非平稳序列之间存在协整关系
+$${H_1}:{\varepsilon _t}\sim I(0)$$
+
+- 检验步骤
+
+建立响应序列与输入序列之间的回归模型 
+
+对回归残差序列进行平稳性检验 
+
+
+
+
