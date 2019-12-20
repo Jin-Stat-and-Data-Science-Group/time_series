@@ -469,3 +469,58 @@ for(i in 1:6) print(Box.test((fit$residuals)^2,lag=i))#PQ检验为方差齐性
 for(i in 1:6) print(ArchTest(fit$residuals),lags=i)#LM检验为方差齐性
 
 
+#第9次作业
+#习题6.2
+library(fBasics)
+library(fUnitRoots)
+data=read.table('习题6.2数据.txt',fill = T)
+corn=ts(na.omit(as.numeric(t(as.matrix(data[c(2,3,4,5),])))))
+rain=ts(na.omit(as.numeric(t(as.matrix(data[c(7,8,9,10),])))))
+##单位根检验平稳性
+for(k in 1:3) print(adfTest(corn,type = c("nc"),lag=k))
+for(k in 1:3) print(adfTest(corn,type = c("c"),lag=k))
+#谷物产量序列是有常数均值的平稳序列
+for(l in 1:3) print(adfTest(rain,type = c("nc"),lag=k))
+for(k in 1:3) print(adfTest(rain,type = c("c"),lag=k))
+#降雨量序列是有常数均值的平稳序列
+
+##白噪声检验
+for(k in 1:3) print(Box.test(corn,lag=k))#序列为白噪声
+for(l in 1:3) print(Box.test(rain,lag=l))#序列为白噪声
+
+##协整检验
+f1 <- lm(corn~rain)
+r1 <- ts(f1$residuals)
+for(k in 1:3) print(adfTest(r1,type=c("nc"),lag=k))
+#残差序列为平稳序列，所以两者之间具有协整关系
+
+#习题6.4
+dat2 <- read.table("习题6.4数据.txt")
+export <- ts(dat2[,2],start=1950)
+import <- ts(dat2[,3],start=1950)
+plot(export)
+plot(import)
+
+##单位根检验
+for(k in 1:3) print(adfTest(export,type = c("nc"),lag=k))
+#出口总额序列非平稳
+for(k in 1:3) print(adfTest(import,type = c("nc"),lag=k))
+#进口总额序列非平稳
+
+##分别对两个序列进行模型拟合
+e1 <- log(export)
+i1 <- log(import)
+t <- c(1:59)
+fm2 <- lm(e1~t)
+fm3 <- lm(i1~t)
+
+##协整检验
+fm4 <- lm(export~import)
+r2 <- fm4$residuals
+for(k in 1:3) print(adfTest(r2,type=c("nc"),lag=k)) 
+#残差序列为平稳序列，所以两者之间具有协整关系
+
+##残差修正模型
+ecm <- fm4$residuals[1:58]
+fm5 <- lm(diff(export)~0+diff(import)+ecm)
+summary(fm5)
