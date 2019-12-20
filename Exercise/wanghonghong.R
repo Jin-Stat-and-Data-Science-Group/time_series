@@ -1,6 +1,6 @@
 #第一次上机实验
 rm(list = ls())
-setwd("D:/习题数据、案例数据、R代码/习题数据")
+setwd("D:/github_repo/time_series/习题数据、案例数据、R代码/习题数据")
 #导入数据，生成向量，生成时间序列
 library(zoo)
 a=read.table('./习题2.2数据.txt')
@@ -495,32 +495,60 @@ for(k in 1:3) print(adfTest(r1,type=c("nc"),lag=k))
 #残差序列为平稳序列，所以两者之间具有协整关系
 
 #习题6.4
-dat2 <- read.table("习题6.4数据.txt")
+dat2=read.csv('习题6.4数据.csv')
+#data=read.table('习题6.4数据.txt')
+
 export <- ts(dat2[,2],start=1950)
 import <- ts(dat2[,3],start=1950)
 plot(export)
-plot(import)
+plot(import)#呈指数趋势
 
 ##单位根检验
+
 for(k in 1:3) print(adfTest(export,type = c("nc"),lag=k))
+for(k in 1:3) print(adfTest(export,type = c("c"),lag=k))
+for(k in 1:3) print(adfTest(export,type = c("ct"),lag=k))
 #出口总额序列非平稳
+
 for(k in 1:3) print(adfTest(import,type = c("nc"),lag=k))
+for(k in 1:3) print(adfTest(import,type = c("c"),lag=k))#带有均值
+for(k in 1:3) print(adfTest(import,type = c("ct"),lag=k))#带有趋势项和均值
 #进口总额序列非平稳
 
 ##分别对两个序列进行模型拟合
 e1 <- log(export)
 i1 <- log(import)
-t <- c(1:59)
-fm2 <- lm(e1~t)
-fm3 <- lm(i1~t)
+plot(e1)
+plot(i1)
 
+for(k in 1:3) print(adfTest(e1,type = c("ct"),lag=k))#带有趋势项和均值的ADF检验e1显示不平稳
+for(k in 1:3) print(adfTest(i1,type = c("ct"),lag=k))#带有趋势项和均值的ADF检验i1显示不平稳
+
+e1_1=diff(e1,differences=1)
+plot(e1_1)
+for(k in 1:3) print(adfTest(e1_1,type = c("c"),lag=k))#export带有均值的ADF检验显示一阶差分对数序列平稳
+
+i1_1=diff(i1,differences=1)
+plot(i1_2)
+for(k in 1:3) print(adfTest(i1_1,type = c("c"),lag=k))#import带有均值的ADF检验显示一阶差分对数序列平稳
+
+
+t <- c(1:59)
+fm2 <- lm(e1~t)#先提取趋势特征后平稳
+summary(fm2)
+fm3 <- lm(i1~t)
+plot(fm2$residuals,type='l')
+plot(fm3$residuals,type='l')
 ##协整检验
-fm4 <- lm(export~import)
+fm4 <- lm(e1~i1)
 r2 <- fm4$residuals
 for(k in 1:3) print(adfTest(r2,type=c("nc"),lag=k)) 
 #残差序列为平稳序列，所以两者之间具有协整关系
 
 ##残差修正模型
 ecm <- fm4$residuals[1:58]
-fm5 <- lm(diff(export)~0+diff(import)+ecm)
+fm5 <- lm(diff(e1)~0+diff(i1)+ecm)
 summary(fm5)
+plot(fm5$residuals,type='l')
+for(k in 1:3) print(adfTest(fm5$residuals,type=c("nc"),lag=k))
+for(l in 1:3) print(Box.test(fm5$residuals,lag=6*l))#序列为白噪声
