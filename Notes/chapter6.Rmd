@@ -235,6 +235,39 @@ $${H_1}:{\varepsilon _t}\sim I(0)$$
 
 对回归残差序列进行平稳性检验 
 
+# 误差修正模型(ECM)
+误差修正模型（ErrorCorrectionModel）简称为ECM，最初由Hendry和Anderson于1977年提出，它常常作为协整回归模型的补充模型出现.协整模型度量序列之间的长期均衡关系，而ECM模型则解释序列的短期波动关系.
 
+- 误差修正模型构造原理
+
+假设非平稳响应序列$\{{y_t}\}$与非平稳输入序列$\{{x_t}\}$具有协整关系，即
+$$y_t=\beta{x_t}+{\varepsilon _t}$$
+则回归残差序列为平稳序列：
+$${\varepsilon _t}=y_t-\beta{x_t}\sim I(0)$$
+等式两边同时减去$y_{t-1}$,则有
+\[\begin{array}{c}
+{y_t} - {y_{t - 1}} = \beta {x_t} - \beta {x_{t - 1}} - {\varepsilon _{t - 1}} + {\varepsilon _t}\\
+\nabla {y_t} = \beta \nabla {x_t} - EC{M_{t - 1}} + {\varepsilon _t}
+\end{array}\]
+
+- 短期影响因素分析
+
+响应序列的当期波动$\nabla {y_t}$主要会受到三方面短期波动的影响:
+
+（1）输入序列的当期波动$\nabla {x_t}$
+
+（2）上一期的误差$ECM_{t-1}$
+
+（3）纯随机波动${\varepsilon _t}$
+
+- ECM模型结构
+
+\[\nabla {y_t} = {\beta _0}\nabla {x_t} + {\beta _1}EC{M_{t - 1}} + {\varepsilon _t}\]
+
+式中，${\beta _1}$称为误差修正系数，表示误差修正项对当期波动的修正力度，${\beta _1}<0$,即误差修正机制是一个负反馈机制。
+
+- 负反馈机制
+
+当$ECM_{t-1}>0$时，等价于$y_{t-1}>\hat \beta {x_{t - 1}}$,说明上一期的真实y值比估计的y值要大，这种信息反馈下来，会导致下期y值适当压缩，即$\nabla {y_t}<0$,反之，当$ECM_{t-1}<0$时，等价于$y_{t-1}<\hat \beta {x_{t - 1}}$,说明上一期的真实y值比估计的y值要小，这种信息反馈下来，会导致下期y值适当增加，即$\nabla {y_t}>0$
 
 
