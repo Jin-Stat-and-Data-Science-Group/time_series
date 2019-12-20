@@ -69,3 +69,130 @@ $$(1){\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {y_t} = {y_{t - 1}} + {\ome
 - 伪回归产生原因
 
 ![](./6.1.png)
+
+# 单位根检验
+由于虚假回归问题的存在，所以在进行动态回归模型拟合时，必须先检验各序列的平稳性。只有当各序列都平稳时，才可以大胆地使用模型拟合多元序列之间的动态回归关系。
+
+在前面我们已经介绍过序列平稳性的图检验方法，由于图检验带有很强的主观色彩，为了客观起见，人们开始研究各种序列平稳性的统计检验方法，其中应用最广的是单位根检验。
+
+单位根检验的实质就是通过检验特征根是在单位圆内还是单位圆上（外），来检验序列的平稳性
+
+## DF检验
+### DF统计量
+以1阶自回归序列为例：
+$$
+x_{t}=\phi_{1} x_{t-1}+\varepsilon_{t}, \quad \varepsilon_{t} \stackrel{\mathrm{i.i.d}}{\sim} N\left(0, \sigma_{c}^{2}\right)
+$$
+- 假设条件
+原假设：序列非平稳 \[{H_0:}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} \left| {{\varphi _1}} \right| \ge 1\]
+备择假设：序列平稳\[{H_1}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} \left| {{\phi _1}} \right| < 1\]
+
+- 检验统计量
+当$\left| {{\varphi _1}} \right| < 1$时，
+\[t({\varphi _1}) = \frac{{{{\hat \varphi }_1} - {\varphi _1}}}{{S({{\hat \varphi }_1})}}\mathop  \to  \limits^{\text{渐进}} N(0,1)\]
+当$\left| {{\varphi _1}} \right| = 1$时，\[\tau  = \frac{{\left| {{{\hat \varphi }_1}} \right| - 1}}{{S({{\hat \varphi }_1})}}\]
+式中，$\widehat{\phi}_{1}$为参数$\phi_{1}$的最小二乘估计值，$S\left(\widehat{\phi}_{1}\right)=\sqrt{\frac{S_{T}^{2}}{\sum_{t=1}^{T} x_{t-1}^{2}}}, S_{T}^{2}=\frac{\sum_{t=1}^{T}\left(x_{t}-\widehat{\phi}_{1} x_{t-1}\right)^{2}}{T-1}$
+
+DF检验为单边检验，当显著性水平为$\alpha$时，记$T_{\alpha}$为DF检验的$\alpha$分位点，则
+
+当$\alpha$<=$T_{\alpha}$时，拒绝原假设，认为序列xt显著平稳；
+
+当$\alpha$<$T_{\alpha}$时，接受原假设，认为序列xt非平稳。
+
+### DF检验的等价表达
+记\[\rho  = \left| {{\varphi _1}} \right| - 1\]
+AR(1)模型等价为
+\[\nabla {x_t} = \rho {x_{t - 1}} + {\varepsilon _t}\]
+平稳性检验的假设条件为
+\[{H_0:}\rho  = 0 \leftrightarrow {H_1:}\rho  < 0\]
+DF统计量为
+\[\tau  = \frac{{\hat \rho }}{{S(\hat \rho )}}\]
+
+### DF检验的三种类型
+- 第一种类型：无漂移项自回归过程
+
+这种类型的序列称为不带漂移项的差分平稳（difference stationary）序列，简记为DS序列。该序列均值非平稳，方差非齐，但一阶差分平稳。
+\[{x_t} = {x_{t - 1}} + {\varepsilon _t}\]
+- 第二种类型：带漂移项自回归过程
+
+这种类型的序列称为带漂移项的差分平稳序列。整理该序列可以发现这是一个有趋势，且波动性不断增加的非平稳序列
+\[{x_t} = {\phi _0} + {x_{t - 1}} + {\varepsilon _t}\]
+- 第三种类型：带趋势回归过程
+这种类型的序列称为趋势平稳（trend stationary）序列，简记为TS序列。对趋势平稳序列最好是通过拟合线性模型提取序列中的相关关系，实现残差序列平稳
+\[{x_t} = {\phi _0} + \beta t + {\varepsilon _t}\]
+```
+adfTest(x,lags=,type=)
+式中：
+-x:进行单位根检验的序列名
+-lags:延迟阶数
+（1）lags=1,默认设置，这时进行DF检验。
+（2）lags=n，n>1，这时进行ADF检验。
+-type:检验类型
+（1）type=“nc”,无常数均值，无趋势类型
+（2）type=“c”，常数均值，无趋势类型
+（3）type=“ct”，有常数均值，又有趋势类型。
+```
+
+## ADF检验
+DF检验只适用于AR(1)过程的平稳性检验 。为了使检验能适用于AR(p)过程的平稳性检验，人们对检验进行了一定的修正，得到增广检验（Augmented Dickey－Fuller），简记为ADF检验
+
+### ADF检验的原理
+若AR(p)序列有单位根存在，则自回归系数之和恰好等于1 。
+\[\begin{array}{l}
+{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\lambda ^p} - {\varphi _1}{\lambda ^{p - 1}} -  \cdots  - {\varphi _p} = 0\\
+\mathop  \Rightarrow \limits^{\lambda  = 1} 1 - {\varphi _1} -  \cdots  - {\varphi _p} = 0\\
+\mathop  \Rightarrow \limits^{} {\varphi _1} + {\varphi _2} +  \cdots  + {\varphi _p} = 1
+\end{array}\]
+
+- 等价假设
+\[\begin{array}{l}
+{H_0:}\rho  = 0 \leftrightarrow {H_1:}\rho  < 0\\
+\text{其中，} \rho  = {\varphi _1} + {\varphi _2} +  \cdots  + {\varphi _p} - 1
+\end{array}\]
+- 检验统计量
+\[\tau  = \frac{{\hat \rho }}{{S(\hat \rho )}}\]
+
+### ADF检验的三种类型
+- 第一种类型：无常数，无趋势
+\[{x_t} = \varphi {}_1{x_{t - 1}} +  \cdots  + \varphi {}_p{x_{t - p}} + {\varepsilon _t}\]
+- 第二种类型：有常数，无趋势
+\[{x_t} = \mu  + \varphi {}_1{x_{t - 1}} +  \cdots  + \varphi {}_p{x_{t - p}} + {\varepsilon _t}\]
+- 第三种类型：有常数，有趋势
+\[{x_t} = \mu  + \beta t + \varphi {}_1{x_{t - 1}} +  \cdots  + \varphi {}_p{x_{t - p}} + {\varepsilon _t}\]
+
+## PP检验
+- ADF检验主要适用于方差齐性场合，它对于异方差序列的平稳性检验效果不佳。
+- Phillips和 Perron于1988年对ADF检验进行了非参数修正，提出了PP检验统计量。
+
+- PP检验统计量适用于异方差场合的平稳性检验，且服从相应的ADF检验统计量的极限分布  
+
+### 残差序列的三个条件
+- 均值恒为零
+\[E({\varepsilon _t}) = 0\]
+- 方差有至少一个高阶矩存在
+\[\begin{array}{c}
+{\sup _t}E({\left| {{\varepsilon _t}} \right|^2}) < \infty \\
+\text{且对某个} \beta  > 2,{\sup _t}E({\left| {{\varepsilon _t}} \right|^\beta }) < \infty 
+\end{array}\]
+- 非退化极限分布存在
+\[\begin{array}{l}
+\sigma _S^2 = \mathop {\lim }\limits_{T \to \infty } E({T^{ - 1}}S_T^2)\text{，存在且为正值}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} \\
+\text{其中，T为序列长度，}S_T^{}{\rm{ = }}\sum\limits_{t = 1}^T {{\varepsilon _t}} 
+\end{array}\]
+
+### PP检验的构造原理
+如果序列不满足方差齐性的假设，则条件方差$\sigma _S^2$ 不等于无条件方差${\sigma ^2}$。以AR(1)为例说明
+- 方差齐性时，即${\varepsilon _t}\mathop \sim \limits^{i.i.d} N(0,\sigma _\varepsilon ^2)$时：${\kern 1pt} \sigma _{}^2{\rm{ = }}\sigma _S^2 = E(\varepsilon _t^2) = (1 + \theta _1^2)\sigma _\varepsilon ^2$
+- 方差非齐时，不妨假设${\kern 1pt} {\kern 1pt} {\varepsilon _t} = {\upsilon _t} - {\theta _1}{\upsilon _{t - 1}}$,且${\upsilon _t}\mathop \sim\limits^{i.i.d} N(0,\sigma _\upsilon ^2)$,则
+$$\sigma _{}^2 = E(\varepsilon _t^2)(1 + \theta _1^2)\sigma _\upsilon ^2$$
+\[{\kern 1pt} \sigma _S^2 = E(\varepsilon _t^2) + 2\sum\limits_{j = 2}^\infty  {E({\varepsilon _1}{\varepsilon _j})}  = (1 + \theta _1^2 - 2{\theta _1})\sigma _\upsilon ^2\]
+
+### PP检验统计量
+PP检验就是利用在方差非齐场合，条件方差和无条件方差的不等性，对ADF检验统计量进行非参数修正，修正后的检验统计量为
+$$
+Z(\tau)=\tau\left(\hat{\sigma}^{2} / \hat{\sigma}_{S i}^{2}\right)-(1 / 2)\left(\hat{\sigma}_{S i}^{2}-\hat{\sigma}^{2}\right) T \sqrt{\hat{\sigma}_{S i}^{2} \sum_{t=2}^{T}\left(x_{t-1}-\bar{x}_{T-1}\right)^{2}}
+$$
+其中：
+$$
+\begin{array}{l}{\text { (1) } \hat{\sigma}^{2}=T^{-1} \sum_{i=1}^{T} \hat{\varepsilon}_{t}^{2}} \\ {\text { (2) } \hat{\sigma}_{\text {st }}^{2}=T^{-1} \sum_{i=1}^{T} \hat{\varepsilon}_{t}^{2}+2 T^{-1} \sum_{j=1}^{t} w_{j}(l) \sum_{i=j+1}^{T} \hat{\varepsilon}_{i} \hat{\varepsilon}_{t-j}} \\ {\text { (3) } \bar{x}_{t-1}=\frac{1}{T-1} \sum_{i=1}^{r-1} x_{i}}\end{array}
+$$
