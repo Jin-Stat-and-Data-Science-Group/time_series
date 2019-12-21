@@ -516,3 +516,86 @@ plot(r.pred)
 #▽xt=et+0.0358et-1+vt vt~N(0,0.0002)
 #vt=sqr(ht)*et
 #ht=0.9144*ht-1 +0.07617(vt-1)^2
+
+######习题6.2#####
+getwd()
+install.packages('fUnitRoots')
+library(fUnitRoots)
+dat <- read.table("习题数据、案例数据、R代码/习题数据/习题6.2数据.txt",fill = T)
+grain <- ts(na.omit(as.numeric(t(as.matrix(dat[2:5,],byrow=T)))))
+rain <- ts(na.omit(as.numeric(t(as.matrix(dat[7:10,],byrow=T)))))
+plot(grain)
+plot(rain)
+for(i in 1:3) print(adfTest(grain,type = c("nc"),lag=i))
+for(j in 1:3) print(adfTest(grain,type = c("c"),lag=j))
+#谷物产量序列是有常数均值的平稳序列,且一阶自相关
+for(l in 1:3) print(adfTest(rain,type = c("nc"),lag=k))
+for(k in 1:3) print(adfTest(rain,type = c("c"),lag=k))
+#降雨量序列是有常数均值的平稳序列,且一阶自相关
+for(k in 1:3) print(Box.test(grain,lag=k))#白噪声序列
+for(l in 1:3) print(Box.test(rain,lag=l))#白噪声序列
+
+##协整检验
+y.fit <- lm(grain~rain)#构造回归模型
+summary(y.fit)
+r1 <- ts(y.fit$residuals)#残差序列单位根检验
+for(k in 1:3) print(adfTest(r1,type=c("nc"),lag=k))
+#回归残差序列为一阶自相关平稳序列，adf检验P值为0.01，两者之间具有协整关系
+#grain=23.5521+0.7755*rain
+
+#习题6.4
+dat4 <- read.table('习题数据、案例数据、R代码/习题数据/习题6.4数据.txt',header = T,sep = "\t",encoding = "UTF-8",skipNul = T)
+export <- ts(dat4[,2],start=1950)
+import <- ts(dat4[,3],start=1950)
+plot(export)
+plot(import)
+#非平稳
+
+##单位根检验
+for(k in 1:3) print(adfTest(export,type = c("nc"),lag=k))
+for(k in 1:3) print(adfTest(export,type = c("c"),lag=k))
+for(k in 1:3) print(adfTest(export,type = c("ct"),lag=k))
+#出口总额序列非平稳
+
+for(k in 1:3) print(adfTest(import,type = c("nc"),lag=k))
+for(k in 1:3) print(adfTest(import,type = c("c"),lag=k))#带有均值
+for(k in 1:3) print(adfTest(import,type = c("ct"),lag=k))#带有趋势项和均值
+#进口总额序列非平稳
+
+##分别对两个序列进行模型拟合
+export1 <- log(export)#拟合指数模型
+import1 <- log(import)
+plot(export1)
+plot(import1)
+#ADF检验
+for(k in 1:3) print(adfTest(export1,type = c("ct"),lag=k))#带有趋势项和均值的ADF检验出口对数序列显示不平稳
+for(k in 1:3) print(adfTest(i1,type = c("ct"),lag=k))#带有趋势项和均值的ADF检验进口对数序列显示不平稳
+#对对数序列进行一阶差分，再进行adf检验
+export1_1=diff(export1,differences=1)
+plot(export1_1)
+for(k in 1:3) print(adfTest(export1_1,type = c("c"),lag=k))#export带有均值的ADF检验显示一阶差分对数序列平稳
+
+import1_1=diff(import1,differences=1)
+plot(import1_1)
+for(k in 1:3) print(adfTest(import1_1,type = c("c"),lag=k))#import带有均值的ADF检验显示一阶差分对数序列平稳
+
+t <- c(1:59)
+fit2 <- lm(export1~t)#先提取趋势特征后平稳
+summary(fit2)
+fit3 <- lm(import1~t)
+plot(fit2$residuals,type='l')
+plot(fit3$residuals,type='l')
+##协整检验
+fit4 <- lm(export1~import1)
+r2 <- fit4$residuals
+for(k in 1:3) print(adfTest(r2,type=c("nc"),lag=k)) 
+#残差序列为平稳序列，所以两者之间具有协整关系
+
+##残差修正模型
+ecm <- fit4$residuals[1:58]
+fit5 <- lm(diff(export1)~0+diff(import1)+ecm)
+summary(fit5)
+plot(fit5$residuals,type='l')
+for(k in 1:3) print(adfTest(fit5$residuals,type=c("nc"),lag=k))
+for(l in 1:3) print(Box.test(fit5$residuals,lag=6*l))#序列为白噪声
+##误差修正模型为:diff(export1)= 0.72932*diff(import1)-0.30569*ecmt-1
