@@ -1,7 +1,7 @@
 library(tseries)
 library(FinTS)
 library(forecast)
-setwd("E:/github_repo/time_series")
+setwd("E:/github_repo/time_series/习题数据、案例数据、R代码/习题数据/")
 
 ################################第七次作业#################################################
 
@@ -33,7 +33,7 @@ data <- y[n1+1:T]#剔除前面的时期
 ts.plot(data)
 
 #习题5.1
-data1 <- scan("习题数据、案例数据、R代码/习题数据/习题5.1数据.txt")
+data1 <- scan("习题5.1数据.txt")
 x <- ts(data1)
 plot(x)#序列不平稳
 x.dif <- diff(x)
@@ -56,7 +56,7 @@ x.fore<-forecast(x.fit)
 x.fore
 
 #习题5.2
-data2 <- read.table("习题数据、案例数据、R代码/习题数据/习题5.2数据.txt",head=T)
+data2 <- read.table("习题5.2数据.txt",head=T)
 y <- c(data2[,2],data2[,4],data2[,6])
 y <- ts(y,start = 1949) 
 plot(y) #不平稳
@@ -81,7 +81,7 @@ y.fore
 
 
 #习题5.3
-data3 <- read.table("习题数据、案例数据、R代码/习题数据/习题5.3数据.txt",header=T)
+data3 <- read.table("习题5.3数据.txt",header=T)
 z <- c(data3[,2],data3[,4],data3[,6])
 z <- as.numeric(z)
 z <- ts(z,start = c(1973,1),frequency = 12) 
@@ -101,7 +101,7 @@ z.fore
 
 #################################第八次作业###############################################
 #习题5.4
-data4 <- read.table("习题数据、案例数据、R代码/习题数据/习题5.4数据.txt",header=T)
+data4 <- read.table("习题5.4数据.txt",header=T)
 x <- c(data4[,2],data4[,4],data4[,6],data4[,8])
 x <- ts(x,start=1750)
 plot(x) #平稳
@@ -119,7 +119,7 @@ r.fit <- garch(x.fit$residuals,order = c(0,1))
 summary(r.fit)
 
 #习题5.5
-y <- scan('习题数据、案例数据、R代码/习题数据/习题5.5数据.txt')
+y <- scan('习题5.5数据.txt')
 y <- ts(y)
 plot(y)#不平稳
 y.dif <- diff(y)
@@ -142,7 +142,7 @@ plot(z.fore)
 
 #习题5.6
 #读取数据
-z <- scan('习题数据、案例数据、R代码/习题数据/习题5.6数据.txt')
+z <- scan('习题5.6数据.txt')
 z <- ts(z)
 plot(z) #不平稳
 z.dif <- diff(z)
@@ -164,9 +164,84 @@ summary(r.fit)
 
 
 
+######第九次作业##########
+#习题6-2
+#(1)使用单位根检验考察两个模型平稳性
+dat1 <- read.table('习题6.2数据.txt',fill=T)
+grain <- dat1[2:5,]
+grain <- na.omit(c(t(grain)))
+grain <- ts(as.numeric(grain))
+rain <- dat1[7:10,]
+rain <- na.omit(c(t(rain)))
+rain <- ts(as.numeric(rain))
+library(fBasics)
+library(fUnitRoots)
+for(i in 1:3) print(adfTest(grain,lag=i,type='nc'))#p值均大于0.05
+for(i in 1:3) print(adfTest(grain,lag=i,type='c'))#滞后一阶p值小于0.05
+#谷物序列是有常数均值的平稳序列，该序列一阶自相关
+for(i in 1:3) print(adfTest(rain,lag=i,type='nc'))#p值均大于0.05
+for(i in 1:3) print(adfTest(rain,lag=i,type='c'))#滞后一阶p值小于0.05
+#降雨序列是有常数均值的平稳序列，该序列一阶自相关
 
+#(2)拟合适当模型
+#首先进行随机性检验
+for(i in 1:6) print(Box.test(grain,lag=i))#白噪声
+for(i in 1:6) print(Box.test(rain,lag=i))#白噪声
 
+#(3)判断两个序列是否有协整关系
+#一、构造回归模型
+fit <- lm(grain~rain)
+summary(fit)
+#二、残差序列单位根检验
+r <- ts(fit$residuals)
+for(i in 1:3) print(adfTest(r,lag=i,type='nc'))#残差序列平稳
+#谷物与降雨之间存在协整关系，关系式为：grain=23.5521+0.7755*rain
+
+#习题6-4
+#(1)考察平稳性
+dat2 <- read.table('习题6.4数据.txt',header=T,encoding = "UTF-8",skipNul = T)
+export <- ts(dat2[,1],start=1950)
+import <- ts(dat2[,2],start=1950)
+for (i in 1:3) print(adfTest(export,lag=i,type='nc'))
+for (i in 1:3) print(adfTest(export,lag=i,type='c'))
+for (i in 1:3) print(adfTest(export,lag=i,type='ct'))
+#检验结果显示出口额序列不平稳
+for (i in 1:3) print(adfTest(import,lag=i,type='nc'))
+for (i in 1:3) print(adfTest(import,lag=i,type='c'))
+for (i in 1:3) print(adfTest(import,lag=i,type='ct'))
+#检验结果显示进口额序列不平稳
+
+#(2)分别对两个序列拟合模型
+for (i in 1:6)  print(Box.test(export,lag =i))
+for (i in 1:6)  print(Box.test(import,lag =i))
+#两者均不是白噪声序列
+lnx <- log(export)
+e.dif <- diff(lnx)
+for (i in 1:3) print(adfTest(e.dif,lag=i,type='nc'))#1阶自回归平稳序列
+e.fit <- arima(e.dif,orde=c(1,0,0))
+e.fit #logxt*(1-B)(1-0.3932B)=et
+for(i in 1:6) print(Box.test(e.fit$residuals,lag=i))#残差为白噪声
+lny <-log(import) 
+i.dif <- diff(lny)
+for (i in 1:3) print(adfTest(i.dif,lag=i,type='nc'))#1阶自回归平稳序列
+i.fit <- arima(i.dif,orde=c(1,0,0))
+i.fit #logxt*(1-B)(1-0.3789B)=et
+#(3)考察协整关系
+fit <- lm(lny~lnx)
+summary(fit)
+r <- ts(fit$residuals)
+for (i in 1:3) print(adfTest(r,lag=i,type='nc')) 
+#进口额和出口额有协整关系，表达式为：lny=0.063935+0.984121*lnx
+#(4)误差修正模型
+ECM <- fit$residuals[1:58]
+dif.fit <- lm(i.dif~0+e.dif+ECM)
+summary(dif.fit)
+#误差修正模型为:▽yt= 1.02006*▽xt-0.31775*ECMt-1
 ###########################################################################################
+
+
+
+
 #自定义求自相关系数的函数auto_acf
 auto_acf <- function(ts,k){
   #ts表示输入的时间序列，k表示滞后阶数
