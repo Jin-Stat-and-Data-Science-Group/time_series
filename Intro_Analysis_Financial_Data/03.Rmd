@@ -1,0 +1,45 @@
+---
+title: "第3章"
+author: "Zeng"
+date: '2019-12-10'
+css: ./style/markdown.css
+autoEqnLabels: true
+eqnPrefixTemplate: ($$i$$)
+linkReferences: true
+bibliography: Bibfile.bib
+notice: '@*'
+csl: ./style/chinese-gb7714-2005-numeric.csl
+link-citations: true
+---
+
+
+
+```{r setup, echo=F}
+
+################# 第 3 章 R 程序代码  ####################
+
+
+knitr::opts_knit$set(root.dir = getwd())
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+```
+
+```{r prepare}
+rm(list=ls())
+options(digits=4)
+options(scipen=100)
+graphics.off()
+Sys.setlocale("LC_ALL", "Chinese")
+```
+
+
+
+
+# 第3章
+
+
+
+
+
+<!--# 参考文献 {-}-->
+[//]: # (\bibliography{Bibfile})
