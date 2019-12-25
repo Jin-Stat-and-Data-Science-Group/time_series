@@ -2,15 +2,17 @@
 title: "第2章"
 author: "Zeng"
 date: '2019-12-10'
-output: pdf_document
+output:
+  html_document:
+    df_print: paged
 css: ./style/markdown.css
 bibliography: Bibfile.bib
 eqnPrefixTemplate: ($$i$$)
-link-citations: true
-linkReferences: true
+link-citations: yes
+linkReferences: yes
 notice: '@*'
 csl: ./style/chinese-gb7714-2005-numeric.csl
-autoEqnLabels: false
+autoEqnLabels: no
 ---
 
 
@@ -32,9 +34,270 @@ graphics.off()
 Sys.setlocale("LC_ALL", "Chinese")
 ```
 
+# 金融时间序列的线性模型
+## 平稳性
+**收益率曲线倒挂**：在利率期限结构中，序列大致上是在相等分割的时间区间上观测的。  
+
+**弱平稳性**:在统计上，收益率的均值和方差不随时间变化，这两个时间不变性特征结合在一起，我们称对数收益率序列为**弱平稳的**。      
+
+对于一个弱平稳的时间序列$x_t$，给定整数k，协方差$\gamma_k=Cov(x_t,x_{t-k})$仅仅依赖于k，该值衡量$x_t$和$x_{t-k}$的线性相依性。  
+
+自协方差$\gamma_k$有两个重要的性质:
+    - $$\gamma_0$=$Var(x_t)$$
+    - $$\gamma_k=\gamma_{-k}$$
+
+## 相关系数和自相关系数
+### 皮尔逊相关系数
+线性相关程度经常用皮尔逊相关系数来衡量。在统计上，两个随机变量X和Y的相关系数定义为：
+$$
+\rho_{x, y}=\frac{\operatorname{Cov}(X, Y)}{\sqrt{\operatorname{Var}(X) \operatorname{Var}(Y)}}=\frac{E\left[\left(X-\mu_{x}\right)\left(Y-\mu_{y}\right)\right]}{\sqrt{E\left(X-\mu_{x}\right)^{2} E\left(Y-\mu_{y}\right)^{2}}}
+$$
+当我们有样本时，相关系数可以由它对应的样本相关系数相合地估计出来：
+$$
+\hat{\rho}_{x, y}=\frac{\sum_{i=1}^{T}\left(x_{i}-x\right)\left(y_{i}-\bar{y}\right)}{\sqrt{\sum_{i=1}^{T}\left(x_{i}-\bar{x}\right)^{2} \sum_{i=1}^{T}\left(y_{i}-\bar{y}\right)^{2}}}
+$$
+**注记**：理论上，皮尔逊相关系数取值为-1~1之间。然而，对某些随机变量而言，该系数的实际范围比较小。
+
+### 自相关系数
+**间隔为k的自相关系数**通常记为$\rho_k$,定义为：$$
+\rho_{k}=\frac{\operatorname{Cov}\left(x_{t}, x_{t-k}\right)}{\sqrt{\operatorname{Var}\left(x_{t}\right) \operatorname{Var}\left(x_{t-k}\right)}}=\frac{\operatorname{Cov}\left(x_{t}, x_{t-k}\right)}{\operatorname{Var}\left(x_{t}\right)}=\frac{\gamma_{k}}{\gamma_{0}}
+$$
+因为$x_t$是弱平稳的，$Var(x_{t-k})=Var(x_{t})$,根据定义，我们有$\rho_0=1$，$\rho_t=\rho_{-t}$和$-1<\rho_t<1$.自相关系数组成的集合$\{\rho_k\}$称为$x_t$d的**自相关函数（ACF）**,一个弱平稳序列是序列自身前后不相关的，当且仅当对所有k>0都有$\rho_k=0$。
+
+若$x_t$是独立同分布随机变量序列且$E\left(x_{t}^{2}\right)<\infty$，则$\hat{\rho}_{1}$渐近地服从均值为0，方差为1/T的正态分布，一般地，$x_t$的间隔为k 的样本自相关系数定义为$$
+\hat{\rho_{k}}=\frac{\sum_{i=k_{1}}^{T}\left(x_{i}-\bar{x}\right)\left(x_{i-k}-\bar{x}\right)}{\sum_{i=1}^{r}\left(x_{i}-x\right)^{2}} \quad 0 \leqslant k<T-1
+$$
+若$x_t$是独立同分布随机变量序列且$E\left(x_{t}^{2}\right)<\infty$，则$\hat{\rho}_{1}$渐近地服从均值为0，方差为1/T的正态分布。
+
+### 检验单个ACF
+- 假设
+$$
+H_{0}: \rho_{\mathrm{k}}=0 \text { 对 } H_{\mathrm{a}}: \rho_{\mathrm{k}} \neq 0
+$$
+- 检验统计量
+$$
+t \text{比}=\frac{\hat{\rho}_{k}}{\sqrt{\left(1+2 \sum_{i=1}^{k-1} \hat{\mu}_{i}\right) / T}}
+$$
+如果$x_t$是平稳的高斯序列并且满足当j>k时，$\rho_{j}=0$，则该t比$渐近地服从标准正态分布。
+- 决策规则：当|t比|$>z_{a / 2}$时拒绝原假设。
+
+为了简单起见，对于任意k≠0，许多软件用1/T作为$\hat \rho_{k}$ 的渐进方差.那么t比就变为$\sqrt{T} \hat{\rho}_{k}$,该简单近似实质上是假定所分析的时间序列是一个独立同分布随机变量序列。
+
+### 混成检验
+在许多金融应用中，我们经常需要联合检验$x_t$的多个自相关系数是否同时为0.
+- 假设：原假设：$H_{0}: \rho_{1}=\dots=\rho_{m}=0$对备择假设$ H_{a}: \rho_{i} \neq 0(i \in\{1, \cdots, m\rangle)$
+- 混成统计量：$$Q(m)=T(T+2) \sum_{i=1}^{m} \frac{\hat{p}_{i}^{2}}{T-\ell}
+$$
+
+在$x_t$是满足
+一定矩条件的iid随机序列的假定下，Q.(m)渐进地是自由度为m的卡方随机变量。
+- 决策规则：当$Q(m)>x_{s}^{2}$时拒绝H0。
+
+实际上，由于m的选择会影响Q(m)的表现,所以经常选用多个m 值.模拟研究表明m≈ln(T)会有较好的功效.在分析季节性时间序列时,由于时间隔为周期的倍数的自相关
+系数更加重要,所以这个一般性的规则需要加以修正.
+
+## 白噪声和线性时间序列
+### 白噪声
+如果时间序列$x_t$是一个具有有限均值和有限方差的独立同分布随机变量序列，则$x_t$称为一个**白噪声序列**。若$x_t$还服从均值为0，方差为$\sigma^2$的正态分布，则称这个序列为**高斯白噪声**。对于白噪声序列，所有自相关函数为零。在实际应用中，如果所有样本自相关函数接近于零，则认为该序列是白噪声序列。
+
+### 线性时间序列
+时间序列$x_t$称为线性序列，如果它能写成$$
+x_{t}=\mu+\sum_{i=0}^{\infty} \psi_{i} a_{t-i}
+$$
+其中，μ是序列均值，$\psi_{0}=1$，$\left\{a_{t}\right\}$是白噪声序列。$a_{t}$表示时间序列在t时刻出现的新信息，因此常将$a_{t}$称为时刻t的**新息**或**扰动**。
+
+在上式定义的线性时间序列中，系数$\psi_{i}$决定了$x_t$的动态结构，在时间序列文献中这些系数称为$x_t$的$\psi$权重。
+
+$x_t$的均值和方差为：$$
+E\left(x_{t}\right)=\mu, \quad \operatorname{Var}\left(x_{t}\right)=\sigma_{a}^{2} \sum_{i=0}^{\infty} \psi_{i}^{2}
+$$
+其中，${\sigma_{a}^{2}}$是$a_t$的方差。对于一个平稳序列，随着i的增大遥远的扰动$a_{t-i}$对$x_t$的影响会逐渐消失。
+
+$\psi$权重与$x_t$的自相关系数有如下关系：
+$\rho_{\ell}=\frac{\gamma_{t}}{\gamma_{0}}=\frac{\sum_{i=0}^{\infty} \psi_{i} \psi_{i+t}}{1+\sum_{i=1}^{\infty} \psi_{i}^{2}} \quad \ell \geqslant 0$
+其中，$\psi_{0}=1$。线性时间序列模型就是用来描述$x_t$的$\psi$权重的计量模型和统计模型。
+
+## 简单自回归模型
+一阶**自回归（AR）模型**：$$
+x_{t}=\phi_{0}+\phi_{1} x_{t-1}+a_{t}
+$$
+其中，$\left\{a_{t}\right\}$是均值为0、方差为${\sigma_{a}^{2}}$的白噪声序列。$x_t$是因变量，$x_{t-1}$是解释变量。该模型也广泛地应用在随机波动率的建模中。
+
+AR(p)模型：$x_{t}=\phi_{0}+\phi_{1} x_{t-1}+\dots+\phi_{p} x_{t-p}+a_{t}$
+
+### AR模型的性质
+#### AR(1)模型
+1. AR(1)模型是弱平稳的充分必要条件
+
+AR(1)模型是弱平稳的充分必要条件是$\left|\phi_{1}\right|<1$.
+应用$\phi_{0}=\left(1-\phi_{1}\right) \mu$，可以把AR(1)模型重新写为：$$
+x_{t}=\left(1-\phi_{1}\right)_{\mu}+\phi_{1} x_{r-1}+a_{t}
+$$
+在金融文献中，这个模型常用$\phi_1$来刻画 AR(1)时间序列的动态相依性的持续性.
+
+2. AR(1)模型的自相关函数
+
+$x_t$的自相关系数（ACF）满足$$
+\rho_{\ell}=\phi_{1} \rho_{\ell 1} \quad \ell>0
+$$
+因为$\rho_{0}=1$,所以有$\rho_{t}=\phi_{1}^{\ell}$.这个性质表明弱平稳AR(1)序列的自相关系数从$\rho_0=1$开始以比率为$\phi_1$的指数速度衰减。对正的$\phi_1$,AR(1)模型的自相关函数（ACF）图像呈现漂亮的指数衰减。对负的$\phi_1$，AR(1)模型的ACF由上下两个都以$\phi_1^2$比率衰减的图像组成.
+
+#### AR(2)模型
+AR(2)模型为$$
+x_{t}=\phi_{0}+\phi_{1} x_{t-1}+\phi_{2} x_{t-2}+a_{t}
+$$
+
+平稳AR(2)模型的**矩方程**：$$
+\gamma_{t}=\phi_{1} \gamma_{t-1}+\phi_{2} \gamma_{t-2} \quad \ell>0
+$$
+对于平稳的AR(2)序列$x_t$，有$\rho_0=1$，$$
+\begin{array}{l}{\rho_{1}=\frac{\phi_{1}}{1-\phi_{2}}} \\ {\rho_{\epsilon}=\phi_{1} \rho_{t 1}+\phi_{2} \rho_{t-2} \quad \ell \geqslant 2}\end{array}
+$$
+
+- 平稳性：AR(2)时间序列的平稳性条件是它的两个特征根的绝对值都小于1，或者说，它的两个特征跟的模小于1。因此，特征方程两个解的模要大于1.
+
+#### AR(P)模型
+对于平稳的AR（p）序列，其均值为
+$$
+E\left(x_{t}\right)=\frac{\phi_{0}}{1-\phi_{1}-\cdots-\phi_{p}}
+$$
+假定分母不等于0.该模型对应的特征方程为$$
+1-\phi_{1} z-\phi_{2} z^{2}-\cdots-\phi_{p} z^{\beta}=0
+$$
+如果这个方程的所有解的模都大于1，则序列$x_t$是平稳的。同样，该方程的倒数为该模型的**特征根**。因此，平稳性要求所有特征根的模都小于1.对平稳AR(p)序列而言，其自相关函数满足下面的差分方程
+$$
+\left(1-\phi_{1} B-\phi_{2} B^{2}-\cdots-\phi_{p} B^{\rho}\right) \rho_{e}=0 \quad \ell>0
+$$
+
+### 实践中AR模型的识别
+AR模型的**定阶**，即确定p值，一般有两种方法：第一种方法是利用PACF，第二种方法是用某个信息准则函数。
+1. PACF定阶\
+- 当样本容量T趋于无穷大时，$\hat{\phi}_{p.p}$收敛于$\phi_p$.
+- 对$\ell>p$,$\hat{\phi}_{p.p}$收敛于零。
+- 对$\ell>p$,$\hat{\phi}_{p.p}$的渐进方差为1/T.
+这些结果表明AR(p)序列的样本片自相关函数是p步截尾的。
+2. 信息准则\
+有几种信息准则可用来确定AR" 过程的阶p，它们都基于似然函数。
+著名的赤池信息准则（AIC）定义如下：
+$$
+\mathrm{AIC}=\frac{-2}{T} \ln \left(\text{似然函数}\right)+\frac{2}{T}(\text{参数的个数})
+$$
+其中T是样本容量。对于高斯AR($\ell$)模型，AIC简化为：
+$$
+\operatorname{AIC}(\ell)=\ln (\widetilde{\sigma_{\ell}})+\frac{2 \ell}{T}
+$$
+AIC的第一项度量AR($\ell$)模型对数据的拟合优度，第二项称为准则里面的**罚函数**，又译为补偿函数。
+
+另一个常用的信息准则函数为施瓦茨-贝叶斯信息准则，对于高斯AR($\ell$)模型，该准则为
+$$
+\operatorname{BIC}(\ell)=\ln \left(\widetilde{\sigma}_{\ell}^{2}\right)+\frac{\ell \ln (T)}{T}
+$$
+在 AIC中对每个参数的惩罚为2,而在BIC中为ln(T).因此，和AIC相比，当样本容量适度或较大时，BIC倾向于选择一个低阶的AR模型。
+
+3. 选择准则\
+在实际应用中，为了利用AIC来选择一个AR模型，要计算AR($\ell$)，其中$\ell=0,1,2,...,P$,P为事先给定的一个正整数，然后选择阶k，使AIC达到最小值。该过程同样适用于BIC.
+
+4. 参数估计
+对于一个具体的AR(p）模型，我们常用条件最小二乘方法来估计其参数，，条件最小二乘是从第p+1个观测值开始的。具体地说，在给定p个观测值的前提下，我们有
+$$
+x_{t}=\phi_{0}+\phi_{1} x_{t-1}+\cdots+\phi_{p} x_{t-p}+a_{t}, \quad t=p+1, \cdots, T
+$$
+参数可用最小二乘法估计。**拟合的模型**为$$
+\hat{x}_{t}=\hat{\phi}_{0}+\hat{\beta}_{1} x_{t-1}+\cdots+\hat{\phi}_{p} x_{t-p}
+$$
+对应的残差序列为
+$$
+\hat{a}_{t}=x_{t}-\hat{x}_{t}
+$$
+并得到$$
+\hat{\sigma}_{a}=\frac{\sum_{r=p+1}^{T} \hat{a}_{t}^{2}}{T-2 p-1}
+$$
+5. 模型的检验\
+如果模型是充分的，则其残差序列应是白噪声。残差的样本自相关函数和Ljung-Box统计量可用来检验$\hat{a}_t$与白噪声接近的程度。对AR(p)模型，Ljung-Box统计量Q(m)渐进服从自由度为m-g的卡方分布，其中g是所用模型中AR系数的个数。
+
+### 拟合优度
+对于平稳AR(p)时间序列模,假设有T个观测值$\left\{x_{t} | t=1, \cdots,T\right\}$，则$R^2$变为$$
+R^{2}=1-\frac{\sum_{t=t+1}^{T} \hat{a}_{t}^{2}}{\sum_{t=r+1}^{T}\left(x_{t}-\bar x\right)^{2}}
+$$
+
+$\bar x =\left(\sum_{t=p+1}^{T} x_{t}\right) /(T-p)$。$R^2$越大，表示模型对数据拟
+合的越好。
+
+对于一个给定的数据集，$R^2$是所用参数个数的非降函数。为了克服该缺
+点，建议用**调整的**$R^2$，它的定义为$$
+\begin{aligned} \mathrm{Adj}\left(R^{2}\right) &=1-\frac{\text{残差的方差}}{x_t的方差} \\ &=1-\frac{\hat{\sigma}_{a}^{2}}{\hat{\sigma}^2_{\mathrm{x}}} \end{aligned}
+$$
+
+### 预测
+预测是时间序列分析的一个重要应用。对AR(p)序列,假定我们在时间指标为h的点上,欲预测正整数$x_{h+t}$,时间指标h称为**预测原点**,正整数$\ell$称为**预测步长**。设$\hat{x}_{\mathrm{h}}(\ell)$为$x_{h+t}$的最小均方误差预测，选择$\hat{x}_{\mathrm{h}}(\ell)$作为预测，该预测$\hat{x}_{\mathrm{h}}(\ell)$满足：$$
+E\left\{\left[x_{h+\ell}-x_{h}(\ell)\right]^{2} | F_{h}\right\} \leqslant \min E\left[\left(x_{h+\ell}-g\right)^{2} | F_{h}\right]
+$$
+其中g是$F_h$ 的函数,$F_h$为在预测原点h所得到的信息集合.
+
+#### 超前多步预测
+一般地，我们有$$
+x_{k+\ell}=\phi_{0}+\phi_{1} x_{k+k-1}+\cdots+\phi_{p} x_{k+\ell-p}+a_{k+\ell}
+$$
+基于最小平方误差损失函数而得到的超前$\ell$步预测就是，
+$$
+\hat{x_{h}}(\ell)=\phi_{0}+\sum_{i=1}^{p} \phi_{i} \hat{x_{n}}(\ell-i)
+$$
+长期的点预测趋于无条件均值，这种性质称为**均值回转**。对于AR(1)模型，均值回转的速度由**半衰期**来衡量。
+
+## 简单移动平均模型
+1. MA(1)模型的一般形式为
+$$
+x_{t}=c_{0}+a_{t}-\theta_{1} a_{t-1}-\theta_{2} a_{t-2}
+$$
+2. MA(q)模型为$$
+x_{t}=c_{0}+a_{t}-\theta_{1} a_{t-1}-\cdots-\theta_{s} a_{t-q}
+$$
+
+### MA模型的性质
+#### 平稳性
+MA模型总是弱平稳的,因为它们是白噪声序列的有限线性组合,其前两阶矩是不随时间变化的。MA(q)模型的两个一般性质：第一，MA模型的常数项就是序列的均值；第二，MA(q)模型的方差为$$
+\operatorname{Var}\left(x_{t}\right)=\left(1+\theta_{1}^{2}+\theta_{2}^{2}+\cdots+\theta_{t}^{2}\right) \sigma_{a}^{2}
+$$
+
+#### 自相关函数
+MA(q)序列只与其前q个滞后值线性相关，从而它是一个"有限记忆"模型。
+
+#### 可逆性
+将零均值MA(1)模型型改写为$a_{t}=x_{t}+\theta_{1} a_{t-1}$，重复代替可以得到$$
+a_{t}=x_{t}+\theta_{1} x_{t-1}+\theta_{1}^{2} x_{t-2}+\theta_{1}^{3} x_{t-3}+\cdots
+$$
+该等式表明当前的扰动$a_t$是序列$x_t$现在和过去取值的线性组合。$\left|\theta_{1}\right|<1$,这样的MA(1)模型称为可逆的。
+
+### MA模型定阶
+与PACF不同,样本ACF提供了模型非零MA滞后项的信息.
+
+### 模型估计
+估计MA模型通常用最大似然法.有两种方法求MA模型的似然函数.
+
+1. 条件似然法
+
+假设初始的“扰动”都是0，这样由$a_{1}=x_{1}-c_{0}, \quad a_{2}=x_{2}-c_{0}+\theta_{1} a_{1}$，可递推
+到计算似然函数所需要的“扰动”。
+
+2. 精确似然法
+
+把初始的“扰动”$a_{t}, \quad t \leqslant 0$当做模型的附加
+参数与其他参数一起估计出来。
+
+精确似然估计优于条件似然估计，尤其是当MA模型接近于不可逆时.如果样本量较大,这两种似然估计是接近的。
+
+### 小结
+- 对MA模型，ACF对模型的定阶是有用的,因为MA(q)序列的ACF是q步截尾的。
+- 对AR模型，PACF对模型的定阶是有用的,因为AP(p)序列的PACF是p步截尾的。
+- MA序列总是平稳的，而对AR序列，当其特征根的模都小于1时，它才是平稳的。
+- 对一个平稳序列，超前多步预测收敛于序列的均值，预测误差的方差收敛于序列
+的方差。
 
 
-# 第2章
+
+
+
+
 
 
 
