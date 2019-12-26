@@ -293,6 +293,159 @@ $$
 - 对一个平稳序列，超前多步预测收敛于序列的均值，预测误差的方差收敛于序列
 的方差。
 
+## 简单ARMA模型
+ARMA模型的基本思想是把AR和MA模型的想法结合在一个紧凑的形式中。将模型参数的个数保持很小，使模型达到参数的简约化。
+
+### ARMA(1,1)模型的性质
+ARMA(1,1)模型形式：$$x_t-\phi_1x_{t-1}=\phi_0+a_t-\theta_1a_{t-1}$$
+其中$\{{a_t}\}$是白噪声序列，等式左边是AR部分，右边是MA部分，$\phi_1\neq \theta_1$.
+
+ARMA(1,1)模型的性质是AR(1)模型相应性质的推广，同时有一些小修正来处理MA部分的影响。性质均在序列弱平稳性下探讨。
+
++ 均值$$E(x_t)=\mu=\frac{\phi_0}{1-\phi_1}$$
+
++ 方差$$\operatorname{Var}\left(x_{t}\right)=\frac{\left(1-2 \phi_{1} \theta_{1}+\theta_{1}^{2}\right) \sigma_{a}^{2}}{1-\phi_{1}^{2}}$$
+
++ 自协方差 $$\gamma _l=\phi_1\gamma _{\ell-1},\ell>1$$
+
++ 自相关系数$$\rho_1=\phi1-\frac{\theta _1\delta _{a}^{2}}{\gamma _0},\ell>1$$
+
+ARMA(1,1)模型的ACF和PACF不能在任意有限间隔后截尾（拖尾性）。
+
+### 一般的ARMA模型
+一般的ARMA(p,q)模型的形式为$$x_{t}=\phi_{0}+\sum_{i=1}^{p} \phi_{i} x_{t-i}+a_{t}-\sum_{i=1}^{q} \theta_{i} a_{t-i}$$
+其中$\{{a_t}\}$是白噪声序列，p,q都是非负整数，利用延迟算子，上述模型可以写成$$\left(1-\phi_{1} B-\cdots-\phi_{p} B^{p}\right) x_{t}=\phi_{0}+\left(1-\theta_{1} B-\cdots-\theta_{q} B^{q}\right) a_{t}$$
+其中$1-\phi_{1} B-\cdots-\phi_{p} B^{p}$是模型AR的多项式，$1-\theta_{1} B-\cdots-\theta_{q} B^{q}$是模型MA的多项式,如果特征方程所有解的绝对值都小于1，则该ARMA模型是弱平稳，这时，模型的无条件均值为$E\left(x_{t}\right)=\phi_{0} /\left(1-\phi_{1}-\cdots-\phi_{p}\right)$
+
+### ARMA模型的识别
+在给ARMA模型定阶时，ACF和PACF都不能提供足够的信息，一个新方法是利用推广的自相关函数EACF来确定ARMA过程的阶。EACF的基本思想相对简单：得到ARMA模型AR部分的相合估计，推导出MA部分，通过MA序列应用ACF来确定MA部分的阶。
+
+**EACF识别阶数方法**：通过TSA包来计算EACF，得到EACF二维表，表的行对应AR的阶p，列对应MA的阶q.二维表由X和O组成，X表示对应的EACF的绝对值大于或等于EACF渐进标准误的两倍，O表示对应的EACF的绝对值小于EACF渐进标准误的两倍。由O组成的三角形，左上角顶点位于(p,q)处。
+
+```{r eval=FALSE, include=FALSE}
+#  EACF table
+da=read.table("../Intro_Analysis_Financial_Data/data/chart2/m-3m4608.txt",header=T)
+head(da)
+mmm=log(da$rtn+1)
+#install.pachages('TSA')
+#install.pachages('locfit')
+library(TSA)     # Load the pachage 
+m1=eacf(mmm,6,12)      # Simplified table 
+print(m1$eacf,digits=2)   #无法生成网页
+```
+**AIC和BIC准则来定阶**：对于事先指定的P,Q，计算ARMA(p,q)模型的AIC或BIC，选择使AIC或BIC最小的模型，该方法需要许多模型的最大似然估计，一些情形下可能出现过度拟合的困难。
+
+模型阶数确定后，用似然法估计模型参数。再用残差的Ljung-Box统计量检验模型拟合的充分性，若模型正确，则Q(m)渐进服从自由度为$m-g$的$\chi ^2$分布，g为所用模型AR或MA参数的个数。
+
+### 用ARMA模型进行预测
+设预测原点为$h$,$F_h$为在h时刻所能得到的信息集合，超前$\ell$步预测为
+$$\hat{x}_{h}(\ell)=E\left(x_{h+\ell} | F_{h}\right)=\phi_{0}+\sum_{i=1}^{p} \phi_{i} \hat x_{\ell-i}-\sum_{i=1}^{n} \theta_{i} a_{\ell-i}$$
+其中，$当\ell-i\leq 0时,\hat x_{h}(\ell-i)=x_{h+\ell-i}，当\ell-i> 0时, a_{h}(\ell-i)=0;\ell-i\leq 0时，a_{h}(\ell-i)=a_{h+\ell-i}$.
+相应的预测误差为$e_h(\ell)=x_{h+\ell}-\hat{x}_{h}(\ell)$
+
+### ARMA模型的三种表示形式
+* 第一种：ARMA(p,q)
+
+$$\left(1-\phi_{1} B-\cdots-\phi_{p} B^{p}\right) x_{t}=\phi_{0}+\left(1-\theta_{1} B-\cdots-\theta_{q} B^{q}\right) a_{t}$$
+
+* 第二种：$AR(\infty)$
+
+$$x_{t}=\frac{\phi_{0}}{1-\theta_{1}-\cdots-\theta_{q}}+\pi_{1} x_{t-1}+\pi_{2} x_{t-2}+\pi_{3} x_{t-3}+\cdots+a_{t}$$
+这个表示给出了当前收益率$x_t$对过去收益率$x_{t-1}$的依赖关系，系数$\pi_i$称为$\pi权重$，为了说明滞后值$x_{t-i}$对$x_t$的贡献随着$i$的增大而消失，系数
+$\pi$应随着$i$增大而趋于零。一个具有这样性质的ARMA模型称为可逆的。对于纯AR(p)模型，$\theta(B)=1, 故 \pi(B)=\phi(B)，从而对i>p,有\pi_i>0$,模型是可逆的，对于其他ARMA模型，可逆的充分条件是：多项式$\theta(B)$的所有零点的模大于1.
+
+$AR(\infty)$表示，一个可逆的ARMA序列$x_t$是当前扰动项$a_t$与序列过去值得加权平均线性组合，对于越远的值，权重呈指数衰减。
+
+* 第三种：$MA(\infty)$
+
+$$x_{t}=\mu+a_{t}+\psi_{1} a_{t-1}+\psi_{2} a_{t-2}+\cdots=\mu+\psi(B) a_{t}$$
+其中$\mu=E\left(x_{t}\right)=\phi_{0} /\left(1-\phi_{1}-\cdots-\phi_{p}\right)$，该表示形式清楚说明过去的扰动$a_{t-i}$对当前收益$x_t$的影响，系数$\{\psi_{i}\}$称为ARMA模型的**脉冲响应函数**.对弱平稳序列，系数$\psi_{i}$随$i$的增加呈指数衰减。对平稳ARMA模型，扰动$a_{t-i}$不能对序列$x_t$有永久影响，如果$\phi_{0}\neq0$，那么MA表示中就有一个常数项，它是$x_t$的均值（即
+$\phi_{0} /\left(1-\phi_{1}-\cdots-\phi_{p}\right)$）.
+
+$MA(\infty)$超前$\ell$预测为$$\hat{x}_{h}(\ell)=\mu+\psi_{\ell} a_{h}+\psi_{\ell+1} a_{h-1}+\cdots$$
+相应的预测误差为$$e_{h}(\ell)=a_{h+\ell}+\psi_{1} a_{h+\ell-1}+\cdots+\psi_{\ell-1} a_{h+1}$$
+超前$\ell$步预测误差的方差为$$Var\left[e_{h}(\ell)\right]=\left(1+\psi_{1}^{2}+\cdots+\psi_{\ell-1}^{2}\right) \sigma_{a}^{2}$$
+
+## 单位根非平稳性
+### 随机游走
+时间序列$\{p_t\}$满足$$p_{t}=p_{t-1}+a_{t}$$
+其中$p_0$是过程的起始值，$\{a_{t}\}$是白噪声序列，则称$\{p_t\}$为一个**随机游动**,随机游动序列不是弱平稳，称为单位根非平稳时间序列。
+
+随机游动模型被广泛用来作为对数股票价格运动的统计模型，在这样的模型下，股价是不可预测或非均值回转的。对所有的预测步长，随机游动模型的点预测都是序列在预测原点的值，从而该过程不是均值回转的。
+
+随机游动模型的MA表示为$$p_{t}=a_{t}+a_{t-1}+a_{t-2}+\cdots$$
+这样表示重要实际意义为：第一，超前$\ell$步预测误差为$$e_{h}(\ell)=a_{h+\ell}+\cdots+a_{h+1}$$
+从而$Var\left[e_{h}(\ell)\right]=\ell \sigma_{a}^{2}$，当$ \ell \to  \infty $时，该方差发散到$\infty$。因此随着预测步长的增大，$p_{t+\ell}$预测区间的长度将趋于无穷大，点预测没有用。第二，$p_t$的无条件方差是无界的，这意味着对于充分大的t，$p_t$可以取任何值，这不符实际，随机游动模型对市场指数的适合性值得怀疑。系数均为1，说明过去扰动项对$p_t$m没有影响。该序列具有强记忆性。
+
+### 带漂移的随机游动
+模型形式为：$$p_{t}=\mu+p_{t-1}+a_{t}$$
+常数项$\mu$在金融研究中很重要，它表示对数价格$p_t$的时间趋势，通常称为模型的**漂移**.
+
+假定初始价格为$p_0$，有
+$$\begin{aligned}
+p_{1} &=\mu+p_{0}+a_{1} \\
+p_{2} &=\mu+p_{1}+a_{2}=2 \mu+p_{0}+a_{2}+a_{1} \\
+\vdots &=\vdots \\
+p_{1} &=t_{\mu}+p_{0}+a_{t}+a_{t-1}+\cdots+a_{1}
+\end{aligned}$$
+上式最后一个等式表明对数价格由时间趋势$t\mu$和一个纯随机游动过程$\sum_{i=1}^{t}a_i$组成.
+
+**常数项的解释**：
+
+1. 在MA(q)模型中，常数项就是序列的均值
+
+2. AR(p)模型或ARMA(p,q)模型，常数项与均值有关，$\mu=\phi_{0} /\left(1-\phi_{1}-\cdots-\phi_{p}\right)$
+
+3. 对带漂移的随机游动模型，常数项则变为序列的时间斜率。
+
+时间序列模型中常数项的不同解释，阐明了动态模型与通常的线性回归模型之间的不同。
+
+### 趋势平稳的时间序列
+模型形式为：$$p_{t}=\beta_{0}+\beta_{1} t+x_{t}$$
+$x_{t}$是一个平稳的时间序列，$p_t$以$\beta_{1}$的速率线性增长，因此它呈现出类似于带漂移的随机游动模型的行为。这两个模型有一个主要的区别：趋势平稳时间序列均值随时间变化，但方差有限且不随时间变化$Var(p_t)=Var(x_t)$.可以通过简单的线性回归分析移除掉时间趋势转换为平稳序列。见2.10节
+
+### 一般单位根非平稳模型
+ARIMA(p,d,q)模型（自回归求和移动平均）：其AR特征多项式有单位根，所以为单位根非平稳，像随机游动模型一样，ARIMA有很强的记忆性，其MA表示中$\psi _i$系数不随时间衰减，这意味着过去的扰动$a_{t-i}$对序列有持久效应。处理单位根非平稳方法为**差分法**
+
+### 单位根检验
+检验对数价格$p_t$是否服从随机游动$p_{t}=\phi_{1} p_{t-1}+e_{t}$或带漂移的随机游动$p_{t}=\phi_{0}+\phi_{1} p_{t-1}+e_{t}$，考虑原假设$H_0:\phi_1=1$和备择假设$H_1:\phi_1<1$.
+
+根据最小二乘法有$$\hat\phi_{1}=\frac{\sum_{i=1}^{T} p_{i-1} p_{i}}{\sum_{i=1}^{T} p_{i-1}^{2}}, \quad \hat{\sigma}_{e}^{2}=\frac{\sum_{i=1}^{T}\left(p_{i}-\hat\phi_{1} p_{i-1}\right)^{2}}{T-1}$$
+其中$p_0=0$，T为样本容量，t比为$$DF=t比=\frac{\hat\phi_{1}-1}{\phi_{1}的标准差}=\frac{\sum_{i=1}^{T} p_{t-1} e_{t}}{\hat{\sigma}_{e} \sqrt{\sum_{i=1}^{T} p_{t-1}^{2}}}$$
+这个t比称为DF检验
+
+为了验证AR(p)是否存在单位根，可通过下列回归检验原假设$H_0:\beta=1$和备择假设$H_1:\beta<1$
+$$x_{t}=c_{t}+\beta x_{t-1}+\sum_{i=1}^{p-1} \phi_{i} \Delta x_{t-i}+e_{t}$$
+其中$c_t$是关于时间指标t的确定性函数，$\Delta x_{j}=x_{j}-x_{j-1}$是$x_t$的差分序列。在实际中，$c_t$可以是零或者常数或者$c_{1}=\omega_{0}+\omega_{1}t$，$\hat\beta-1$的t比为$$ADF检验= \frac{\hat{\beta}-1}{\hat{\beta}的标准差}$$
+
+由于1阶差分，上式等于一个带确定性函数$c_t$的AR(p)模型$$\Delta x_{t}=c_{t}+\beta_{c} x_{t-1}+\sum_{i=1}^{p-1} \phi_{i} \Delta x_{t-i}+e_{t}$$
+
+等价的检验原假设$H_0:\beta_c=1$和备择假设$H_1:\beta_c<1$，$\beta_c=\beta-1$
+```{r}
+#  Unit-root test
+library(fUnitRoots)
+da=read.table("../Intro_Analysis_Financial_Data/data/chart2/q-gdp4708.txt",header=T)
+gdp=log(da[,4])
+m1=ar(diff(gdp),method='mle')
+m1$order
+adfTest(gdp,lags=10,type=c("c"))
+#  Unit root
+library(fUnitRoots)
+da=read.table("../Intro_Analysis_Financial_Data/data/chart2/d-sp55008.txt",header=T)
+sp5=log(da[,7])
+m2=ar(diff(sp5),method='mle') # Based on AIC
+m2$order
+adfTest(sp5,lags=2,type=("ct"))
+adfTest(sp5,lags=15,type=("ct")) # Based on PACF
+dsp5=diff(sp5)
+tdx=c(1:length(dsp5))
+m3=arima(dsp5,order=c(2,0,0),xreg=tdx)
+m3
+m3$coef
+sqrt(diag(m3$var.coef))
+tratio=m3$coef/sqrt(diag(m3$var.coef))# compute t-ratio
+tratio
+```
 
 
 
