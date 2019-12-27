@@ -539,14 +539,85 @@ m2=arima(d1,order=c(1,0,0),seasonal=list(order=c(1,0,1), period=12),include.mean
 m2
 ```
 
+## 带时间序列误差的回归模型
 
+1. 定义
+在研究两个时间序列的关系中，若拟合出的模型中误差项具有前后相关性，则该模型就是一个带时间序列误差的回归模型。
+2. 分析步骤
 
+- 拟合一个线性回归模型，并检验其残差的前后相关性。
+- 如果残差序列是单位根非平稳的，则对因变量和解释变量都做一阶差分，然后对两个差分后的序列进行第一步，若这时的残差序列是平稳的，则对残差识别一个ARMA模型并相应地修改线性回归模型。
+- 用最大似然法进行联合估计，并对模型进行检验，查看是否需要进一步改进。
 
+注：检查残差序列的前后相关性，推荐使用Ljung-Box统计量，不使用DW统计量，因为后者只考虑到滞后阶数为一的情况。
 
+## 长记忆模型
 
+存在一些时间序列，随着滞后阶数的增加他们的ACF以多项式的速度缓慢衰减到0，这些时间序列称为长记忆时间序列。如分数差分序列：
 
+$（1-B）^dx_t=a_t$，$-0.5<d<0.5$
 
+若分数差分序列$（1-B）^dx_t$服从一个ARMA(p,q)模型，则称$x_t$为一个ARFIMA(p,d,q)过程，他是ARIMA模型的推广，允许d为非整数。
 
+```{r eval=FALSE, include=FALSE}
+#例2.8
+library(fracdiff)
+setwd("D:/github_repo/time_series/Intro_Analysis_Financial_Data/data/chart2")
+da <- read.table('d-ibm3dx7008.txt',header = T)
+head(da)
+ew <- abs(da$vwretd)
+m3 <- fdGPH(ew)
+m3
+m2 <- fracdiff(x = ew,nar = 1,nma = 1)
+summary(m2)
+```
+
+## 模型比较和平均
+
+在实际中，对于一个时间序列不存在完全正确的模型，所有模型都只能估计模型的动态相关性，而且适合给定数据的拟合模型不止一个。
+
+### 样本内比较
+
+如果数据分析的目的是为了研究一个时间序列的动态结构，可用样本内方法来比较不同的模型。样本内法就是利用所有数据来进行模型估计和比较，信息准则和残差方差的估计都可用，且值越小模型越好。
+
+### 样本外比较
+
+若建立时间序列模型是为了预测，则模型比较要考虑其预测能力。一般用预测误差的均方(MSFE)来量化模型的预测能力，这种方法也叫回测检验。
+
+***回测检验步骤***
+
+1. 分割数据集为估计子样本和预测子样本，每个子样本要包含足够多的数据点。
+2. 用估计子样本中的数据进行估计，利用拟合模型得到超前k步预测及预测误差。
+3. 对估计子样本添加新的数据点，然后继续进行第2步。
+4. 重复第3步，直至预测子样本中数据取完。
+
+则模型的MSFE为：
+$$
+\operatorname{MSFE}(m)=\frac{\sum_{i=h}^{\tau-1}\left[e_{j}(1)\right]^{2}}{T-h}
+$$
+m表示所用的模型，MSFE最小的模型为该组数据最好的模型，在实际中一般用MSFE的平方根，度量模型预测能力的其他度量还有平均绝对预测误差(MAFE)和偏差(Bias)，分别定义为：
+$$
+\operatorname{MAFE}(m)=\frac{\sum_{j=h}^{T-1}\left|e_{j}(1)\right|}{T-h}, \quad \operatorname{Bias}(m)=\frac{\sum_{j=h}^{T-1} e_{j}(1)}{T-h}
+$$
+
+```{r eval=FALSE, include=FALSE}
+da <- read.table('q-gdpc96.txt',header = T)
+head(da)
+gdp <- log(da$gdp)
+dgdp <- diff(gdp)
+m1 <- ar(dgdp,method = 'mle')
+m1$order
+m2 <- arima(dgdp,order = c(3,0,0))
+m2
+m3 <- arima(dgdp,order = c(3,0,0),seasonal = list(order=c(1,0,1),period=4))
+source('backtest.r')
+mm2 <- backtest(m2,dgdp,215,1)
+mm3 <- backtest(m3,dgdp,215,1)
+```
+
+### 模型平均
+
+当多个模型可以很好地拟合给定的时间序列数据时，可以利用所有这些模型产生一个组合预测，这就是模型平均。即将所有模型的预测值做简单平均处理，这种做法在实际中很有效。
 
 
 
