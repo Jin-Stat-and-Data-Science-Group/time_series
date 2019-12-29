@@ -6,11 +6,11 @@ output: pdf_document
 css: ./style/markdown.css
 bibliography: Bibfile.bib
 eqnPrefixTemplate: ($$i$$)
-link-citations: yes
-linkReferences: yes
+link-citations: true
+linkReferences: true
 notice: '@*'
 csl: ./style/chinese-gb7714-2005-numeric.csl
-autoEqnLabels: yes
+autoEqnLabels: true
 ---
 
 

@@ -465,9 +465,9 @@ plot(dat3.fore)
 
 #####################增加一个garch(1,2)数据模拟的作业#######
 set.seed(123)
-ht=rep(0,1000)
-epsilon=rep(0,1000)
-xt=rep(0,1000)
+h=rep(0,1000)
+ep=rep(0,1000)
+x=rep(0,1000)
 et=rnorm(1000)
 omega=0.2
 Ita=0.1
