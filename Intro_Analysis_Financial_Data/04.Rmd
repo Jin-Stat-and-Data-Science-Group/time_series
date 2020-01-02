@@ -1,0 +1,179 @@
+---
+title: "第4章"
+author: "Zeng"
+date: '2019-12-10'
+csl: ./style/chinese-gb7714-2005-numeric.csl
+css: ./style/markdown.css
+bibliography: Bibfile.bib
+eqnPrefixTemplate: ($$i$$)
+link-citations: yes
+linkReferences: yes
+notice: '@*'
+autoEqnLabels: yes
+---
+
+
+
+```{r setup, echo=F}
+
+################# 第 4 章 R 程序代码  ####################
+
+
+knitr::opts_knit$set(root.dir = getwd())
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+```
+
+```{r prepare}
+rm(list=ls())
+options(digits=4)
+options(scipen=100)
+graphics.off()
+Sys.setlocale("LC_ALL", "Chinese")
+```
+
+# 资产波动率模型及其模型
+目标：理解波动率的特点，学习波动率模型，并获取波动率建模和应用资产波动率的经验。
+
+## GARCH-M模型
+在金融中， 资产的收益率可能依赖于它的波动率．为了对这种现象建模， 人们会考虑GARCH-M模型，其中"M"表示收益率的条件均值为GARCH(GARCH in mean).
+
+GARCH(l, 1)-M 模型：
+
+$$
+\begin{array}{l}
+{r_{t}=\mu+c \sigma_{t}^{2}+a_{t}, \quad a_{t}=\sigma_{t} \varepsilon_{t}} \\
+{\sigma_{t}^{2}=\alpha_{0}+\alpha_{1} a_{t-1}^{2}+\beta_{1} \sigma_{t-1}^{2}}
+\end{array}
+$$
+
+其中$\mu$和$c$是常数．参数叫$c$做**风险溢价参数**.$c$为正值意味着收益率与它过去的波动率正相关。
+
+GARCH-M 模型意味着收益率序列$r_t$存在前后相关性，这种前后相关性是由波动率过程$\{\sigma_{t}^{2}\}$的前后相关性导致的．风险溢价的存在是历史股票收益率具有前后相关性的另一种原因
+
+## 指数GARCH模型
+为了允许在模型中体现正的和负的资产收益率的非对称效应，考虑加权的新息:$g\left(\varepsilon_{t}\right)=\theta \varepsilon_{t}+\gamma\left[\left|\varepsilon_{t}\right|-E\left(\left|\varepsilon_{t}\right|\right)\right]$、
+
+改写为下式可看出非对称性：
+$$g\left(\varepsilon_{t}\right)=\left\{\begin{array}{ll}
+{(\theta+\gamma) \varepsilon_{t}-\gamma E\left(\left|\varepsilon_{t}\right|\right)} & {\varepsilon_{t} \geqslant 0} \\
+{(\theta-\gamma) \varepsilon_{t}-\gamma E\left(\left|\varepsilon_{t}\right|\right)} & {\varepsilon_{t}<0}
+\end{array}\right.$$
+
+对标准高斯随机变量$\varepsilon_{t}$,$E\left(\left|\varepsilon_{n}\right|\right)=\sqrt{2 / \pi}$,对标准化学生t分布，有
+$E\left(\left|\varepsilon_{t}\right|\right)=\frac{2 \sqrt{v-2} \Gamma[(v+1) / 2]}{(v-1) \Gamma(v / 2) \sqrt{\pi}}$。
+
+EGARCH(m, s)模型可以写成：
+\[
+a_{t}=\sigma_{s} \varepsilon, \quad \ln \left(\sigma_{t}^{2}\right)=\alpha_{0}+\frac{1+\beta_{1} B+\cdots+\beta_{-1} B^{-1}}{1-\alpha_{1} B-\cdots-\alpha_{\infty} B^{-1}} g\left(\varepsilon_{t-1}\right)
+\]
+
+EGARCH(1,1)模型：
+$$a_{t}=\sigma_{t} \varepsilon_{t}, \quad(1-\alpha B) \ln \left(\sigma_{t}^{2}\right)=(1-\alpha) \alpha_{0}+g\left(\varepsilon_{t-1}\right)$$
+$\{\varepsilon_{t}\}$是独立同分布的标准正态序列，$ln(\sigma_{t}^2)$的模型变成$$(1-\alpha B) \ln \left(\sigma_{t}^{2}\right)=\left\{\begin{array}{ll}
+{\alpha_*+(\gamma+\theta) \varepsilon_{r-1}} & {\varepsilon_{r-1} \geqslant 0} \\
+{\alpha_*+(\gamma-\theta)\left(-\varepsilon_{t-1}\right)} & {\varepsilon_{t-1}<0}
+\end{array}\right.$$
+
+$\alpha_*=(1-\alpha) \alpha_{0}-\sqrt{2 / \pi} \gamma$
+
+EGARCH模型与GARCH 模型有以下不同：
+
+第一， 它使用对数条件方差，这放松了对模型系数非负性的限制；第二，$g(\varepsilon_{t-1})$的使用，使得模型对$a_t$的正的和负的延迟值的反应不对称．
+
+EGARCH(m, s)模型的另一种形式:
+$$\ln \left(\sigma_{t}^{2}\right)=\alpha_{0}+\sum_{i=1}^{m} \alpha_{i} \frac{\left|a_{t-i}\right|+\gamma_{i} a_{t-i}}{\sigma_{r i}}+\sum_{j=1}^{s} \beta_{j} \ln \left(\sigma_{t-j}^{2}\right)$$
+正的$a_{t-i}$对对数波动率的贡献为$a_{0}\left(1+\gamma_{i}\right)\left|\varepsilon_{t-i}\right|$,而负的$a_{t-i}$对对数波动率的贡献为$a_{0}\left(1-\gamma_{i}\right)\left|\varepsilon_{t-i}\right|$, 其中$\varepsilon_{t-i}=a_{t-i} / \sigma_{t-i}$参数$\alpha_{i}$参数$a_{t-i}$的杠杆效应．
+
+## 门限GARCH模型
+经常用来处理杠杆效应的波动率模型是门限GARCH 模型（或TGARCH 模型）
+
+TGARCH(m, s)模型的形式为：$$\sigma_{t}^{2}=\alpha_{0}+\sum_{i=1}^{m}\left(\alpha_{i}+\gamma_{i} N_{t-i}\right) a_{t-i}^{2}+\sum_{j=1}^{j} \beta_{j} \sigma_{t-j}^{2}$$
+
+其中$N_{t-i}$是关于$a_{t-i}$是否为负值的指示变量， 即$$N_{t-i}=\left\{\begin{array}{ll}
+{1} & {a_{t-i}<0} \\
+{0} & {a_{t-i} \geqslant 0}
+\end{array}\right.$$
+$\alpha_{i},\gamma_{i},\beta_{j}$为非负参数，它们所满足的条件类似于GARCH模型的条件(和为1).从模型中可以看出正的$a_{t-i}$对$\sigma_{t}^{2}$的贡献为$\alpha_{i}a_{t-i}^{2}$， 而负的$a_{t-i}$对$\sigma_{t}^{2}$有更大的贡献$(\alpha_{i}+\gamma_{i})a_{t-i}^{2}$， 其中
+$\gamma_{i}>0$.该模型用0作为门限(threshold)来区分过去扰动的影响．
+
+## APARCH模型
+TGARCH模型属于Ding等(1993)提出的非对称幕自回归条件异方差模型(Asymmetric Power Autoregressive Conditional Heteroscedastic, AP ARCH )类一般的APARCH(m, s)模
+型可以写为：
+$$\begin{aligned}
+&r_{t}=\mu_{t}+a_{t}, \quad a_{t}=\sigma_{t} \varepsilon_{t}, \quad \varepsilon_{t} \sim D(0,1)\\
+&\sigma_{t}^{\delta}=\omega+\sum_{i=1}^{n} \alpha_{i}\left(\left|a_{t-i}\right|+\gamma_{i} a_{t-i}\right)^{s}+\sum_{j=1}^{s} \beta_{j} \sigma_{t-j}^{s}
+\end{aligned}$$
+其中$\mu$是条件均值，$D(O, 1)$表示均值为0、方差为1 的某个分布，$\sigma$为正实数，且系数$\omega、\alpha_{i}、\gamma_{i}$和$\beta_{j}$满足某些正则性条件使得波动率为正．和GARCH模型类似，在实际中常用的是APARCH(1,1)模型。较为有趣的是三种APARCH模型的特例．当$\sigma=2$时，
+APARCH模型简化为TGARCH模型。当$\sigma=1$时， APARCH模型直接应用波动率方程中
+的波动率．而$\sigma=0$的情况则是当$\sigma\rightarrow 0$时的极限情况，此时模型变为Nelson (1991) 的EGARCH模型
+
+## 非对称GARCH模型
+另一个可以刻画过去正负扰动的非对称波动率响应的GARCH 族模型，它假定模型的形式为$$\begin{array}{l}
+{r_{t}=\mu_{t}+a_{t}, \quad a_{t}=\sigma_{r} \varepsilon_{t}, \quad \varepsilon_{t} \sim D(0,1)} \\
+{\sigma_{t}^{2}=\beta_{0}+\beta_{1} \sigma_{t-1}^{2}+\beta_{2}\left(a_{t-1}-\theta \sigma_{t-1}\right)^{2}}
+\end{array}$$
+其中$\mu_{t}$是条件均值， $ D(0,1)$表示均值为0 、方差为1 的某个分布，$\beta_{i}$为非负实数且$\beta_{0}>0$,参数$\theta$杠杆参数．式(4-39)中的模型也称为非对称GARCH(l, 1)模型， 或者NGARCH
+(1, 1)模型如果$\theta=0$, 则该模型简化为GARCH(l, 1)模型
+
+## 随机波动率模型
+另一种描述金融时间序列波动率演变的方法是：对al的条件方差方程引进一个新息．这样得到的模型就称为随机波动率(StochasticVolatilityModel,SV)模型．与EGARCH模型相似，为了保证条件方差为正值，SV模型用$ln(\sigma_t^2)$而不用$\sigma_t^2$. SV模型的定义为
+$$a_{t}=\sigma_{t} \varepsilon_{t}, \quad\left(1-\alpha_{1} B-\cdots-\alpha_{m} B^{m}\right) \ln \left(\sigma_{t}^{2}\right)=\alpha_{0}+v_{t}$$
+其中$\{\varepsilon_{t}\}$是独立同分布的，服从N(O,1 )分布；$v_t$ 是独立同分布的，服从$N(0,\sigma_{v}^2)$分布；$\{\varepsilon_{t}\}$
+和$\{v_{t}\}$是相互独立的，$\alpha_{0}$是常数，多项式$1-\sum_{i=1}^{m} \alpha_{i} B^{i}$ 所有根的模大于1.加入新息$v_t$后，极大地增加了模型在刻画$\sigma_{t}^2$演变上的灵活性，但也增加了参数估计的困难．为了估计SV模型，我们需要通过Kalman滤波或者蒙特卡罗(MonteCarlo)方法来应用拟似然(quasi-likelihood)方法.
+
+## 长记忆随机波动率模型
+利用分数差分的思想，SV模型进一步推广， 从而允许波动率有长记忆性.如第2章所讨论的， 一个时间序列是长记忆过程，如果间隔增加时自相关函数以双曲函数（而不是以指数）速度衰减． 在波动率研究中引进长记忆模型的动机是基于这样一个事实：虽然资产收益率序列本身没有前后相关性，但收益率的平方序列或绝对值序列的自相关函数常常衰减得很慢.
+
+简单的长记忆随机波动率(Long Memory Stochastic Volatility, LMSV)模型可以写成：$$a_{t}=\sigma_{t} \varepsilon_{t}, \quad \sigma_{t}=\operatorname{\sigma}exp\left(u_{t} / 2\right), \quad(1-B)^{d} u_{t}=\eta_t$$
+其中$\sigma>0$,$\{\varepsilon_{t}\}$是独立同分布的， 该序列服从$N(0,1)$;$\eta_t$是独立同分布的，序列服从$N(0,\sigma_{\eta}^2)$且和$\varepsilon_{t}$相互独立， 并有$0<d<0.5$. 长记忆特征源于分数差分$(1-B)^d$它意味着$u_t$的ACF以双曲函数（而不是以指数函数）速度缓慢衰减．对LMSV 模型， 我们有
+$$\begin{aligned}
+\ln \left(a_{t}^{2}\right) &=\ln \left(\sigma^{2}\right)+u_{t}+\ln \left(\varepsilon_{t}^{2}\right) \\
+&=\left[\ln \left(\sigma^{2}\right)+E\left(\ln \varepsilon_{t}^{2}\right)\right]+\mu_{t}+\left[\ln \left(\varepsilon_{t}^{2}\right)-E\left(\ln \varepsilon_{t}^{2}\right)\right] \\
+& \equiv \mu+\mu_{t}+e_{t}
+\end{aligned}$$
+$\ln \left(a_{t}^{2}\right)$序列是一个高斯长记忆信号加上一个非高斯白噪声。长记忆随机波动率模型的估计是复杂的，但分数差分参数d可以用拟最大似然法或回归方法来估计
+
+## 两种其他的波动率建模方法
+### 高频数据的应用
+用高频数据计算低频收益率的波动率．如若计算某资产的月波动率，而我们可以获得该资产的日收益率。设$r_t^m$是该资产在第t个月的月对数收益率．假定第t 个月有n个交易日，这个月中的日对数收益率为$\{r_{t,i}\}_{i-1}^n$．利用对数收益率的性质，我们有\[
+r_{t}^{n}=\sum_{i=1}^{n} r_{t, i}
+\]
+假设条件方差和协方差是存在的，则$$\operatorname{Var}\left(r_{t}^{m} | F_{t-1}\right)=\sum_{i=1}^{n} \operatorname{Var}\left(r_{t, i} | F_{t-1}\right)+2 \sum_{i<j} \operatorname{Cov}\left[\left(r_{t, i}, r_{t, j}\right) | F_{t-1}\right]$$
+其中$F_{t-1}$是到第t-1 月（包含该月）为止已知的信息.
+
+### 应用日开盘价、最高价、最低价和收盘价
+对于一项资产， 定义如下变量：
+* $C_t$=第t 个交易日的收盘价．
+
+* $O_t$=第t个交易日的开盘价．
+
+* $f$=交易结束的日分时(fractio n of the day) (在区间[O, l] 内取值）．
+
+* $H_t$=第t个交易日的最高价．
+
+* $L_t$=第t 个交易日的最低价．
+
+* $F_{t-1}$=到t — 1 个交易日为止所有的公开信息．
+
+对数收益率， 定义如下变量：
+
+* $o_{t}=\ln \left(O_{t}\right)-\ln \left(C_{t-1}\right)$,标准化开盘价．
+
+* $u_{t}=\ln \left(H_{t}\right)-\ln \left(O_{t}\right)$,标准化最高价．
+
+* $d_{t}=\ln \left(L_{t}\right)-\ln \left(O_{t}\right)$,标准化最低价．
+
+* $c_{t}=\ln \left(C_{t}\right)-\ln \left(O_{t}\right)$,标准化收盘价．
+
+假定可以得到n天的数据， 并且波动率在该段时期内为常数．
+议用下面的估计作为波动率的稳健估计：
+$$\begin{aligned} \hat{\sigma}_{x}^{2}=& \hat{\sigma}_{o}^{2}+k \hat{\sigma}_{c}^{2}+(1-k) \hat{\sigma}_{n}^{2} \\ \hat{\sigma}_{o}^{2}=& \frac{1}{n-1} \sum_{i=1}^{*}\left(o_{t}-\bar{o}\right)^{2}, \quad \bar{o}=\frac{1}{n} \sum_{i=1}^{*} o_{t} \\ \hat{\sigma}_{\epsilon}^{2}=& \frac{1}{n-1} \sum_{i=1}^{*}\left(c_{i}-\bar{c}\right)^{2}, \quad \bar{c}=\frac{1}{n} \sum_{i=1}^{*} c_{i} \\ \hat{\sigma}_{n}^{2}=& \frac{1}{n} \sum_{i=1}^{*}\left[u_{i}\left(u_{i}-c_{i}\right)+d_{i}\left(d_{i}-c_{i}\right)\right] \\ k=& \frac{0.34}{1.34+(n+1) /(n-1)} \end{aligned}$$
+
+称量$H_t-L_t$为第t天价格变化的范围．该估计导致了基于价格变化范围的波动率估计.在实际中， 股票价格只是在离散时间点上被观测到．同样，观测到的最高价格可能比庄低，而观测到的最低价格可能比L,高．因此，观测到的日价格范围可能会导致低估真实的价格范围， 从而可能导致对波动率的低估． 波动率
+估计中的偏差取决于交易频率和股票的微小记录间隔． 对于交易很密集的股票， 可以忽略偏差对于其他股票，需要进一步的研究来更好地理解基于价格范围的波动率估计的性能.
+
+
+
+<!--# 参考文献 {-}-->
+[//]: # (\bibliography{Bibfile})
