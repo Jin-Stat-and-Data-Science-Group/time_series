@@ -35,6 +35,261 @@ Sys.setlocale("LC_ALL", "Chinese")
 # 资产波动率模型及其模型
 目标：理解波动率的特点，学习波动率模型，并获取波动率建模和应用资产波动率的经验。
 
+## 波动率的特征
+1. 波动率特征
+- 第一，存在**波动率聚集**（即在某个特定时间段上波动率高，而在其他时间段上波动率较小）。\
+- 第二，波动率随时间以连续方式变化——波动率的跳跃是罕见的。\
+- 波动率不会发散到无穷——波动率在一个固定范围内变化。以统计学角度说，这意味着波动率通常是平稳的。\
+- 波动率对价格大幅上升和大幅下降的反应是不同的，后者对波动率的影响更大。这种现象称为**杠杆效应**。
+
+2. 三种类型的波动率度量
+
+- **波动率是日收益率的条件标准差**：这是波动率的常见定义。
+
+- **隐含波动率**:应用期权市场上的价格，可以通过一个价格公式，如Black-Scholes定价公式，来推导出股票价格的波动率，该波动率称为**隐含波动率**。
+
+- **实际波动率**：随着高频金融数据的可获得性，可以应用一天内的收益率数据，如5分钟的收益率，来估计日波动率。这种波动率度量称为实际波动率。
+
+在实际应用中，用于度量波动率的时间区间为1年，因此，波动率经常是年化波动率（=$\sqrt {252}$乘以日波动率）。
+
+## 模型的结构
+用$r_t$表示某项资产在t时刻的对数收益率。波动率研究的基本思想是，序列$\{r_t\}$是前后不相关的或低阶前后相关的，但序列不是独立的。
+
+为了把波动率模型放在一个适当的框架中，考虑给定$F_{t-1}$时$r_t$的条件均值和条件方差是有益的，即
+$$
+\mu_{t}=E\left(r_{t} | F_{t-1}\right), \quad \sigma_{t}^{2}=\operatorname{Var}\left(r_{t} | F_{t-1}\right)=E\left[\left(r_{t}-\mu_{t}\right)^2 | F_{t-1}\right]
+$$
+其中，$F_{t-1}$是在t-1时刻已知的信息集。特别地，信息集$F_{t-1}$包含收益率的一切线性函数。
+
+通常，我们假设$r_t$服从一个ARMA(p,q)模型，因此$r_t=\mu_t+a_t$，其中$\mu_t$由下式给定：
+$$
+\mu_{r}=\phi_{0}+\sum_{i=1}^{p} \phi_{r} r_{r-i}-\sum_{i=1}^{q} \theta_{j} a_{t-j}
+$$
+如果可以获得其他的解释变量，我们可以建立模型$r_t=\mu_t+a_t$，其中
+$$
+\mu_{t}=\phi_{0}+\sum_{i=1}^{k} \beta_{i} x_{t-1}+\sum_{i=1}^{p} \phi_{i} y_{t-i}-\sum_{j=1}^{q} \theta_{j} a_{t-j}
+$$
+其中，$$
+y_{t-i}=r_{t-i}-\phi_{0}-\sum_{i=1}^{k} \beta_{i} x_{i, t-i-1}
+$$
+```{r}
+getwd()
+da=read.table("chart4/ch4data/m-intcsp7309.txt",header = T)
+head(da)
+intc=log(da$intc+1)
+rtn=ts(intc,frequency = 12,start = c(1973,1))
+plot(rtn,type='l',xlab='year',ylab="ln-rtn")
+t.test(intc)
+Box.test(intc,lag=12,type='Ljung')
+par(mfcol=c(2,1))
+acf(intc,lag=24)
+Box.test(abs(intc),lag = 12,type="Ljung")
+
+```
+全书中把$a_t$称为资产收益率在t时刻的**扰动**或**新息**。$\mu_t$的模型称为$r_t$的均值方程，$\sigma^2_t$的模型称为$r_t$的**波动率**方程。因此，条件异方差性建模就是对时间序列模型增加一个动态方程，该动态方程用来刻画资产收益率的条件方差随时间演变的规律。
+
+## 模型的建立
+对资产收益率序列建立波动率模型需要如下4个步骤：
+1. 通过检验数据的前后相关性建立一个均值方程，如有必要，对收益率序列建立一个计量经济模型（如ARMA）模型来消除任何的线性依赖。
+2. 对均值方程的残差进行ARCH效应检验。
+3. 如果ARCH效应在统计上是显著的，则指定一个波动率模型，并对均值方程和波动率方程进行联合估计。
+4. 仔细检验所拟合的模型，如有必要则进行改进。
+
+**指定均值方程**\
+对对大部分资产收益率徐来，如果有前后相关性的话，也很弱，因此，如果样本均值显著不为零的话，建立均值方程就等于从数据中移除样本均值。
+
+## ARCH效应的检验
+$a_t=r_t-\mu_t$为均值方程的残差。平方序列$a_t^2$可以用来检验条件异方差性，即所谓的ARCH效应。有两个检验可以用于ARCH效应的检验。
+1. 第一个检验是将常用的Ljung-Box统计量Q(m)应用于序列$\{a_t^2\}$,该统计量的原假设是序列$\{a_t^2\}$前m个间隔的ACF值都为零。
+
+2. 对条件异方差的检验——拉格朗日乘子检验。\
+- 检验统计量：F统计量
+$$
+a_{t}^{2}=\alpha_{0}+\alpha_{1} \alpha_{t-1}^{2}+\cdots+\alpha_{m} a_{t-m}^{2}+e_{t}, \quad t=m+1, \cdots, T
+$$
+其中，$e_t$表示误差项，m是事先指定的正整数，T是样本容量。具体地，原假设是$H_{0}: \alpha_{1}=\cdots=\alpha_{m}=0$，而备择假设是对于某个在1~m之间取值的i，有$H_{1}: \alpha_{i} \neq 0$。令$\mathrm{SSR}_{0}=\sum_{i=m+1}^{\mathrm{T}}\left(a_{i}^{2}-\bar{\omega})^{2} \right.$，其中，$\bar{\omega}=(1 / T) \sum_{i=1}^{T} a_{t}^{2}$是$a_{t}^{2}$的样本均值；$\mathrm{SSR}_{1}=\sum_{t=m+1}^{T} \hat{e}_{t}^2$,其中，$\hat{e}_{t}$是前面线性回归最小二乘估计的残差。于是，我们有：$F=\frac{\left(\mathrm{SSR}_{0}-\mathrm{SSR}_{1}\right) / m}{\mathrm{SSR}_{1} /(T-2 m-1)}$
+在原假设$H_0$下，上述统计量F服从自由度为m和T-2m-1的F分布。当T充分大时，可以用mF作为检验统计量，在原假设下，它渐进服从自由度为m的卡方分布。
+
+- 决策规则是：如果$m F>\chi_{m}^{2}(\alpha)$或mF的p值小于第一类错误α，则拒绝原假设。
+```{r}
+y=intc-mean(intc)
+Box.test(y^2,lag = 12,type = "Ljung")
+#install.packages('TSA')
+#library(TSA)
+#library(FinTS)
+source("archTest.R")
+archTest(y,12)
+```
+
+## ARCH模型
+ARCH模型的基本思想是：1）资产收益率的扰动序列$a_t$是前后不相关的，但不是独立的；2）$a_t$的不独立性可以用其滞后值的简单二次函数来描述。具体地说，ARCH(m)模型假定
+$$a_{t}=\sigma_{t} \varepsilon_{t}, \quad \sigma_{t}^{2}=\alpha_{0}+\alpha_{1} a_{t-1}^{2}+\cdots+\alpha_{m} a_{t-m}^{2}$$
+$\{\varepsilon_{t}\}$是均值为0、方差为1的独立同分布随机变量序列，其中$\alpha_0>0$,对i>0有$\alpha_0>=0$.通常假定$\{\varepsilon_{t}\}$服从标准正态分布或者标准化的学生t分布或者广义误差分布。
+
+### ARCH模型的性质
+ARCH(1)模型：\
+$$a_{t}=\sigma_{t} \varepsilon_{t}, \quad \sigma_{t}^{2}=\alpha_{0}+\alpha_{1} a_{t-1}^{2}$$
+其中，$a_{0}>0, \quad a_{1} \geqslant 0$。第一，$a_{t}$的无条件均值仍是0，因为
+$$
+E\left(a_{t}\right)=E\left[E\left(a_{t} | F_{t-1}\right)\right]=E\left[\sigma_{t} E\left(\varepsilon_{t}\right)\right]=0
+$$
+第二，$a_{t}$的无条件方差是$$
+\operatorname{Var}\left(a_{t}\right)=E\left(a_{t}^{2}\right)=E\left[E\left(a_{t}^{2} | F_{t-1}\right)\right]=E\left[\alpha_{0}+\alpha_{1} a_{t-1}^{2}\right]=\alpha_{0}+\alpha_{1} E\left(a_{t-1}^{2}\right)
+$$
+又$\operatorname{Var}\left(a_{t}\right)=\alpha_{0}+\alpha_{1} \operatorname{Var}\left(a_{t}\right) \text { 和 }\operatorname{Var}\left(a_{t}\right)=\frac{\alpha_{0}}{1-\alpha_{1}}$,$0<\alpha_{1}<1$
+
+第三，在一些应用中，需要$a_{t}$的更高阶矩存在，从而$\alpha_{1}$还必须满足另外的约束条件。
+### ARCH模型的优点与缺点
+1. 主要的优点
+
+1）该模型可以产生波动率聚集。\
+2）模型的“扰动”$a_t$有厚尾部。
+
+2. 缺点：
+
+1）该模型假定正“扰动”和负“扰动”对波动率有相同的影响，因为“波动率”依赖于过去“扰动”的平方。\
+2）ARCH模型对参数限制是相当强的。\
+3）为了弄清一个金融时间序列变化的来源，ARCH模型不能提供任何新见解。\
+4）ARCH模型给出的波动率预报值会偏高。
+
+### ARCH模型的建立
+**阶的确定**\
+如果发现存在显著的ARCH效应，则可以用$a_t^2$的偏自相关系数（PACF)来确定ARCH模型的阶。
+
+**估计**\
+在正态性假定下，ARCH(m)模型的似然函数为
+$$
+\begin{aligned}
+f\left(a_{1}, \cdots, a_{T} | \boldsymbol{\alpha}\right) &=f\left(a_{T} | F_{T-1}\right) f\left(a_{T-1} | F_{T-2}\right) \cdots f\left(a_{m+1} | F_{m}\right) f\left(a_{1}, \cdots, a_{m} | \boldsymbol{\alpha}\right) \\
+&=\prod_{t=m+1}^{T} \frac{1}{\sqrt{2 \pi \sigma_{t}^{2}}} \exp \left(-\frac{a_{t}^{2}}{2 \sigma_{t}^{2}}\right) \times f\left(a_{1}, \cdots, a_{m} | \boldsymbol{\alpha}\right)
+\end{aligned}
+$$
+其中，$\boldsymbol{\alpha}=\left(\alpha_{0}, \alpha_{1}, \cdots, \alpha_{m}\right)^{\prime}$,$f\left(a_{1}, \cdots, a_{m} | \boldsymbol{a}\right)$是$a_{1}, \cdots, a_{m}$的联合概率密度函数。
+根据极大似然法求估计量：
+转化后得到对数似然函数为
+$$
+\ell\left(a_{m+1}, \cdots, a_{T} | \alpha, a_{1}, \cdots, a_{m}\right)=\sum_{i=m+1}^{T}\left[-\frac{1}{2} \ln (2 \pi)-\frac{1}{2} \ln \left(\sigma_{i}^{2}\right)-\frac{1}{2} \frac{a_{t}^{2}}{\sigma_{t}^{2}}\right]
+$$
+在有些应用中，假设${\varepsilon _t}$服从诸如标准化的学生t分布这样的厚尾分布更适合一些。其概率密度函数为$$
+f\left(\varepsilon_{t} | v\right)=\frac{\Gamma((v+1) / 2)}{\Gamma(v / 2) \sqrt{(v-2) \pi}}\left(1+\frac{\varepsilon_{t}^{2}}{v-2}\right)^{-(v+1 ) / 2} \quad v>2
+$$
+如果学生t分布的自由度v是事先给定的，那么条件对数似然函数为
+$$
+\begin{array}{l}
+{\ell\left(a_{m+1}, \cdots, a_{T} | \boldsymbol{\alpha}, v, A_{m}\right)} \\
+{=(T-m)[\ln (\Gamma((v+1) / 2))-\ln (\Gamma(v / 2))-0.5 \ln ((v-2) \pi)]} \\
+{\quad+\ell\left(a_{m+1}, \cdots, a_{T} | \boldsymbol{\alpha}, A_{m}\right)}
+\end{array}
+$$
+
+**模型的验证**
+对一个合理指定的ARCH模型，标准化的残差
+$$
+\widetilde{a}_{t}=\frac{a_{t}}{\sigma_{t}}
+$$
+构成一个独立同分布的随机变量序列。因此，我们可以通过检查序列$\{\widetilde{a}_{t}\}$来检验所拟合的ARCH模型的充分性。特别是，$\widetilde{a}_{t}$的Ljung-Box统计量可以用来检验均值方程的充分性，同时$\widetilde{a}_{t}^2$的Ljung-Box统计量也可用来检验波动率方程的正确性。
+
+**预测**
+对于一个ARCH(m)模型，从预测原点h出发，$\sigma_{h+1}^{2}$的超前1步预测为
+$$
+\sigma_{h}^{2}(1)=\alpha_{0}+\alpha_{1} a_{h}^{2}+\cdots+\alpha_{m} a_{h+1-m}^{2}
+$$
+$\sigma_{h+l}^{2}$的超前l步预测为
+$$
+\sigma_{h}^{2}(\ell)=\alpha_{0}+\sum_{i=1}^{m} \alpha_{i} \sigma_{h}^{2}(\ell-i)
+$$
+其中，若$\ell-i \leqslant 0,$则$\sigma_{h}^{2}(\ell-i)=a_{h+l-i}^{2}$
+### 例子
+```{r}
+library(fGarch)
+library(tseries)
+da=read.table("chart4/ch4data/m-intcsp7309.txt",header = T)
+head(da)
+intc=log(da$intc+1)
+m1=garchFit(~1+garch(3,0),data = intc,trace = F)
+summary(m1)
+m2=garchFit(~1+garch(1,0),data=intc,trace = F)
+summary(m2)
+resi=residuals(m2,standardize=T)
+tdx=c(1:444)/12+1973
+par(mfcol=c(3,10))
+plot(tdx,resi,xlab='year',ylab='stand-resi',type='l')
+acf(resi,lag=20)
+pacf(resi^2,lag=20)
+plot(m2)
+```
+
+## GARCH模型
+对于一个对数收益率序列$r_t$，令$a_t=r_t-\mu_t$为t时刻的新息。我们称$a_t$服从GARCH(m,s)模型，若$a_t$满足下式：
+$$
+a_{t}=\sigma_{t} \varepsilon_{t}, \quad \sigma_{t}^{2}=\alpha_{0}+\sum_{i=1}^{m} \alpha_{i} a_{t-i}^{2}+\sum_{j=1}^{j} \beta_{j} \sigma_{t-j}^{2}
+$$
+$\varepsilon_{t}$是均值为0、方差为1的独立同分布随机变量序列，$\alpha_{0}>0, \quad \alpha_{i} \geqslant 0, \quad \beta_{j} \geqslant 0, \quad \sum_{i=1}^{\max (m, s)}\left(\alpha_{i}+\beta_{i})<1\right.$
+
+GARCH模型的优点和缺点。GARCH(1,1)模型为$$
+\sigma_{t}^{2}=\alpha_{0}+\alpha_{1} a_{t-1}^{2}+\beta_{1} \sigma_{t-1}^{2}, \quad 0 \leqslant \alpha_{1}, \quad \beta_{1} \leqslant 1, \quad\left(\alpha_{1}+\beta_{1}\right)<1
+$$
+第一，大的$\sigma_{t-1}^2$或$\sigma_{t-1}^2$引起的$\sigma_{t}^2$。这意味着大的$a_{t-1}^2$会紧跟着另一个大的$a_{t}^2$，这样就会产生在金融时间序列中著名的“波动率聚集”现象。第二，可以证明，若$1-2 \alpha_{1}^{2}-\left(\alpha_{1}+\beta_{1}\right)^{2}>0$，则有
+$$
+\frac{E\left(a_{t}^{4}\right)}{\left[E\left(a_{t}^{2}\right)\right]^{2}}=\frac{3\left[1-\left(\alpha_{1}+\beta_{1}\right)^{2}\right]}{1-\left(\alpha_{1}+\beta_{1}\right)^{2}-2 \alpha_{1}^{2}}>3
+$$
+从而，与ARMA模型类似，GARCH(1,1)过程分布的尾部比正态分布尾部厚。第三，此模型给出了一个简单的参数函数来描述波动率的演变。
+
+GARCH模型预测可用类似于ARMA模型的方法得到。考虑GARCH(1,1)模型，假定h为预测原点，超前1步预测为
+$$
+\sigma_{k}^{2}(1)=\alpha_{0}+\alpha_{1} a_{k}^{2}+\beta_{1} \sigma_{h}^{2}
+$$
+以h为预测原点的波动率的超前2步预测满足
+$$
+\sigma_{h}^{2}(2)=\alpha_{0}+\left(\alpha_{1}+\beta_{1}\right) \sigma_{h}^{2}(l)
+$$
+反复迭代，可以得到超前$\ell$步预测，可以写成
+$$
+\sigma_{h}^{2}(\ell)=\frac{\alpha_{0}\left\lfloor 1-\left(\alpha_{1}+\beta_{1}\right)^{\ell-1}\right\rfloor}{1-\alpha_{1}-\beta_{1}}+\left(\alpha_{1}+\beta_{1}\right)^{\ell-1} \sigma_{h}^{2}(1)
+$$
+从而，只要$\alpha_{1}+\beta_{1}<1$，就有
+$$
+\sigma_{h}^{2}(\ell) \rightarrow \frac{\alpha_{0}}{1-\alpha_{1}-\beta_{1}} \quad \ell \rightarrow \infty
+$$
+
+### 两步估计方法
+第一，忽略ARCH效应，用最大似然方法为收益率序列估计一个均值方程，残差序列用$a_t$表示。第二，将$\{} a_{t}^{2}\right\}$作为观测序列，可以用最大似然方法估计参数。用$\hat{\phi}_{i} \quad$ 和 $\hat{\theta}_{i}$分别表示AR和MA系数的估计值，则GARCH模型的参数估计为$\hat{\beta}_{i}=\hat{\theta}_{i},\quad \hat{\alpha}_{i}=\hat{\phi}_{i}-\hat{\theta}_{i}$
+
+## 求和GARCH模型
+IGARCH模型就是单位根GARCH模型，IGARCH模型的主要特点是过去的平方扰动$\eta_{t-i}=a_{t-i}^{2}-\sigma_{t-i}^{2}(i>0)$$a_{t}^{2}$的影响是持久的。
+
+IGARCH(1,1)模型可以写成：
+$$
+a_{t}=\sigma_{t} \varepsilon_{t}, \quad \sigma_{t}^{2}=\alpha_{0}+\beta_{1} \sigma_{t-1}^{2}+\left(1-\beta_{1}\right) a_{t-1}^{2}
+$$
+其中$\{\varepsilon_{t}\}$与前面一样定义，$1>\beta_1>0$.
+
+当$\alpha_1+\beta_1=1$时，得到超前$\ell$步预测，可以写成
+$$
+\sigma_{h}^{2}(\ell)=\sigma_{h}^{2}(1)+(\ell-1) \alpha_{0} \quad \ell \geqslant 1
+$$
+其中h是预测原点。因此，$\sigma_{h}^{2}(1)$对将来波动率效应也是持续的，波动率预测形成一个斜率为$\alpha_0$的直线。
+
+假设$\alpha_0=0$，将模型改写为
+$$
+\begin{aligned}
+\sigma_{t}^{2} &=\left(1-\beta_{1}\right) a_{t-1}^{2}+\beta_{1} \sigma_{t-1}^{2} \\
+&=\left(1-\beta_{1}\right) a_{t-1}^{2}+\beta_{1}\left[(1-\beta) a_{t-2}^{2}+\beta_{1} \sigma_{t-2}^{2}\right] \\
+&=\left(1-\beta_{1}\right) a_{t-1}^{2}+(1-\beta) \beta_{1} a_{t-2}^{2}+\beta_{1}^{2} \sigma_{t-2}^{2}
+\end{aligned}
+$$
+重复代替，得到
+$$
+\sigma_{t}^{2}=\left(1-\beta_{1}\right)\left[a_{t-1}^{2}+\beta_{1} a_{t-2}^{2}+\beta_{1}^{2} a_{t-3}^{3}+\cdots\right]
+$$
+这就是著名的**贴现因子**为$\beta_1$的指数平滑公式。
+```{r}
+#估计带有高斯新息的IGARCH(1,1)模型
+source("Igarch.R")
+mm=Igarch(intc)
+names(mm)
+```
+
 ## GARCH-M模型
 在金融中， 资产的收益率可能依赖于它的波动率．为了对这种现象建模， 人们会考虑GARCH-M模型，其中"M"表示收益率的条件均值为GARCH(GARCH in mean).
 
