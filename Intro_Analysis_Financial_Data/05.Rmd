@@ -1,0 +1,214 @@
+---
+title: "第5章"
+author: "Zeng"
+date: '2019-12-10'
+csl: ./style/chinese-gb7714-2005-numeric.csl
+css: ./style/markdown.css
+bibliography: Bibfile.bib
+eqnPrefixTemplate: ($$i$$)
+link-citations: yes
+linkReferences: yes
+notice: '@*'
+autoEqnLabels: yes
+---
+
+
+
+```{r setup, echo=F}
+
+################# 第 5 章 R 程序代码  ####################
+
+
+knitr::opts_knit$set(root.dir = getwd())
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+```
+
+```{r prepare}
+rm(list=ls())
+options(digits=4)
+options(scipen=100)
+graphics.off()
+Sys.setlocale("LC_ALL", "Chinese")
+```
+
+# 波动率模型的应用
+假设$\sigma_t$为日对数收益率的波动率，则年度化的波动率为$\sqrt{252}\sigma_t$.一般来说，若$\sigma_t$是从资产收益率序列得到的波动率，该资产每年有$h$个观测值，则年度化的波动率为$\sqrt{h}\sigma_t$。使用年度化波动率简化了不同波动率预测值之间的比较。
+
+## GARCH波动率期限结构
+把对数收益率表示为$r_{t}=\mu_t+a_{t}=\mu_t+\sigma_{t} \varepsilon_t$,则GARCH(1,1)为：
+$$
+\sigma_{t}^{2}=\alpha_{0}+\alpha_{1} a_{t-1}^{2}+\beta_{1} \sigma_{t-1}^{2}
+$$
+其中，${\alpha _{\rm{1}}}{\rm{ + }}{\beta _{\rm{1}}} < 1,{\alpha _0} > 0,{\alpha _1} \ge 0,{\beta _{\rm{1}}} < 1$,$r_t$的无条件方差(或长期方差)为${\sigma ^2} = \frac{{{\alpha _0}}}{{1 - {\alpha _1} - {\beta _1}}}$,则有$\left(\sigma_{t}^{2}-\sigma^{2}\right)=\alpha_{1}\left(a_{t-1}^{2}-\sigma^{2}\right)+\beta_{1}\left(\sigma_{t-1}^{2}-\sigma^{2}\right)$
+
+GARCH(1,1)的超前$\ell$步预测为：
+$$
+\sigma_{t}^{2}(\ell)=\alpha_{0}+\left(\alpha_{1}+\beta_{1}\right) \sigma_{t}^{2}(\ell-1) \quad \ell=2, \cdots
+$$
+且，利用${\sigma ^2} = \frac{{{\alpha _0}}}{{1 - {\alpha _1} - {\beta _1}}}$，上面方程可写为：
+$$
+{\left[\sigma_{t}^{2}(\ell)-\sigma^{2}\right]=\left(\alpha_{1}+\beta_{1}\right)\left[\sigma_{t}^{2}(\ell-1)-\sigma^{2}\right]}
+$$
+经过重复替代有：
+$$
+\left[\sigma_{t}^{2}(\ell)-\sigma^{2}\right]=\left(\alpha_{1}+\beta_{1}\right)^{t-1}\left[\sigma_{t}^{2}(1)-\sigma^{2}\right]
+$$
+因此在${\alpha _{\rm{1}}}{\rm{ + }}{\beta _{\rm{1}}} < 1$条件下，GARCH(1,1)模型的波动率序列是均值回旋的，且均值回旋到长期方差的速度可通过半衰期$\ell=\log (0.5) / \log \left(\alpha_{1}+\beta_{1}\right)$来度量。
+
+***利率期限结构***
+下面转向波动率期限结构。距离$t$时刻$h$期的某资产的对数收益率为：
+$$r_{t, h}=\sum_{i=1}^{h} r_{t+i}$$
+由此可得$E\left(r_{t, h} | F_{t}\right)=\sum_{i=1}^{h} E\left(r_{t+i} | F_{t}\right)$，以及条件方差为：
+$$
+\quad \operatorname{Var}\left(r_{t, h} | F_{t}\right)=\sum_{i=1}^{h} \operatorname{Var}\left(r_{t+i} | F_{t}\right)+2 \sum_{i=1}^{n-1} \sum_{j=t+1}^{h} \operatorname{Cov}\left[\left(r_{t+i}, r_{t+j}\right) | F_{t}\right]
+$$
+$F_t$表示$t$时刻可利用的信息集。在有效市场假设下，这些自相关函数为零。因此有：
+$$
+\operatorname{Var}\left(r_{t, h} | F_{t}\right)=\sum_{i=1}^{h} \operatorname{Var}\left(r_{t+i} | F_{t}\right)
+$$
+对于GARCH模型，上述近似为：
+$$
+\sigma_{t, h}^{2}=\sum_{t=1}^{h} \sigma_{t}^{2}(\ell)
+$$
+这里，$\sigma_{t, h}^{2}$表示第$h$期对数收益率$r_{t, h}$的条件方差，以$t$时刻为预测原点。
+
+对于每日资产收益率来说，年度化的$h$期波动率为：
+$$\sigma_{t, h, a}=\sqrt{252/h}\sigma_{t, h}$$
+下标a表示波动率进行了年度化。波动率期限结构是研究在一定范围内h值下$\sigma_{t, h, a}$的行为。
+
+## 期权定价和对冲
+单只股票的标准期权定价方法的基本模型是：股票价格$P_{t}$服从一个几何布朗运动，即
+$$
+\frac{\mathrm{d} P_{t}}{P_{t}}=r \mathrm{d} t+\sigma \mathrm{d} W_{t}
+$$
+r是无风险利率，$\sigma$是波动率，$W_{t}$是标准维纳过程。这是在风险中性时的模型。根据伊藤引理，股票对数价格服从如下模型：
+
+$$
+d \ln \left(P_{t}\right)=\left(r-\frac{\sigma^{2}}{2}\right) \mathrm{d} t+\sigma \mathrm{d} W
+$$
+该式可用来模拟股票价格。模型的离散时间形式为：
+$$
+P_{t}=P_{t-1} \exp \left(r-0.5 \sigma^{2}+\sigma \varepsilon_{t}\right)
+$$
+这里$\varepsilon_{t} \text{~}N(0,1)$
+
+假设当前时刻为0，当前股价为$P_0$，期权的执行价格为K，到期时间为T。我们通过产生一个独立的正态随机变量序列$\{ \varepsilon_1,\dots,\varepsilon_T \}$，利用上式可以模拟最终时刻股价$P_T$，把上面过程重复N次，把$P_T$平均值作为$P_T$期望值，即$E\left(P_{\tau} | F_{t}\right)=\sum_{i=1}^{N} P_{\tau}^{(t)} / N$，上标$(i)$表示使用的是第i次模拟的终值。
+
+利用这个模拟结果，欧式看涨期权价格为：
+$$C\left(P_{0}\right)=\mathrm{e}^{-r T} E\left[\max \left(P_{T}-K, 0\right)\right]=\mathrm{e}^{-r \tau} \sum_{i=1}^{N} \max \frac{\left(P_{T}^{(i)}-K, 0\right)}{N}$$
+亚式看涨期权价格取决于该价格路径的算术平均，其公式为：
+$$
+C\left(P_{0}\right)=\mathrm{e}^{-r T} \sum_{i=1}^{N} \max \frac{\left(\sum_{i=1}^{T} P_{T}^{(i)} / T-K, 0\right)}{N}
+$$
+对于GARCH(1,1)模型，通过利用波动率方程，可拓展前面模拟过程，具体有：
+$$P_{t}=P_{t-1} \exp \left(r-0.5 \sigma_{t}^{2}+\sigma_{t} \varepsilon_{t}\right)\\
+\sigma_{t}^{2}=\alpha_{0}+\alpha_{1} \sigma_{t-1}^{2} \varepsilon_{t-1}^{2}+\beta_{1} \sigma_{t-1}^{2}\\
+\varepsilon_{t}\text{~}N(0,1)$$
+最后利用有限次方差近似，可计算出相应GARCH期权的$\delta$值和$\gamma$值.如：
+$$
+\delta=\left[C\left(P_{0}+\Delta\right)-C\left(P_{0}-\Delta\right)\right] /(2 \Delta)\\
+\gamma=\left[C\left(P_{0}+\Delta\right)-2 C\left(P_{0}\right)+C\left(P_{0}-\Delta\right)\right] / \Delta^{2}
+$$
+为提高模拟准确性，上面公式需要多次迭代。
+
+上述定价公式根据完美对冲得来，在随机波动率假设下，是不可能得到的。然而，依据NGARCH模型，存在一个局部的风险中性价值关系：
+$$
+{r_{t}=r-0.5 \sigma_{t}^{2}+\lambda \sigma_{t}+\sigma_{\varepsilon} \varepsilon_{t}} \\
+{\sigma_{t}^{2}=\alpha_{0}+\alpha_{1} \sigma_{t-1}^{2}\left(\varepsilon_{t-1}-\theta\right)^{2}+\beta_{1} \sigma_{t-1}^{2}}
+$$
+根据已估计参数，在期权定价中，可利用NGARCH(1,1)模型来执行价格模拟。
+
+## 随时间变化的协方差和β值
+
+GARCH模型的另一个应用是在资产收益率中得到随时间变化的协方差。现考虑两个资产收益率序列$x_t$和$y_t$，据统计理论有：
+$$
+\operatorname{Var}\left(x_{t}+y_{t}\right) =\operatorname{Var}\left(x_{t}\right)+2 \operatorname{Cov}\left(x_{t}, y_{t}\right)+\operatorname{Var}\left(y_{t}\right) \\
+\operatorname{Var}\left(x_{t}-y_{t}\right) =\operatorname{Var}\left(x_{t}\right)-2 \operatorname{Cov}\left(x_{t}, y_{t}\right)+\operatorname{Var}\left(y_{t}\right)
+$$
+因此，我们有：
+$$
+\operatorname{Cov}\left(x_{t}, y_{t}\right)=\frac{\operatorname{Var}\left(x_{t}+y_{t}\right)-\operatorname{Var}\left(x_{t}-y_{t}\right)}{4}
+$$
+该恒等式对条件协方差也是成立的。
+
+假设$\sigma_{x+y, t},\sigma_{x-y, t},\sigma_{x, t},\sigma_{y, t}$分别为$x_{t}+y_{t},x_{t}-y_{t},x_{t},y_{t}$的波动率，根据上面恒等式关系，在资产收益率$x_{t} \text{和} y_{t}$之间随时间变化的相关系数为：
+$$\rho_{t}=\frac{\sigma_{x+y, t}^{2}-\sigma_{x-y, t}^{2}}{4 \sigma_{x, t} \sigma_{y, t}}$$
+
+***随时间变化的β值***
+统计模型在金融中最常见的一个应用是资产定价模型(CAPM)，CAPM模型可以写为：
+$$r_{t}=\alpha+\beta r_{m, t}+e_{t} \quad t=1,2, \cdots, T$$
+其中$r_{m, t}$表示市场收益率，$r_{t}$表示所研究资产的收益率。这个简单线性回归模型提供了估计下列因子的一种方法：
+- 股票对市场风险的敏感性因子：β
+- 股票相当于市场的错误定阶：α
+- 特殊股票的回报：$e_{t}$
+对以上CAPM模型，我们有：
+$$\beta=\frac{\operatorname{Cov}\left(r_{t}, r_{m, t}\right)}{\operatorname{Var}\left(r_{m, t}\right)}$$
+因此，β的估计依赖于样本和对市场指数$r_{m, t}$的选择。
+
+## 最小方差投资组合
+
+GARCH模型的另一个应用是在投资组合选择中估计资产收益随时间变化的协方差。我们集中考虑最小方差组合。假设组合中有k个风险资产，组合收益的标准误差作为风险测量。假设这k个资产的收益为$\boldsymbol{r}_{t}=\left\{r_{1 t}, \cdots, r_{kt}\right\}^{\prime}$，$r_t$的协方差矩阵为$V_t$，组合的权重记为$\boldsymbol{w}_{t}=\left\{w_{1 t}, \cdots, w_{k t}\right\}^{\prime}$。权重是投资组合中每项资产所占的百分比。则组合收益为$w_t^{\prime}r_t$，组合收益的方差为$w_t^{\prime}V_tw_t$。
+最小方差组合的思想是，选择一个权重$w_t$，使得权重为下面简单最优化问题的解：
+$$\min_{w} w^{\prime} V_t, w \quad \text{s.t.} \quad \sum_{i=1}^{k} w_{i}=1$$
+如果允许权重为负，即允许卖空，则上述的解为：
+$$
+w_{t}=\frac{V_{t}^{-1} I}{I^{\prime} V_{t}^{-1} I}
+$$
+其中$I$是所有元素为1的k维向量。分母是矩阵$V_{t}^{-1}$所有元素的和，分子是由$V_{t}^{-1}$的每一行元素之和构成的向量。
+在实践中，权重依赖于用来估计$V_{t}$的样本。
+
+## 预测
+```{r}
+setwd("D:/github_repo/time_series/Intro_Analysis_Financial_Data/data/chart3")
+library(fGarch)
+da <- read.table('w-petroprice.txt',header = T)
+price <- ts(pet,frequency = 52,start = c(1997,1))
+dp <- ts(diff(price),frequency = 52,start = c(1997,2))
+par(mfcol=c(2,1))
+plot(price,xlab = 'year',ylab = 'price')
+plot(dp,xlab = 'year',ylab = 'changes')
+cprice <- diff(price)
+m2 <- arima(cprice,order = c(3,0,0),seasonal = list(order = c(2,0,0),period = 5))
+m2 <- arima(cprice,order = c(3,0,0),seasonal = list(order = c(2,0,0),period = 5),
+            include.mean = F)
+m2
+length(cprice)
+m2 <- arima(seasonal = list(order = c(2,0,0),period = 5),include.mean = F)
+m2
+adjcp <- cprice[11:716]-0.0983*cprice[6:711]-0.1152*cprice[1:706]
+acf(adjcp)
+pacf(adjcp)
+m3 <- garchFit(~arma(3,0)+garch(1,1),data = adjcp,trace = F,include.mean = F)
+summary(m3)
+plot(m3)
+m4 <- garchFit(~arma(3,0)+garch(1,1),data = adjcp,trace = F,include.mean = F,
+               cond.dist = 'std')
+summary(m4)
+plot(m4)
+m5 <- garchFit(~arma(1,0)+garch(1,1),data = adjcp,trace = F,include.mean = F,
+               cond.dist = 'sstd')
+summary(m5)
+plot(m5)
+M3 <- arima(adjcp,order = c(3,0,0),include.mean = F)
+setwd("D:/github_repo/time_series/Intro_Analysis_Financial_Data/data/chart2")
+source('backtest.r')
+M3F <- backtest(M3,adjcp,650,2,inc.mean=F)
+#source('backtestGarch.R')
+#M4F <- backtestGarch(M4,adjcp,650,2,inc.mean=F,cdist='sstd')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--# 参考文献 {-}-->
+[//]: # (\bibliography{Bibfile})
