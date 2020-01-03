@@ -1,0 +1,70 @@
+---
+title: "Untitled"
+author: "WANG"
+date: "2020/1/4"
+output: html_document
+---
+
+```{r}
+rm(list = ls())
+library(quantmod)
+library(fBasics)
+getSymbols("AAPL",src = "yahoo")#苹果公司股票数据
+rt <- na.omit(AAPL)
+rtn <- diff(log(rt$AAPL.Close))#计算对数收益率
+chartSeries(rtn,theme = "white")#时序图
+basicStats(rtn)#计算收益率的汇总统计数据
+hist(rtn,nclass = 30)#画出直方图
+rtn <- na.omit(rtn)#去空值
+s1 <- skewness(rtn)#偏度
+s2 <- kurtosis(rtn)#峰度
+#白噪声检验
+for (i in 1:2) print(Box.test(rtn,lag = 6*i,type = "Ljung-Box"))
+#P值小于显著性水平α，拒绝原假设，因此该序列不是白噪声序列，可以继续对序列相关性进行分析
+
+#平稳性检验（图检验法和单位根检验法）
+plot(rtn)#图检验法
+#单位根检验法
+library(fUnitRoots)
+m1=ar(na.omit(as.numeric(rtn)),method = 'mle')#基于AIC准则
+m1$order
+adfTest(rtn,lag=4,type="c")#P值为0.01，拒绝原假设，序列非平稳
+
+#建arma模型，残差白噪声检验
+acf(rtn)#自相关系数拖尾
+pacf(rtn)#偏自相关拖尾
+#install.packages("zoo")
+#install.packages("forecast")
+library(zoo)
+library(forecast)
+arma.fit <- auto.arima(rtn)#ARIMA(4,0,4)模型
+Box.test(arma.fit$residuals,lag = 12,type = 'Ljung-Box')
+#残差结果显示，残差序列可视为白噪声序列，这说明拟合模型ARMA（4，0，4）显著有效。
+
+#arch效应检验
+mean(rtn)
+yt=rtn-mean(rtn)
+Box.test(yt^2,lag=12,type = "Ljung-Box")
+#yt^2的LB统计量为1040，其p值接近于0，因此表明有很强的ARCH效应。
+install.packages("FinTS") 
+library(FinTS)  
+ArchTest(coredata(rtn))#检验
+#两种检验都确定了苹果公司的月对数收益率中存在ARCH效应
+
+# 正态性检验
+T=length(rtn)
+JB <- s1^2/(6/T)+(s2-3)^2/(24/T)#服从自由度为2的卡方分布
+p <- 1-pchisq(JB,2)
+p  #p值为0
+library(fBasics)
+normalTest(rtn,method = 'jb')
+#P值接近于0，拒绝原假设，因此对数收益率不服从正态分布
+
+# 根据garch模型计算VaR
+library(fGarch)
+m2 <- garchFit(~garch(1,1),data=rtn,trace = F)
+summary(m2)#α+β<1
+source("RMfit.R")
+m3=RMfit(rtn)
+```
+
