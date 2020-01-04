@@ -24,7 +24,9 @@ library(knitr)
 library(tseries)
 library(forecast)
 #从雅虎财经中获得百度公司的数据
-getSymbols('BIDU') 
+#getSymbols('BIDU') 
+#write.csv(BIDU,"./data/BIDU.csv")
+BIDU <- read.csv("./data/BIDU.csv")
 dim(BIDU) #查看数据维度3273条，6个变量
 head(BIDU) 
 tail(BIDU) #2007-01-03至2020-01-02数据
