@@ -1,9 +1,9 @@
 ---
 title: "分析baidu股票"
 output:
-  bookdown::html_document2: default
   html_document:
     number_sections: yes
+  bookdown::html_document2: default
 ---
 ```{r setup, echo=F}
 knitr::opts_knit$set(root.dir = getwd())
@@ -25,11 +25,12 @@ library(tseries)
 library(forecast)
 #从雅虎财经中获得百度公司的数据
 #getSymbols('BIDU') 
-#write.csv(BIDU,"./data/BIDU.csv")
+#write.csv(as.data.frame(BIDU),"./data/BIDU.csv",row.names = T)
 BIDU <- read.csv("./data/BIDU.csv")
+BIDU <- xts(BIDU[,-1],order.by = as.Date(BIDU$X))
 dim(BIDU) #查看数据维度3273条，6个变量
 head(BIDU) 
-tail(BIDU) #2007-01-03至2020-01-02数据
+tail(BIDU) #2007-01-03至2020-01-03数据
 #计算日对数收益率
 options(digits = 4)
 rt =diff(log(BIDU$BIDU.Adjusted))[-1] #去掉第一个空值
@@ -45,7 +46,8 @@ rownames(x1)=c("均值","标准差","偏态系数","峰态系数")
 x1
 ```
 
-从收益率数据特征可知，对数收益率的偏度为-0.022980，峰度为8.248098，而正态分布的偏度和峰度分别为0和3，故对数收益率序列具有左偏性和尖峰性，初步判断不服从正态分布。
+从收益率数据特征可知，对数收益率的偏度为`r x1[3,1]`，峰度为`r x1[4,1]`，而正态分布的偏度和峰度分别为0和3，
+故对数收益率序列具有左偏性和尖峰性，初步判断不服从正态分布。
 
 ## 图形描述
 ### 时序图
