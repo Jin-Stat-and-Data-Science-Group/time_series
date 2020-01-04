@@ -69,7 +69,8 @@ $$
 $$
 \mu_{t}=\phi_{0}+\sum_{i=1}^{k} \beta_{i} x_{t-1}+\sum_{i=1}^{p} \phi_{i} y_{t-i}-\sum_{j=1}^{q} \theta_{j} a_{t-j}
 $$
-其中，$$
+其中，
+$$
 y_{t-i}=r_{t-i}-\phi_{0}-\sum_{i=1}^{k} \beta_{i} x_{i, t-i-1}
 $$
 ```{r}
@@ -133,7 +134,8 @@ $$a_{t}=\sigma_{t} \varepsilon_{t}, \quad \sigma_{t}^{2}=\alpha_{0}+\alpha_{1} a
 $$
 E\left(a_{t}\right)=E\left[E\left(a_{t} | F_{t-1}\right)\right]=E\left[\sigma_{t} E\left(\varepsilon_{t}\right)\right]=0
 $$
-第二，$a_{t}$的无条件方差是$$
+第二，$a_{t}$的无条件方差是
+$$
 \operatorname{Var}\left(a_{t}\right)=E\left(a_{t}^{2}\right)=E\left[E\left(a_{t}^{2} | F_{t-1}\right)\right]=E\left[\alpha_{0}+\alpha_{1} a_{t-1}^{2}\right]=\alpha_{0}+\alpha_{1} E\left(a_{t-1}^{2}\right)
 $$
 又$\operatorname{Var}\left(a_{t}\right)=\alpha_{0}+\alpha_{1} \operatorname{Var}\left(a_{t}\right) \text { 和 }\operatorname{Var}\left(a_{t}\right)=\frac{\alpha_{0}}{1-\alpha_{1}}$,$0<\alpha_{1}<1$
