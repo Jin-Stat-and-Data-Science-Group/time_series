@@ -43,7 +43,7 @@ Sys.setlocale("LC_ALL", "Chinese")
 
 画出普通汽油和原油周对数价格的时序图如下
 ```{r}
-setwd("D:/github_repo/time_series/Intro_Analysis_Financial_Data/data/chart3")
+setwd("../Intro_Analysis_Financial_Data/data/chart3")
 da <- read.table('w-petroprice.txt',header = T)
 da1 <- read.table('w-gasoline.txt')
 pgs <- log(da1[,1])
@@ -95,6 +95,7 @@ tsdiag(m4,gof=20)
 
 ```{r}
 c1 <- c(NA,NA,NA,0,NA)
+source("../Intro_Analysis_Financial_Data/data/chart2/backtest.R")
 pm1 <- backtest(m1,dpgs,316,1,fixed = c1,inc.mean = F)
 c4 <- c(NA,NA,NA,0,NA,NA)
 pm4 <- backtest(m4,dpgs,316,1,xre=dpus,fixed = c4,inc.mean = F)
@@ -131,7 +132,7 @@ pm7 <- backtest(m7,dpgs[2:716],315,1,xre=dpus[1:715],fixed = c7,inc.mean = F)
 ### 单位根平稳
 
 ```{r}
-Gt <- scan(file='m-GLBTs.txt')
+Gt <- scan(file='../Intro_Analysis_Financial_Data/data/chart3/m-GLBTs.txt')
 Gtemp <- ts(Gt,frequency = 12,start = c(1880,1))
 plot(Gtemp,xlab='year',ylab='temperature',type='l')
 acf(diff(Gt),lag=36)
@@ -167,7 +168,7 @@ tsdiag(m2,gof=36)
 ```{r}
 pm1 <- backtest(m1,Gt,1368,1)
 time <- as.matrix(time)
-pm2 <- backtest(m2,Gt,1368,xre = time)
+pm2 <- backtest(m2,Gt,1368,1,xre = time)
 ```
 
 ### 长期预测
@@ -194,7 +195,7 @@ Box.test(mm1$residuals,lag = 8,type = 'Lj')
 ### 单变量时间序列模型
 
 ```{r}
-da <- read.table('m-unrate.txt',header = T)
+da <- read.table('../Intro_Analysis_Financial_Data/data/chart3/m-unrate.txt',header = T)
 dim(da)
 head(da)
 unemp <- da$rate
@@ -238,7 +239,7 @@ pmm1 <- backtest(mm1,unemp,700,1,fixed = cc1,inc.mean = F)
 ### 模型比较
 
 ```{r}
-da <- read.table('m-unrateic.txt',header = T)
+da <- read.table('../Intro_Analysis_Financial_Data/data/chart3/m-unrateic.txt',header = T)
 head(da)
 unrate <- da$rate
 x <- da[,5:9]/1000

@@ -1,0 +1,81 @@
+
+
+# 读取中国联通股票数据，利用quantmod包
+```{r}
+library(quantmod)
+setSymbolLookup(LT=list(name='600050.ss',src='yahoo'))#中国联通
+getSymbols('LT')
+LT <- na.omit(LT)
+```
+
+# 对中国联通股票收盘价进行分析
+```{r}
+p <- LT[,4]
+plot(p,main="中国联通股票收盘价")
+```
+
+# 收益率描述性统计
+```{r}
+r <- diff(log(p))
+plot(r,main="中国联通股票对数收益率")
+rn <- as.vector(r)
+library(fBasics)
+mean(rn,na.rm=T)#均值
+sd(rn,na.rm=T)#标准差
+skewness(rn,na.rm=T)#偏度
+kurtosis(rn,na.rm=T)#峰度
+```
+
+# 白噪声检验
+```{r}
+for (i in 1:2) print(Box.test(rn,lag=6*i)) 
+#拒绝原假设，不是白噪声序列
+```
+
+# 平稳性检验
+```{r}
+library(tseries)
+adf.test(rn[-1])
+```
+
+# 建立arma模型，残差白噪声检验
+```{r}
+acf(rn[-1])
+pacf(rn[-1])#拟合arma(1,1)
+y <- arima(rn[-1],order=c(1,0,0))
+for(i in 1:2) print(Box.test(y$residuals,lag=i))
+```
+
+# arch Lm检验
+```{r}
+library(FinTS)
+for (i in 1:5) print(ArchTest(y$residuals,lag=i))
+```
+拒绝原假设，存在arch效应
+
+# arma模型残差正态性检验
+```{r}
+jarqueberaTest(y$residuals) #残差非正态
+```
+
+
+# garch模型的建立
+```{r}
+library(fGarch)
+m1 <- garchFit(~garch(1,1),data=y$residuals,
+               include.mean=T,trace = F,cond.dist = "std")
+m1
+```
+
+# 根据garch模型计算VaR
+```{r}
+mean <- mean(y$residuals)
+std <- sd(y$residuals)
+VaR <- mean + std*qstd(0.95,nu=5)
+VaR
+```
+
+
+
+
+
