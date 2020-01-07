@@ -4,67 +4,138 @@ author: "WANG"
 date: "2020/1/4"
 output: html_document
 ---
-
+#获取数据，计算对数收益率
 ```{r}
-rm(list = ls())
+#浦东金桥股票数据
 library(quantmod)
 library(fBasics)
-getSymbols("AAPL",src = "yahoo")#苹果公司股票数据
-rt <- na.omit(AAPL)
-rtn <- diff(log(rt$AAPL.Close))#计算对数收益率
-chartSeries(rtn,theme = "white")#时序图
-basicStats(rtn)#计算收益率的汇总统计数据
-hist(rtn,nclass = 30)#画出直方图
-rtn <- na.omit(rtn)#去空值
-s1 <- skewness(rtn)#偏度
-s2 <- kurtosis(rtn)#峰度
-#白噪声检验
-for (i in 1:2) print(Box.test(rtn,lag = 6*i,type = "Ljung-Box"))
-#P值小于显著性水平α，拒绝原假设，因此该序列不是白噪声序列，可以继续对序列相关性进行分析
-
-#平稳性检验（图检验法和单位根检验法）
-plot(rtn)#图检验法
-#单位根检验法
 library(fUnitRoots)
-m1=ar(na.omit(as.numeric(rtn)),method = 'mle')#基于AIC准则
-m1$order
-adfTest(rtn,lag=4,type="c")#P值为0.01，拒绝原假设，序列非平稳
-
-#建arma模型，残差白噪声检验
-acf(rtn)#自相关系数拖尾
-pacf(rtn)#偏自相关拖尾
-#install.packages("zoo")
-#install.packages("forecast")
 library(zoo)
 library(forecast)
-arma.fit <- auto.arima(rtn)#ARIMA(4,0,4)模型
-Box.test(arma.fit$residuals,lag = 12,type = 'Ljung-Box')
-#残差结果显示，残差序列可视为白噪声序列，这说明拟合模型ARMA（4，0，4）显著有效。
+install.packages("fUnitRoots")
+library(fUnitRoots)
+#setSymbolLookup(FDJQ=list(name='600639.ss',src='yahoo',form="2007-01-08",to="2010-12-31"))
+#getSymbols("FDJQ")
+#write.csv(as.data.frame(FDJQ),"./data/FDJQ.csv")
+dat <- read.csv("./data/FDJQ.csv")
+dat <- na.omit(dat)
+head(dat)
+dat1 <- xts(dat[,-1],order.by = as.Date(dat$X))
+rtn <- diff(log(dat1$X600639.SS.Close))[-1]
+```
 
-#arch效应检验
-mean(rtn)
-yt=rtn-mean(rtn)
+#描述性统计分析（图）
+## 描述性统计分析值
+```{r}
+jz <- mean(rtn)
+fc <- var(rtn)
+zws <- median(rtn)
+pd <- skewness(rtn)
+fd <- kurtosis(rtn)
+data.frame(c(jz,fc,zws,pd,fd),row.names = c("均值","方差","中位数","偏度","峰度"))
+
+```
+根据上述的描述分析，样本偏度`r x[3,1]`小于0，样本峰度`r x[4,1]`小于3，该样本具有左偏平顶峰的特点，显然该股票收盘价的对数收益率不服从正态分布。
+
+## 描述性统计分析图
+```{r}
+hist(rtn,nclass = 30)#直方图
+chartSeries(rtn,theme = "white") #时序图
+qqnorm(rtn)  #  正态性检验q-q 图
+```
+对序列画出直方图，时序图，Q-Q图，通过Q-Q图可以检验正态性，因为序列数据离参考线过远，表明数据不服从正态分布。
+
+#白噪声检验
+```{r}
+for (i in 1:2) print(Box.test(rtn,lag = 6*i,type = "Ljung-Box"))
+par(mfcol=c(2,1))
+acf(rtn,main="自相关系数图",xlab="滞后阶数")
+pacf(rtn,main="偏自相关系数图",xlab="滞后阶数")
+
+```
+给定显著性水平0.05，对数收益率的白噪声检验的P值均小于0.05，有充足的理由拒绝原假设，因此该序列不是白噪声序列，序列间存在相关性。序列的自相关系数图拖尾，偏自相关系数图也拖尾，因此需要拟合arma模型。
+
+# 平稳性检验
+```{r}
+m1=ar(as.numeric(rtn),method = 'mle')#基于AIC准则
+m1$order
+adfTest(rtn,lag=4,type="c")
+ndiffs(rtn)
+#经过0次差分后平稳，也说明序列本身是平稳的。
+```
+P值为0.01，在显著性水平0.05下，拒绝原假设，序列平稳.
+
+# 建arma模型，残差白噪声检验
+因为对数收益率序列平稳，自相关系数拖尾，偏自相关系数也拖尾，因此建立ARMA模型，可以先考虑一下模型：ARMA(1,1),ARMA(1,2),ARMA(2,1),ARMA(2,2)，再根据AIC和BIC最小准则确定合适的模型。
+```{r}
+fit1 <- arima(rtn,order = c(1,0,1),method = "ML")
+fit1
+x1 <- c("ARMA(1,1)",fit1$aic)
+fit2 <- arima(rtn,order = c(1,0,2),method = "ML")
+fit2
+x2 <- c("ARMA(1,2)",fit2$aic)
+fit3 <- arima(rtn,order = c(2,0,1),method = "ML")
+fit3
+x3 <- c("ARMA(2,1)",fit3$aic)
+fit4 <- arima(rtn,order = c(2,0,2),method = "ML")
+fit4
+x4 <- c("ARMA(2,2)",fit4$aic)
+x <- data.frame(x1,x2,x3,x4)
+rownames(x) = c("模型","AIC")
+x
+```
+根据AIC最小的准则选择适合的模型，经比较，模型ARMA(2,2)最合适,AIC值最小。
+
+## 残差白噪声检验
+```{r}
+for (i in 1:2) {
+  print(Box.test(fit4$residuals,lag=i*6,type = "Ljung-Box"))
+}
+```
+对模型残差进行白噪声检验，模型的P值大于显著性水平0.05，没有足够的理由拒绝原假设，因此残差序列是白噪声序列，不存在序列相关性。
+
+# arch效应检验
+```{r}
+#LB统计量
+res <- fit4$residuals
+mean(res)
+yt=res-mean(res)
 Box.test(yt^2,lag=12,type = "Ljung-Box")
-#yt^2的LB统计量为1040，其p值接近于0，因此表明有很强的ARCH效应。
 install.packages("FinTS") 
 library(FinTS)  
-ArchTest(coredata(rtn))#检验
+ArchTest(coredata(res))#检验
 #两种检验都确定了苹果公司的月对数收益率中存在ARCH效应
 
+```
+（1）可以利用LB统计量检验是否存在arch效应，P值接近于0，拒绝原假设，因此表明有很强的ARCH效应。
+
+（2）直接用ArchTest()函数来检验，P值接近于0,也说明了残差序列存在ARCH效应,因此序列具有异方差性,可以构建GARCH模型
+
 # 正态性检验
-T=length(rtn)
+```{r}
+#JB统计量
+T=length(res)
+s1 <- skewness(res)
+s2 <- kurtosis(res)
 JB <- s1^2/(6/T)+(s2-3)^2/(24/T)#服从自由度为2的卡方分布
 p <- 1-pchisq(JB,2)
 p  #p值为0
 library(fBasics)
-normalTest(rtn,method = 'jb')
+normalTest(res,method = 'jb')
 #P值接近于0，拒绝原假设，因此对数收益率不服从正态分布
+```
+利用JB统计量检验或函数normalTest()检验正态性，都拒绝正态性分布的原假设。
 
-# 根据garch模型计算VaR
+# 建Garch模型
+```{r}
 library(fGarch)
 m2 <- garchFit(~garch(1,1),data=rtn,trace = F)
-summary(m2)#α+β<1
-source("RMfit.R")
-m3=RMfit(rtn)
+summary(m2)
 ```
+
+# 根据garch模型计算VaR
+```{r}
+
+```
+
 
