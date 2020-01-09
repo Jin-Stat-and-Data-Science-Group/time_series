@@ -1,19 +1,62 @@
 ---
-title: "Untitled"
-author: "WANG"
-date: "2020/1/4"
-output: html_document
+title: "金融数据分析导论练习"
+author: "wangmengyuan"
+date: "2020-1-8"
+output:
+  html_document:
+    df_print: paged
+    toc: no
+  bookdown::pdf_document2:
+    keep_tex: yes
+    latex_engine: xelatex
+    md_extensions: +east_asian_line_breaks
+    pandoc_args:
+    - --listing
+    - --filter
+    - pandoc-crossref
+    toc: no
+  bookdown::word_document2:
+    fig_caption: yes
+    md_extensions: +east_asian_line_breaks
+    pandoc_args:
+    - --filter
+    - pandoc-crossref
+    reference_docx: ./style/word-styles-02.docx
+  bookdown::html_document2:
+    fig_caption: yes
+    highlight: haddock
+    keep_md: yes
+    md_extensions: +east_asian_line_breaks
+    number_sections: yes
+    pandoc_args:
+    - --filter
+    - pandoc-crossref
+    - -M
+    - eqnPrefix=
+    seq_numbering: yes
+    theme: null
+    toc: yes
+css: ./style/markdown.css
+bibliography: Bibfile.bib
+eqnPrefixTemplate: ($$i$$)
+link-citations: yes
+linkReferences: yes
+csl: ./style/chinese-gb7714-2005-numeric.csl
+autoEqnLabels: yes
 ---
+
 #获取数据，计算对数收益率
+获取浦东金桥股票数据，利用2007-01-04到2010-12-31期间股票的收盘价格进行分析
 ```{r}
 #浦东金桥股票数据
+rm(list = ls())
 library(quantmod)
 library(fBasics)
-library(fUnitRoots)
 library(zoo)
+library(xts)
 library(forecast)
-install.packages("fUnitRoots")
-library(fUnitRoots)
+#install.packages("fUnitRoots")
+#library(fUnitRoots)
 #setSymbolLookup(FDJQ=list(name='600639.ss',src='yahoo',form="2007-01-08",to="2010-12-31"))
 #getSymbols("FDJQ")
 #write.csv(as.data.frame(FDJQ),"./data/FDJQ.csv")
@@ -21,10 +64,11 @@ dat <- read.csv("./data/FDJQ.csv")
 dat <- na.omit(dat)
 head(dat)
 dat1 <- xts(dat[,-1],order.by = as.Date(dat$X))
+
 rtn <- diff(log(dat1$X600639.SS.Close))[-1]
 ```
 
-#描述性统计分析（图）
+ #描述性统计分析（图）
 ## 描述性统计分析值
 ```{r}
 jz <- mean(rtn)
@@ -32,7 +76,7 @@ fc <- var(rtn)
 zws <- median(rtn)
 pd <- skewness(rtn)
 fd <- kurtosis(rtn)
-data.frame(c(jz,fc,zws,pd,fd),row.names = c("均值","方差","中位数","偏度","峰度"))
+x <- data.frame(c(jz,fc,zws,pd,fd),row.names = c("均值","方差","中位数","偏度","峰度"))
 
 ```
 根据上述的描述分析，样本偏度`r x[3,1]`小于0，样本峰度`r x[4,1]`小于3，该样本具有左偏平顶峰的特点，显然该股票收盘价的对数收益率不服从正态分布。
@@ -59,7 +103,9 @@ pacf(rtn,main="偏自相关系数图",xlab="滞后阶数")
 ```{r}
 m1=ar(as.numeric(rtn),method = 'mle')#基于AIC准则
 m1$order
-adfTest(rtn,lag=4,type="c")
+library(fUnitRoots)
+library(tseries)
+adfTest(ts(rtn),lag=4,type="c")
 ndiffs(rtn)
 #经过0次差分后平稳，也说明序列本身是平稳的。
 ```
@@ -132,9 +178,54 @@ library(fGarch)
 m2 <- garchFit(~garch(1,1),data=rtn,trace = F)
 summary(m2)
 ```
+GARCH模型通用的时间序列模型可以写为：
+$$\eqalign{
+  & {r_t} =  - 3.136e - 04 + {a_t}  \cr 
+  & {a_t} = {\sigma _t}{\varepsilon _t}{\rm{  ,  }}{\varepsilon _t} \sim N(0,1)  \cr 
+  & \sigma _t^2 = 1.041e - 05 + 0.04047a_{t - 1}^2 + 0.9507\sigma _{t - 1}^2 \cr} $$
 
 # 根据garch模型计算VaR
+在时刻T=975，均值和波动率的超前一步预测分别为-0.0003136214和0.02427867。
 ```{r}
+predict(m2,3)
+RMeasure<- function(mu,sigma,cond.dist="norm",df=0){
+# calculate VaR and ES for a specified conditional distribution
+# p = 0.05, 0.01, 0.001
+# cond.dist = "norm", "t", "std"
+prob=c(0.95,0.99,0.999)
+if(cond.dist=="norm"){
+q1=qnorm(prob)
+d1=dnorm(q1)
+VaR=mu+q1*sigma
+ES=mu+d1/(1-prob)*sigma
+tt=cbind(prob,VaR,ES)
+}
+#
+if(cond.dist=="std"){
+library(fGarch)
+if(df < 2.001)df=2.01
+q1=qstd(prob,nu=df)
+d1=dstd(q1,nu=df)
+VaR=mu+q1*sigma
+ES=mu+sigma*(d1/(1-prob))*(((df-2)+q1^2)/(df-1))
+tt=cbind(prob,VaR,ES)
+}
+#
+if(cond.dist=="t"){
+if(df < 2.01)df=2.01
+q1=qt(prob,df)
+d1=dt(q1,df)
+#VaR=mu+q1*sigma
+VaR=mu+q1*sigma/sqrt(df/(df-2))
+ES=mu+sigma/sqrt(df/(df-2))*(d1/(1-prob))*((df+q1^2)/(df-1))
+tt=cbind(prob,VaR,ES)
+}
+cat("\n Risk Measures for selected probabilities: \n")
+print(tt)
+
+RMeasure <- list(results=tt)
+}
+RMeasure(-0.0003136214,0.02427867,cond.dist = "norm",df=0)
 
 ```
 
