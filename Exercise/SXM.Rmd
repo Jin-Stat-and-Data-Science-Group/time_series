@@ -1,15 +1,52 @@
 ---
-title: "分析baidu股票"
+title: "分析baidu股票收益率"
+author: "宋小曼"
 output:
-  html_document:
-    number_sections: yes
-  bookdown::html_document2: default
+  bookdown::html_document2:
+    number_sections: true
+    seq_numbering: true
+    fig_caption: true
+    highlight: haddock
+    theme: null
+    md_extensions: +east_asian_line_breaks
+    keep_md: true
+    toc: true
+    pandoc_args: ["--filter", "pandoc-crossref", "-M", "eqnPrefix="]
+  bookdown::word_document2:
+    fig_caption: true
+    reference_docx: ./style/word-styles-02.docx
+    md_extensions: +east_asian_line_breaks
+    pandoc_args: ["--filter", "pandoc-crossref"]
+  bookdown::pdf_document2:
+    keep_tex: yes
+    toc: false
+    latex_engine: xelatex
+    md_extensions: +east_asian_line_breaks
+    pandoc_args: ["--listing", "--filter", "pandoc-crossref"]
+css: ./style/markdown.css
+autoEqnLabels: true
+eqnPrefixTemplate: ($$i$$)
+linkReferences: true
+bibliography: Bibfile.bib
+csl: ./style/chinese-gb7714-2005-numeric.csl
+link-citations: true
 ---
+
 ```{r setup, echo=F}
 knitr::opts_knit$set(root.dir = getwd())
 #knitr::opts_chunk$set(echo = FALSE, results = 'hide')
 knitr::opts_chunk$set(warning = FALSE, message=FALSE)
 ```
+
+```{r prepare, echo=F}
+rm(list=ls())
+options(digits=4)
+options(scipen=100)
+graphics.off()
+Sys.setlocale("LC_ALL", "Chinese")
+```
+
+
 
 # 获取数据，计算收益率
 ```{r}
@@ -28,11 +65,10 @@ library(forecast)
 #write.csv(as.data.frame(BIDU),"./data/BIDU.csv",row.names = T)
 BIDU <- read.csv("./data/BIDU.csv")
 BIDU <- xts(BIDU[,-1],order.by = as.Date(BIDU$X))
-dim(BIDU) #查看数据维度3273条，6个变量
-head(BIDU) 
-tail(BIDU) #2007-01-03至2020-01-03数据
+#dim(BIDU) #查看数据维度3273条，6个变量
+#head(BIDU) 
+#tail(BIDU) #2007-01-03至2020-01-03数据
 #计算日对数收益率
-options(digits = 4)
 rt =diff(log(BIDU$BIDU.Adjusted))[-1] #去掉第一个空值
 ```
 
@@ -87,6 +123,7 @@ Box.test(rt,lag = 12,type = 'Lj')
 
 ```{r fig2, fig.cap="Baidu日对数收益率自相关图和偏自相关图", dev='png'}
 #自相关性检验
+par(mfrow=c(1,2))
 acf(rt)
 pacf(rt)
 ```
@@ -139,6 +176,14 @@ ArchTest(resi,lag=12)
 
 由检验结果可知，p值<2e-16，拒绝原假设，说明残差序列存在ARCH效应,具有异方差性,构建GARCH模型
 
+# 残差正态性检验
+```{r}
+#正态性检验
+jarque.bera.test(fit5$residuals) 
+```
+
+拒绝原假设,说明拟合arma(2,2)后的残差并不是正态分布
+
 # 构建GARCH模型
 ```{r}
 library(fGarch)
@@ -146,10 +191,11 @@ rfit=garchFit(~arma(2,2)+garch(1,1),data=rt,trace=F)  #新息服从正态分布
 summary(rfit)
 ```
 
-完整拟合模型为$$\left\{\begin{array}{l}
-{ r_t=-0.0987r_{t-1}-0.9166r_{t-2}+a_t+0.122a_{t-1}+0.9011a_{t-2}}\\
+完整拟合模型为
+$$\left\{\begin{array}{l}
+{ r_t=0.0015-0.0985r_{t-1}-0.9167r_{t-2}+a_t+0.1218a_{t-1}+0.9013a_{t-2}}\\
 {a_{t}=\sigma_{t} \varepsilon _{t}} \\
-{\sigma_{t}^2=0.9728 \sigma_{t-1}^2+0.02114 a_{t-1}^{2}}
+{\sigma_{t}^2=0.9728 \sigma_{t-1}^2+0.02116 a_{t-1}^{2}}
 \end{array}\right.$$
 
 # VaR计算
@@ -194,13 +240,16 @@ print(tt)
 
 RMeasure <- list(results=tt)
 }
-predict(rfit,3) #均值的三个预测值
-RMeasure(0.0002770482,0.02651697)
+mm=predict(rfit,3) #均值的三个预测值
+RMeasure(1.525907e-04	,0.02665890	)
 ```
 
-由结果可知，在T=2020/1/2时刻，超前1步预测的收益率均值0.0002770482，波动率为0.02651697，相应的风险值为$$VaR_{0.95}=0.04389358,ES_{0.95}=0.05497394\\
-VaR_{0.99}=0.06196474,ES_{0.99}=0.07095045\\
-VaR_{0.999}=0.08222065,ES_{0.999}=0.08956207$$
+由结果可知，在T=2020/1/2时刻，超前1步预测的收益率均值`r mm$meanForecast[1]`，波动率为`r mm$meanError[1]`，相应的风险值为
+$$\left\{\begin{array}{l}
+VaR_{0.95}=0.04400258,ES_{0.95}=0.05514225\\
+VaR_{0.99}=0.06217047,ES_{0.99}=0.07120427\\
+VaR_{0.999}=0.08253478,ES_{0.999}=0.08956207
+\end{array}\right.$$
 
 
 
