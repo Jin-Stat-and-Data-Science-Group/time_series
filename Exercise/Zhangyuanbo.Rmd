@@ -1,0 +1,277 @@
+---
+title: "花旗银行股票收益率分析"
+author: "Zhang Yuanbo"
+date: "2020-01-03"
+output:
+  bookdown::html_document2:
+    number_sections: true
+    seq_numbering: true
+    fig_caption: true
+    highlight: haddock
+    theme: null
+    md_extensions: +east_asian_line_breaks
+    keep_md: true
+    toc: false
+    pandoc_args: ["--filter", "pandoc-crossref", "-M", "eqnPrefix="]
+  bookdown::word_document2:
+    fig_caption: true
+    reference_docx: ./style/word-styles-02.docx
+    md_extensions: +east_asian_line_breaks
+    pandoc_args: ["--filter", "pandoc-crossref"]
+  bookdown::pdf_document2:
+    keep_tex: yes
+    toc: false
+    latex_engine: xelatex
+    md_extensions: +east_asian_line_breaks
+    pandoc_args: ["--listing", "--filter", "pandoc-crossref"]
+css: ./style/markdown.css
+autoEqnLabels: true
+eqnPrefixTemplate: ($$i$$)
+linkReferences: true
+bibliography: Bibfile.bib
+csl: ./style/chinese-gb7714-2005-numeric.csl
+link-citations: true
+---
+
+```{r setup, echo=F}
+knitr::opts_knit$set(root.dir = getwd())
+knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+```
+```{r prepare, echo=F}
+rm(list=ls())
+options(digits=4)
+options(scipen=100)
+graphics.off()
+Sys.setlocale("LC_ALL", "Chinese")
+```
+
+# 数据来源及预处理
+本文数据来源于雅虎财经，在R软件中利用quantmod包可直接从雅虎财经下载该数据，最终样本选取的是2015年1月5日至2019年11月27日。
+
+针对选取股价指标这个问题，最终把样本股的日收盘价选取为研究指标，这是由于收盘价的代表性最强，无论是最高价还是最低价都难以体现样本股在当天的整体情况，而收盘价却可以表明当日股市竞争之后的最终价格。在数据预处理这方面，排除掉股市休市以及部分数据缺失不全的记录，再对该数据进行对数差分处理获得我们需要的收益率数据。
+
+```{r}
+library(quantmod)
+library(fBasics)
+library(fUnitRoots)
+library(FinTS)
+library(tseries)
+library(fGarch)
+#getSymbols('C',from='2015-01-03',to='2019-11-29')
+#write.csv(as.data.frame(C),"./data/C.csv",row.names = T)
+C <- read.csv("./data/C.csv")
+C <- xts(C[,-1],order.by = as.Date(C$X))
+C.rtn <- diff(log(C$C.Adjusted))
+C.rtn <- na.omit(C.rtn)
+```
+
+# 基于ARIMA模型分析
+
+## 描述统计
+对得到的数据进行描述统计，可以得到如下结果：
+```{r,results='markup'}
+basicStats(C.rtn)
+```
+结果表明收益率并不是很高，不过其方差也不大，这可能是由于自身收益率数值水平较低导致的，不能有效说明其波动性，且根据偏度和峰度可判断该数据不服从正态分布，需进一步分析。
+
+## 白噪声检验
+
+如果该数据为纯随机序列，即白噪声序列，则该序列就毫无规律可言，就不能进行数据分析及预测，因此利用Q统计量进行检验，得到以下结果：
+
+```{r,results='markup'}
+for (i in 1:2) {
+  print(Box.test(C.rtn,lag = 6*i,type = 'Lj'))
+}
+```
+由以上结果可知，检验的p值远大于0.05，所以我们不能够拒绝原假设，认为该序列为纯随机性序列，不过为了继续说明其他方法，对该数据继续进行分析。
+
+## 平稳性检验
+
+在对时间序列数据进行分析之前首先要进行平稳性检验，再根据是否平稳来确定下一步分析。把对R中的数据进行预处理之后，先画出序列时序图如下：
+
+```{r}
+chartSeries(C.rtn,theme = 'white')
+```
+
+由图1可知，该序列基本上平稳，因此不需要进一步差分处理,但仍需单位根检验。
+
+```{r,results='markup'}
+C.rtn <- ts(C.rtn)
+for (i in 1:2) {
+  print(adfTest(C.rtn,lags = i,type = 'nc'))
+}
+
+for (i in 1:2) {
+  print(adfTest(C.rtn,lags = i,type = 'c'))
+}#平稳
+```
+经ADF检验之后也验证该序列平稳，可以对该序列进一步分析。
+
+## ARMA建模
+
+根据以上分析，先做出该时间序列做自相关图和偏自相关图，根据其拖尾性和截尾性来判断模型的阶数。以下为差分序列的自相关图和偏自相关图：
+
+```{r}
+acf(C.rtn)
+pacf(C.rtn)
+```
+
+根据图5和图6可以看出ACF和PACF均具有拖尾性，所以可判断为ARMA模型，利用R中ARIMA函数拟合多个模型进行比较，最后可以得到具体模型的阶数为ARIMA(1,0,0)，其模型结果如下：
+
+```{r,results='markup'}
+x.fit <- arima(C.rtn,order = c(1,0,0))
+summary(x.fit)
+```
+
+由以上结果可知该模型为：
+$${x_t} = 0.0242{x_{t - 1}} + {\varepsilon _t}$$
+通过对多个模型的比较可以得到以上模型的AIC最小为-6739.25，因此上述模型为拟合效果最好的模型。
+
+# 模型检验
+## 残差白噪声检验
+
+在得到合适的模型之后还要对模型进行显著性检验，即检验其残差序列是否为白噪声序列，检验结果如图8所示：
+```{r,results='markup'}
+for (i in 1:2) {
+  print(Box.test(x.fit$residuals,lag = 6*i,type = 'Lj'))
+}#白噪声
+```
+有检验结果可知：p值较大，说明模型残差序列为白噪声序列，说明该序列的相关性已经提取完全，即该模型通过了检验。
+
+## ARCH效应检验
+
+虽然我们已经得到较为合适的ARMA模型，但是还要检验该模型的假设条件是否满足。所以要根据得到的模型进一步作异方差检验，因为ARMA模型的假设条件要求序列随机项为方差齐性，若方差非齐，即具有异方差性，则说明上述模型是不太准确的，要进一步对残差进行处理。
+
+检验残差的ARCH效应通常有Portmanteau Q检验和LM检验两种方法，下面依次进行这两种检验。
+
+### Portmanteau Q检验
+```{r,results='markup'}
+for (i in 1:6) {
+  print(Box.test(x.fit$residuals^2,lag = i,type = 'Lj'))
+}
+```
+根据以上结果可知，在Portmanteau Q检验中，其p值小于0.05，说明该残差序列的方差非齐。
+
+### LM检验
+```{r,results='markup'}
+for (i in 1:6) {
+  print(ArchTest(x.fit$residuals,lag = i))
+}#有arch效应
+```
+根据以上结果可知，在LM检验中，其p值也均小于0.05，说明该残差序列的方差非齐,并且具有长期相关性。
+
+# GARCH建模
+## 正态性检验
+
+建立GARCH模型要求序列为正态分布，因此对AR(1)模型残差进行正态性检验,其结果如下：
+```{r,results='markup'}
+s <- skewness(x.fit$residuals)
+k <- kurtosis(x.fit$residuals)
+t <- length(C.rtn)
+jb <- s^2/(6/t)+(k-3)^2/(24/t)
+jb
+p <- 2*(1-pnorm(jb))
+p
+normalTest(x.fit$residuals,method = 'jb')#非正态
+d1 <- density(x.fit$residuals)
+plot(d1$x,d1$y,type='l')
+```
+由结果可知不服从正态分布，且根据残差序列的密度曲线可判断其服从一个有偏的t分布。
+
+## 模型拟合
+由以上分析可知，拟合GARCH(1,1)模型较为合适，其结果如下：
+
+```{r,results='markup'}
+acf(x.fit$residuals^2)
+r.fit <- garch(x.fit$residuals,order = c(1,1))
+summary(r.fit)
+```
+
+从以上结果可以发现，p值都远小于0.05，因此各系数均通过了显著性检验，可以认为该模型是非常有效的。根据模型结果可以绘制出收益率的波动的95%置信区间图，结果如下：
+
+```{r}
+r.pre <- predict(r.fit)
+plot(r.pre)
+```
+
+根据图11和图12可以看出GARCH(1,1)模型对残差的方差非齐性处理的效果比较好，因此我们就能够利用该模型对未来收益率展开预测。
+
+# 收益率预测
+
+对AR(1)模型与GARCH(1,1)模型进行联合可得以下分析结果：
+
+```{r,results='markup'}
+m <- garchFit(~arma(1,0,0)+garch(1,1),data = C.rtn,trace = F)
+summary(m)
+```
+
+通过以上结果可以看出，各系数均通过显著性检验，并且白噪声检验均显示残差为白噪声序列，说明该模型效果较好。总结模型如下所示：
+$$
+\left\{ \begin{array}{l}
+{x_t} = 0.000822{\rm{ + }}0.014533{x_{t - 1}}{\rm{ + }}{\varepsilon _t}\\
+{\varepsilon _t}{\rm{ = }}\sqrt {{h_t}} {e_t}{\rm{,}}{\kern 10pt} {e_t}\mathop {\text{~}}\limits^{iid} N{\rm{(}}0{\rm{,0}}{\rm{.0000}}23{\rm{)}}\\
+{h_t} = {\rm{0}}{\rm{.0000}}23{\rm{ + }}0.77814{h_{t - 1}} + 0.13024\varepsilon _{t - 1}^2
+\end{array} \right.
+$$
+
+根据上述模型对股票作未来五天的收益率预测，预测结果如下所示：
+
+```{r,results='markup'}
+predict(m,5)
+```
+
+从预测结果来看，该股票的收益率持缓慢下降趋势，并且与收盘价真实值比对之后并没有较大偏差，因此该结果具有一定现实意义。
+
+# VaR
+
+以上分析可以得到，其超前1步预测的收益率均值0.0008718134，波动率为0.01180206，相应的风险值计算如下：
+
+```{r,results='markup'}
+"RMeasure" <- function(mu,sigma,cond.dist="norm",df=0){
+  # calculate VaR and ES for a specified conditional distribution
+  # p = 0.05, 0.01, 0.001, .0001
+  #
+  # cond.dist = "norm", "t", "std"
+  prob=c(0.95,0.99,0.999,.9999)
+  if(cond.dist=="norm"){
+    q1=qnorm(prob)
+    d1=dnorm(q1)
+    VaR=mu+q1*sigma
+    ES=mu+d1*sigma/(1-prob)
+    tt=cbind(prob,VaR,ES)
+  }
+  #
+  if(cond.dist=="std"){
+    library(fGarch)
+    if(df < 2.001)df=2.01
+    q1=qstd(prob,nu=df)
+    d1=dstd(q1,nu=df)
+    VaR=mu+q1*sigma
+    ES=mu+sigma*(d1/(1-prob))*(((df-2)+q1^2)/(df-1))
+    tt=cbind(prob,VaR,ES)
+  }
+  #
+  if(cond.dist=="t"){
+    if(df < 2.01)df=2.01
+    q1=qt(prob,df)
+    d1=dt(q1,df)
+    VaR=mu+q1*sigma
+    #VaR=mu+q1*sigma/sqrt(df/(df-2))
+    #ES=mu+sigma/sqrt(df/(df-2))*(d1/(1-prob))*((df+q1^2)/(df-1))
+    ES=mu+sigma*(d1/(1-prob))*((df+q1^2)/(df-1))
+    tt=cbind(prob,VaR,ES)
+  }
+  cat("\n Risk Measures for selected probabilities: \n")
+  print(tt)
+  
+  RMeasure <- list(results=tt)
+}
+RMeasure(0.0008718134,0.01180206)
+```
+
+
+
+
+# 参考文献
+[//]: # (\bibliography{Bibfile})
