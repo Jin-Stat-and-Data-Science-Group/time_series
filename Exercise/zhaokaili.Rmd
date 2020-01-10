@@ -1,78 +1,169 @@
+---
+title: "分析中国联通股票收益率"
+author: "赵凯力"
+bibliography: Bibfile.bib
+output:
+  html_document:
+    df_print: paged
+    toc: no
+  bookdown::pdf_document2:
+    keep_tex: yes
+    latex_engine: xelatex
+    md_extensions: +east_asian_line_breaks
+    pandoc_args:
+    - --listing
+    - --filter
+    - pandoc-crossref
+    toc: no
+  bookdown::word_document2:
+    fig_caption: yes
+    md_extensions: +east_asian_line_breaks
+    pandoc_args:
+    - --filter
+    - pandoc-crossref
+    reference_docx: ./style/word-styles-02.docx
+  bookdown::html_document2:
+    fig_caption: yes
+    highlight: haddock
+    keep_md: yes
+    md_extensions: +east_asian_line_breaks
+    number_sections: yes
+    pandoc_args:
+    - --filter
+    - pandoc-crossref
+    - -M
+    - eqnPrefix=
+    seq_numbering: yes
+    theme: null
+    toc: yes
+css: ./style/markdown.css
+eqnPrefixTemplate: ($$i$$)
+link-citations: yes
+linkReferences: yes
+csl: ./style/chinese-gb7714-2005-numeric.csl
+autoEqnLabels: yes
+---
 
+```{r setup, echo=F}
+knitr::opts_knit$set(root.dir = getwd())
+#knitr::opts_chunk$set(echo = FALSE, results = 'hide')
+knitr::opts_chunk$set(warning = FALSE, message=FALSE)
+```
 
-# 读取中国联通股票数据，利用quantmod包
+```{r prepare, echo=F}
+rm(list=ls())
+options(digits=4)
+options(scipen=100)
+graphics.off()
+Sys.setlocale("LC_ALL", "Chinese")
+```
+
+# 获取数据，计算收益率
+首先利用quantmod包爬取中国联通股票数据，根据查询得知中国联通股票缩写为'SH'，然后直接利用getSymbol函数获取07年到现在的数据，然后取中国联通股票的收盘价进行分析，计算其对数收益率。
+
 ```{r}
+rm(list=ls())
 library(quantmod)
-setSymbolLookup(LT=list(name='600050.ss',src='yahoo'))#中国联通
-getSymbols('LT')
-LT <- na.omit(LT)
-```
-
-# 对中国联通股票收盘价进行分析
-```{r}
-p <- LT[,4]
-plot(p,main="中国联通股票收盘价")
-```
-
-# 收益率描述性统计
-```{r}
-r <- diff(log(p))
-plot(r,main="中国联通股票对数收益率")
-rn <- as.vector(r)
 library(fBasics)
-mean(rn,na.rm=T)#均值
-sd(rn,na.rm=T)#标准差
-skewness(rn,na.rm=T)#偏度
-kurtosis(rn,na.rm=T)#峰度
+library(fUnitRoots)
+library(FinTS)
+library(tseries)
+library(fGarch)
+getSymbols('SH')
+#write.csv(as.data.frame(SH),"./data/SH.csv",row.names = T)
+SH <- read.csv("./data/SH.csv")
+SH <- xts(SH[,-1],order.by = as.Date(SH$X))
+rt =diff(log(SH$SH.Close))[-1] #去掉第一个空值
 ```
+
+# 描述性统计分析
+```{r}
+basicStats(rt)
+```
+根据上面的描述性统计，可知数据z总共有3277个，其中没有空值，其偏度为-0.475056,峰度为15.058533,可以大概得知该数据的分布为尖峰厚尾的，而且还是略微左偏的。
+
+```{r fig1,eval=T,fig.cap = "中国联通日对数收益率时序图", dev='png'}
+chartSeries(rt,theme="white")
+```
+从图\@ref(fig:fig1)中可以看出收益率在10年到18年基本保持平稳，但在09年的时候明显波动较大，k恶意基本认为序列是平稳的，但是可能会存在异方差。
 
 # 白噪声检验
 ```{r}
-for (i in 1:2) print(Box.test(rn,lag=6*i)) 
-#拒绝原假设，不是白噪声序列
+for (i in 1:2) print(Box.test(rt,lag=6*i)) 
 ```
+可以看到滞后6期和滞后12期的p值都小于显著性水平0.05，所以可以拒绝原假设，即收益率序列不是白噪声，可以进行进一步的分析提取相关信息。
+
+# 正态性检验
+```{r}
+#正态性检验
+jarque.bera.test(rt)  
+```
+J-B检验的p值远小于0.05，拒绝原假设，收益率序列不服从正态分布。
 
 # 平稳性检验
 ```{r}
-library(tseries)
-adf.test(rn[-1])
+pp.test(rt)
 ```
+根据图\@ref(fig:fig1)可以大致判别收益率序列是平稳的，但需要进行进一步的检验。由于收益率序列可能存在异方差，所以可选择pp检验来检验其平稳性，pp检验的p值等于0.01,小于显著性水平0.05，可以认为收益率序列是平稳的
 
-# 建立arma模型，残差白噪声检验
+# 建立arma模型
+## 确定阶数
 ```{r}
-acf(rn[-1])
-pacf(rn[-1])#拟合arma(1,1)
-y <- arima(rn[-1],order=c(1,0,0))
-for(i in 1:2) print(Box.test(y$residuals,lag=i))
+acf(rt)
+pacf(rt) 
 ```
+根据自相关图和偏自相关图1阶截尾可以判断最优模型为arma(1,1)模型。
 
-# arch Lm检验
+#建立模型，残差白噪声检验
 ```{r}
-library(FinTS)
+y <- arima(rt,order = c(1,0,1))
+Box.test(y$residuals,lag=12,type='Lj')
+```
+上述检验结果的p值为0.1112大于显著性水平0.05，所以可以认为残差序列是白噪声序列，无序列自相关性。
+
+# arch效应检验
+```{r}
 for (i in 1:5) print(ArchTest(y$residuals,lag=i))
 ```
-拒绝原假设，存在arch效应
+检验的p值远小于显著性水平0.05.所以可以拒绝原假设，即残差序列存在arch效应，残差序列的方差非齐。
 
-# arma模型残差正态性检验
+# 残差正态性检验
 ```{r}
-jarqueberaTest(y$residuals) #残差非正态
+qqnorm(y$residuals,main =NULL)
+qqline(y$residuals)  
+jarqueberaTest(y$residuals) 
 ```
-
+根据qq图可以判断残差序列不是服从正态分布的，g根据JB检验的p值可以进一步的确实不是正态分布，而且残差序列是尖峰厚尾的，可以认为残差序列是服从于t分布的。
 
 # garch模型的建立
-```{r}
-library(fGarch)
-m1 <- garchFit(~garch(1,1),data=y$residuals,
-               include.mean=T,trace = F,cond.dist = "std")
-m1
+```{r,results='markup'}
+m1 <- garchFit(~arma(1,1)+garch(1,1),data=rt,trace=F,cond.dist = 'std')
+summary(m1)
 ```
+可以看到上面的系数在显著性水平为0.05下都是显著的，说明建立的模型是有效的，可以基于该模型进行风险的度量，综上可得完整模型为：
+$$\left\{\begin{array}{l}
+{ r_t=0.8222r_{t-1}+a_t+0.8712a_{t-1}}\\
+{a_{t}=\sigma_{t} \varepsilon _{t}},\varepsilon _{t}\sim{t(4.858)}  \\
+{\sigma_{t}^2=0.8504 \sigma_{t-1}^2+0.1525 a_{t-1}^{2}}
+\end{array}\right.$$
 
 # 根据garch模型计算VaR
+在p=0.95的条件下，均值和波动率的超前一步预测分别为0.01154910和0.01689301。
 ```{r}
-mean <- mean(y$residuals)
-std <- sd(y$residuals)
-VaR <- mean + std*qstd(0.95,nu=5)
-VaR
+#VaR计算函数
+RMeasure<- function(mu,sigma,df){
+prob <- 0.95
+q1 <- qstd(prob,nu=df)
+d1 <- dstd(q1,nu=df)
+VaR <- mu+q1*sigma*sqrt(df/(df-2))
+ES <- mu+sigma*sqrt(df/(df-2))*(d1/(1-prob))*(((df-2)+q1^2)/(df-1))
+tt <- cbind(prob,VaR,ES)
+RMeasure <- list(results=tt)
+return(RMeasure)
+}
+z <- as.data.frame(predict(m1,1))
+shape <- 4.858
+RMeasure(z[1,1],z[1,3],shape)
 ```
 
 
