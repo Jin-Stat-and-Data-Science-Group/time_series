@@ -75,7 +75,7 @@ y_{t-i}=r_{t-i}-\phi_{0}-\sum_{i=1}^{k} \beta_{i} x_{i, t-i-1}
 $$
 ```{r}
 getwd()
-da=read.table("chart4/ch4data/m-intcsp7309.txt",header = T)
+da=read.table("./data/chart4/ch4data/m-intcsp7309.txt",header = T)
 head(da)
 intc=log(da$intc+1)
 rtn=ts(intc,frequency = 12,start = c(1973,1))

@@ -1,6 +1,6 @@
 %\documentclass[UTF8,a4paper,12pt]{znufecls}  % Latex 去掉上面的语句，加上本语句
 \documentclass[doctor,twoside,chapterhead,otf]{znufethesis}
-% \usepackage{gbt7714}
+%\usepackage{gbt7714}
 %======================== 根据选项设置代码处理方式 RMARKDOWN 中独有=============
 $if(listings)$
 \usepackage{listings}
@@ -71,13 +71,6 @@ $if(title)$
 \maketitle
 $endif$
 
-\blankpage
-\cleardoublepage
-\phantomsection %
-\pdfbookmark{声明}{creative}
-\input{creative}
-
-\blankpage
 \cleardoublepage
 \frontmatter
 \pagestyle{plain}
@@ -124,7 +117,6 @@ $endif$
 
 $if(lof)$
 \cleardoublepage
-\blankpage
 \phantomsection %
 \pdfbookmark{图目录}{figtoc}
 
@@ -133,13 +125,9 @@ $endif$
 
 \cleardoublepage
 \phantomsection %
-\blankpage
 \pdfbookmark{\denotationname}{denotation}
 \pagenumbering{arabic}
 \input{denotation} % 如果要生成符号列表
-
-
-%\blankpage
 
 \mainmatter
 \pagestyle{mpage}
