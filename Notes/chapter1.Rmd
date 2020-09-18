@@ -1,37 +1,20 @@
 ---
 title: "第一章 时间序列分析简介"
-author: "Jin's students"
-date: "2019-11-23"
-output:
-  bookdown::html_document2:
-    number_sections: true
-    seq_numbering: true
-    fig_caption: true
-    highlight: haddock
-    theme: null
-    md_extensions: +east_asian_line_breaks
-    keep_md: true
-    toc: true
-    pandoc_args: ["--filter", "pandoc-crossref", "-M", "eqnPrefix="]
-  bookdown::word_document2:
-    fig_caption: true
-    reference_docx: ./style/word-styles-02.docx
-    md_extensions: +east_asian_line_breaks
-    pandoc_args: ["--filter", "pandoc-crossref"]
-  bookdown::pdf_document2:
-    keep_tex: yes
-    toc: false
-    latex_engine: xelatex
-    md_extensions: +east_asian_line_breaks
-    pandoc_args: ["--listing", "--filter", "pandoc-crossref"]
+author: "金林"
+date: "2020年3月"
+institute: 中南财经政法大学统计与数学学院
+csl: ./style/chinese-gb7714-2015-numeric.csl
 css: ./style/markdown.css
-autoEqnLabels: true
+bibliography: [./Bibfile.bib]
 eqnPrefixTemplate: ($$i$$)
-linkReferences: true
-bibliography: Bibfile.bib
-csl: ./style/chinese-gb7714-2005-numeric.csl
 link-citations: true
+linkReferences: true
+chapters: true
+tableEqns: false
+autoEqnLabels: false
+classoption: "aspectratio=1610"
 ---
+
 # 教材介绍
 1. 教材：《应用时间序列 in R》，王燕编著，中国人民大学出版社。
 2. 应用软件：R
@@ -77,11 +60,7 @@ link-citations: true
   
   （4）检验模型，优化模型
   
-  （5）利用拟合好的模型来推断序列其它的统计性质或预测序列将来的发展\
+  （5）利用拟合好的模型来推断序列其它的统计性质或预测序列将来的发展
 5. 发展过程：启蒙阶段——基础阶段——发展阶段
-
-
-
-
 
 
