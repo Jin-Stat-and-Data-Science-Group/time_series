@@ -1,7 +1,7 @@
 ---
 title: "第三章&ensp;平稳时间序列分析"
 author: "金林"
-date: "2020年3月"
+date: "2020年秋"
 institute: 中南财经政法大学统计与数学学院
 csl: ./style/chinese-gb7714-2015-numeric.csl
 css: ./style/markdown.css
@@ -14,6 +14,7 @@ tableEqns: false
 autoEqnLabels: false
 classoption: "aspectratio=1610"
 ---
+
 一个序列经过预处理（平稳性，纯随机性检验）被识别为平稳非白噪声序列，说明该序列中蕴含着相关信息，通过建立一个线性模型来拟合序列的发展，借此提取序列中的有用信息。
 
 # 方法性工具
@@ -25,17 +26,19 @@ classoption: "aspectratio=1610"
 二阶差分：对一阶差分后序列再进行一阶差分
 \[{\nabla ^2}{x_t} = {\nabla}{x_t} - {\nabla}{x_{t - 1}}\]
 
-p阶差分：对P-1阶差分后的序列再进行一次一阶差分
+$p$ 阶差分：对 $p-1$ 阶差分后的序列再进行一次一阶差分
 \[{\nabla ^p}{x_t} = {\nabla ^{p - 1}}{x_t} - {\nabla ^{p - 1}}{x_{t - 1}}\]
 
 ### k步差分
 
-相距k期的两个序列值之间的减法运算称为k步差分运算。记${\nabla _k}{x_t}$为$x_t$的k步差分：
+相距 $k$ 期的两个序列值之间的减法运算称为 $k$ 步差分运算。记${\nabla _k}{x_t}$为
+$x_t$ 的 $k$ 步差分：
 \[{\nabla _k}{x_t} = {x_t} - {x_{t - k}}\]
 
 ## 延迟算子
 ### 定义
-延迟算子类似于一个时间指针，当前序列值乘以一个延迟算子，就相当于把当前序列值的时间向过去拨了一个时刻。记B为延迟算子，有
+
+延迟算子类似于一个时间指针，当前序列值乘以一个延迟算子，就相当于把当前序列值的时间向过去拨了一个时刻。记 $B$ 为延迟算子，有
 \[\begin{array}{l}
 {x_{t - 1}} = B{x_t}\\
 {x_{t - 2}} = {B^2}{x_t}\\
@@ -43,34 +46,38 @@ p阶差分：对P-1阶差分后的序列再进行一次一阶差分
 {x_{t - p}} = {B^p}{x_t},\forall p \ge 1
 \end{array}\]
 
+___
+
+
 延迟算子性质:
 
 1. ${B^0} = 1$
-2. $B(c \cdot {x_t}) = c \cdot B({x_t}) = c \cdot {x_{t - 1}},c为任意常数$
+2. $B(c \cdot {x_t}) = c \cdot B({x_t}) = c \cdot {x_{t - 1}}, c\text{为任意常数}$
 3. $B({x_t} \pm {y_t}) = {x_{t - 1}} \pm {y_{t - 1}}$
 4. ${B^n}{x_t} = {x_{t - n}}$
 5. ${(1 - B)^n} = \sum\limits_{i = 0}^n {{{( - 1)}^i}C_n^i} {B^i},其中C_n^i = \frac{{n!}}{{i!(n - i)!}}$
 
 ### 用延迟算子表示差分运算
-* p阶差分
+* $p$ 阶差分
 \[{\nabla ^p}{x_t} = {(1 - B)^p}{x_t} = \sum\limits_{i = 0}^p {{{( - 1)}^i}C_p^i} {x_{t - i}}\]
-* k步差分
+* $k$ 步差分
 \[{\nabla _k} = {x_t} - {x_{t - k}} = (1 - {B^k}){x_t}\]
 
 ## 线性差分方程
 ### 线性差分方程定义
 1. 非齐次线性差分方程
 \[{z_t} + {a_1}{z_{t - 1}} + {a_2}{z_{t - 2}} +  \cdots  + {a_p}{z_{t - p}} = h(t)\]
-式中，$p>=1;a_1,a_2,\cdots,a_p为实数，h(t)为t的已知函数$
+式中，$p>=1;a_1,a_2,\cdots,a_p\text{为实数}，h(t)\text{为t的已知函数}$
 
 2. 齐次线性差分方程
 \[{z_t} + {a_1}{z_{t - 1}} + {a_2}{z_{t - 2}} +  \cdots  + {a_p}{z_{t - p}} = 0\]
 
 ### 齐次线性差分方程的解
-特征方程：\[{\lambda^p} + {a_1}{\lambda^{p - 1}} + {a_2}{\lambda^{p - 2}} +  \cdots  + {a_p} = 0\]
+特征方程：
+\[{\lambda^p} + {a_1}{\lambda^{p - 1}} + {a_2}{\lambda^{p - 2}} +  \cdots  + {a_p} = 0\]
+这是一个一元 $p$ 次线性方程，有 $p$ 个非零根，成为特征方程的特征根，记作${\lambda_1},{\lambda_2}, \cdots ,{\lambda_p}$
 
-这是一个一元p次线性方程，有p个非零根，成为特征方程的特征根，记作${\lambda_1},{\lambda_2}, \cdots ,{\lambda_p}$
-
+___
 **齐次线性差分方程的通解**：
 
 1. 不相等实数根场合(${\lambda_1},{\lambda_2}, \cdots ,{\lambda_p}$均不相同)
@@ -97,26 +104,31 @@ p阶差分：对P-1阶差分后的序列再进行一次一阶差分
 \[\left\{ \begin{array}{l}
 {x_t} = {\phi _0} + {\phi _1}{x_{t - 1}} + {\phi _2}{x_{t - 2}} +  \cdots  + {\phi _p}{x_{t - p}} + {\varepsilon _t}\\
 {\phi _p} \ne 0\\
-E({\varepsilon _t}) = 0Var({\varepsilon _t}) = \sigma _\varepsilon ^2,E({\varepsilon _t}{\varepsilon _s}) = 0,s \ne t\\
+E({\varepsilon _t}) = 0,Var({\varepsilon _t}) = \sigma _\varepsilon ^2,E({\varepsilon _t}{\varepsilon _s}) = 0,s \ne t\\
 E{x_s}{\varepsilon _t} = 0,\forall s < t
 \end{array} \right.\]
+
+___
+
 AR(p)模型的三个限制条件：
 
-1. ${\phi _p} \ne 0$,保证模型的最高阶数为p.
+1. ${\phi _p} \ne 0$,保证模型的最高阶数为 $p$.
 2. $E({\varepsilon _t}) = 0Var({\varepsilon _t}) = \sigma _\varepsilon ^2,E({\varepsilon _t}{\varepsilon _s}) = 0,s \ne t$,随机干扰序列$\{ \varepsilon _t\}$为零均值白噪声序列.
 3. $E{x_s}{\varepsilon _t} = 0,\forall s < t$,当期的随机干扰项与过去序列值无关.
     
 特别当${\phi _0} = 0$时，称为中心化$AR(p)$模型.
 
+___
+
 非中心化$AR(p)$序列可通过如下变换转化为中心化$AR(p)$序列：
 令
 
-$\mu  = \frac{{{\varphi _0}}}{{1 - {\varphi _1} -  \cdots  - {\varphi _p}}},{y_t} = {x_t} - \mu$
+$$\mu  = \frac{{{\varphi _0}}}{{1 - {\varphi _1} -  \cdots  - {\varphi _p}}},{y_t} = {x_t} - \mu$$
 
-称$\{ {y_t}\}$为$\{{x_t}\}$的中心化序列.
+称 $\{ {y_t}\}$ 为 $\{{x_t}\}$ 的中心化序列.
 
-引进延迟算子，中心$AR(p)$模型又可以简记为: \[\Phi (B){x_t} = {\varepsilon _t}\]
-式中，$\Phi (B) = 1 - {\varphi _1}B - {\varphi _2}{B^2} -  \cdots  - {\varphi _p}{B^p}$称为**p阶自回归系数多项式**.
+引进延迟算子，中心 $AR(p)$ 模型又可以简记为: \[\Phi (B){x_t} = {\varepsilon _t}\]
+式中， $\Phi (B) = 1 - {\varphi _1}B - {\varphi _2}{B^2} -  \cdots  - {\varphi_p}{B^p}$ 称为**p阶自回归系数多项式**.
 
 ### AR模型平稳性判别
 判别原因：AR模型是常用的平稳序列的拟合模型之一，但并非所有的AR模型都是平稳的 
@@ -134,6 +146,9 @@ list:具体模型参数系数
    list(ar=,ma=,order=C(p,d,q)):ARIMA(p,d,q)模型，d为差分阶数
 sd:指定序列标准差，默认为1
 ```
+
+___
+
 ```{r echo=TRUE}
 ts1 <- arima.sim(n=100, list(ar=c(-0.4,0.5)), sd=2)
 plot(ts1, type = "l")
@@ -154,6 +169,9 @@ plot(ts1, type = "l")
       method="convolution" 为MA模型
 -circular:拟合MA模型专用选项，circular=T避免NA数据出现
 ```
+
+___
+
 ```{r echo=TRUE}
 e <- rnorm(100)
 ts2 <- filter(e,filter = -1.1,method = "recursive")
@@ -161,21 +179,30 @@ plot(ts2, type = "l")
 #从图中可以看出该AR(1)模型非平稳
 ```
 
-#### 单位根判别法
+### 单位根判别法
+
 1. 自回归方程的解
 
 任一个中心化$AR(p)$模型$\Phi (B){x_t} = {\varepsilon _t}$     都可以视为一个非齐次线性差分方程$${x_t} = {\phi _0} + {\phi _1}{x_{t - 1}} + {\phi _2}{x_{t - 2}} +  \cdots  + {\phi _p}{x_{t - p}} + {\varepsilon _t}$$
 它的通解求法如下
 
 （1）求齐次线性差分方程$\Phi (B){x_t} =0$的一个通解$x'_t$ 
-\[{x'_t} = \sum\limits_{j = 1}^d {{c_j}{t^{j - 1}}} \lambda_1^t + \sum\limits_{j = d + 1}^{p - 2m} {{c_j}\lambda_j^t}  + \sum\limits_{j = 1}^m {r_j^t({c_{1j}}\cos t{\omega _j} + {c_{2j}}\sin t{\omega _j})} \]
+\[{x'_t} = \sum\limits_{j = 1}^d {{c_j}{t^{j - 1}}} \lambda_1^t + \sum\limits_{j
+  = d + 1}^{p - 2m} {{c_j}\lambda_j^t}  + \sum\limits_{j = 1}^m
+  {r_j^t({c_{1j}}\cos t{\omega _j} + {c_{2j}}\sin t{\omega _j})} \]
+  
+___
 
 （2）求齐次线性差分方程$\Phi (B){x_t} = {\varepsilon _t}$的一个特解$x''_t$ 
 \[{x''_t} = \frac{{{\varepsilon _t}}}{{\Phi (B)}} = \frac{{{\varepsilon _t}}}{{\prod\limits_{i = 1}^p {(1 - {\lambda_i}B)} }} = \sum\limits_{i = 1}^p {\frac{{{k_i}}}{{1 - {\lambda_i}B}}{\varepsilon _t}} \]
 【注】：AR(p)模型的自回归系数多项式方程$\Phi (u)=0$的根是齐次线性方程$\Phi (B){x_t} =0$的特征根的倒数
 
+___
+
 （3）求非齐次线性差分方程$\Phi (B){x_t} = {\varepsilon _t}$的通解${x_t} = {x'_t} + {x''_t}$
 \[{x_t} = \sum\limits_{j = 1}^d {{c_j}{t^{j - 1}}} \lambda_1^t + \sum\limits_{j = d + 1}^{p - 2m} {{c_j}{\lambda^t}}  + \sum\limits_{j = 1}^m {\gamma _j^t({c_{1j}}\cos t{w_j} + {c_{2j}}\sin t{\varpi _j})}  + \sum\limits_{i = 1}^p {\frac{{{k_i}}}{{1 - {\lambda_i}B}}{\varepsilon _t}} \]
+
+___
 
 2. 单位根检验
 
@@ -190,8 +217,16 @@ plot(ts2, type = "l")
 
 根据特征根和自回归系数多项式的根成倒数，AR模型平稳的等价判别条件是AR模型的自回归系数多项式的根即$\Phi (B){x_t} =0$，都在单位圆外.
 
-#### 平稳域判别法
-对于一个$AR(p)$模型而言，如果没有平稳性的要求，实际上也就意味着对参数向量没有任何限制，它们可以取遍维欧氏空间的任意一点.如果加上了平稳性限制，参数向量就只能取维欧氏空间的一个子集，使得特征根都在单位圆内的系数集合$\{ {\phi _1},{\phi _2}, \cdots ,{\phi _p}\left|特征根都在单位圆内\right.$.对于低阶自回归模型用平稳域的方法判别模型的平稳性通常更为简便。 
+### 平稳域判别法
+
+对于一个$AR(p)$模型而言，如果没有平稳性的要求，实际上也就意味着对参数向量没有任
+何限制，它们可以取遍维欧氏空间的任意一点.如果加上了平稳性限制，参数向量就只能取
+维欧氏空间的一个子集，使得特征根都在单位圆内的系数集合$\{ {\phi _1},{\phi _2},
+\cdots ,{\phi _p}\left|特征根都在单位圆内\right.$.对于低阶自回归模型用平稳域的方
+法判别模型的平稳性通常更为简便。 
+
+___
+
 
 （1）**AR(1)模型平稳条件**
 
@@ -201,6 +236,9 @@ ${x_t} = \phi {x_{t-1}} + {\varepsilon _t}$
 $\lambda=\phi$
 * 平稳域
 $\left| \phi  \right| < 1$
+
+___
+
 
 （2）**AR(2)模型平稳条件**
 
@@ -217,8 +255,9 @@ $\begin{array}{l}
 \end{array}$
 $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _2} \pm {\phi _1} < 1\} } \right.$
 
-### 平稳AR模型的统计性质
-#### 均值
+## 平稳AR模型的统计性质
+
+### 均值
 
 如果AR(p)模型满足平稳性条件，则有
 \[E{x_t} = E({\varphi _0} + {\varphi _1}{x_{t - 1}} +  \cdots  + {\varphi _p}{x_{t - p}} + {\varepsilon _t})\]
@@ -228,7 +267,7 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 \[\mu  = \frac{{{\varphi _0}}}{{1 - {\varphi _1} -  \cdots  - {\varphi _p}}}\]
 特别地，对于中心化AR(p)模型，有$E{x_t} =0$
 
-#### 方差
+### 方差
 
 **AR模型的传递形式**
 \[\begin{array}{c}
@@ -236,8 +275,10 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
  = \sum\limits_{j = 0}^\infty  {\sum\limits_{i = 1}^p {{k_i}\lambda_i^j{\varepsilon _{t - j}}} } \\
 \underline{\underline  \wedge } \sum\limits_{j = 0}^\infty  {{G_j}} {\varepsilon _{t - j}}
 \end{array}\]
-式中，$G_0=1,G_j=\sum\limits_{i = 1}^p{k_i\lambda_i^j}(j=1,2,\cdots)$
-,其中系数$\{ {G_j},j = 1,2, \cdots \}$称为Green函数
+式中， $G_0=1,G_j=\sum\limits_{i = 1}^p{k_i\lambda_i^j}(j=1,2,\cdots)$
+,其中系数 $\{ {G_j},j = 1,2, \cdots \}$ 称为Green函数
+
+___
 
 **Green函数递推公式**
 
@@ -246,6 +287,9 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 \Phi (B){x_t} = {\varepsilon _t}\\
 {x_t} = G(B){\varepsilon _t}
 \end{array} \right. \Rightarrow \Phi (B)G(B){\varepsilon _t} = {\varepsilon _t}\]
+
+___
+
 
 方法：待定系数法
 \[\begin{array}{l}
@@ -261,14 +305,21 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 \end{array} \right.
 \end{array}\]
 
+___
+
 **平稳AR模型的方差**
 
-对平稳AR模型${x_t} = \sum\limits_{j = 0}^\infty  {{G_j}} {\varepsilon _{t - j}}$两边求方差
-\[Var({x_t}) = \sum\limits_{j = 0}^\infty  {G_j^2} \sigma _\varepsilon ^2        ,        {G_j}为Green函数\]
+对平稳AR模型 ${x_t} = \sum\limits_{j = 0}^\infty  {{G_j}} {\varepsilon _{t -
+j}}$ 两边求方差
+\[Var({x_t}) = \sum\limits_{j = 0}^\infty  {G_j^2} \sigma _\varepsilon ^2, {G_j}\text{为Green函数}\]
 
-因为$G_j$呈指数下降，所以$\sum\limits_{j = 0}^\infty  {G_j^2}<\infty$,这说明平稳序列${x_t}$方差有界，等于常数$\sum\limits_{j = 0}^\infty  {G_j^2} \sigma _\varepsilon ^2$
+因为 $G_j$ 呈指数下降，所以 $\sum\limits_{j = 0}^\infty  {G_j^2}<\infty$ ,这说明
+平稳序列 ${x_t}$ 方差有界，等于常数 $\sum\limits_{j = 0}^\infty  {G_j^2} \sigma _\varepsilon ^2$
+
 
 平稳AR(1)模型的方差
+
+___
 
 **协方差函数**
 
@@ -280,6 +331,8 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 得协方差函数的递推公式
 \[{\gamma _k} = {\varphi _1}{\gamma _{k - 1}} + {\varphi _2}{\gamma _{k - 2}} +  \cdots  + {\varphi _p}{\gamma _{k - p}},\forall k \ge 1\]
 
+___
+
 平稳AR(1)模型的协方差
 \[{\gamma _k} = \phi _1^k\frac{{  \sigma _\varepsilon ^2}}{{1 - \phi _1^2}}              ,\forall k \ge 1\]
 平稳AR(2)模型的协方差
@@ -289,13 +342,16 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 {\gamma _k} = {\phi _1}{\gamma _{k - 1}} + {\phi _2}{\gamma _{k - 2}}，k \ge 2
 \end{array} \right.\]
 
-#### 自相关系数
+### 自相关系数
+
 1. 平稳AR模型自相关系数递推公式
 
 自相关系数的定义\[{\rho _k} = \frac{{{\gamma _k}}}{{{\gamma _0}}}    \]
 
 平稳AR(P)模型的自相关系数递推公式
 \[{\rho _k} = {\phi _1}{\rho _{k - 1}} + {\phi _2}{\rho _{k - 2}} +  \cdots  + {\phi _p}{\rho _{k - p}}\]
+
+___
 
 平稳AR(1)模型的自相关系数递推公式
 \[{\rho _k} = \phi _1^k,k \ge 0\]
@@ -305,27 +361,35 @@ $\Rightarrow \{ {\phi _1},{\phi _2}\left| {\left| {{\phi _2}} \right| < 1{\phi _
 \frac{{{\phi _1}}}{{1 - {\phi _2}}}            ,k = 1\\
 {\phi _1}{\rho _{k - 1}} + {\phi _2}{\rho _{k - 2}}                   ,k \ge 2
 \end{array} \right.\]
+
+___
+
 2. 自相关系数的性质
 
 （1） 拖尾性
 AR模型自相关系数的表达式是一个齐次差分方程，设它的通解形式为
-$${\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda_i^k}，\left| {{\lambda_i}} \right| < 1,且{c_1}, \cdots ,{c_p}不能全为零$$
+$${\rho _k} = \sum\limits_{i=1}^p {{c_i}\lambda_i^k}, \left| {{\lambda_i}} \right| < 1,{c_1}, \cdots ,{c_p}\text{不能全为零}$$
 通过这个通解形式，容易推出${\rho _k}$始终有非零取值，不会在k大于某个常数之后就恒等于零，这个性质就是拖尾性。
 
+___
+
 （2） 呈指数衰减
-随着时间的推移，${\rho _k}$会迅速衰减，因为$\left| {{\lambda_i}} \right| < 1$，所以$k \to \infty $时，$\lambda_{i}^{k} \rightarrow 0(i=1,2, \cdots, p)$，继而导致${\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda_i^k}  \to 0$,而这种影响是以指数$\lambda^{k}$的速度在衰减。
+随着时间的推移，  ${\rho _k}$ 会迅速衰减，因为 $\left| {{\lambda_i}} \right| <
+1$ ，所以 $k \to \infty$ 时，$\lambda_{i}^{k} \rightarrow 0(i=1,2, \cdots, p)$，继而导致${\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda_i^k}  \to 0$,而这种影响是以指数$\lambda^{k}$的速度在衰减。
 $$\left| {{\lambda_i}} \right| < 1                                         \Rightarrow                                         {\rho _k} = \sum\limits_{i = 1}^p {{c_i}\lambda_i^k}  \to 0$$
 
 自相关系数呈指数衰减表现在自相关图中判断平稳序列的“短期相关性”，这是平稳序列的重要特征。这个特征表明对于平稳序列而言，通常只有近期的序列值对现值影响明显，间隔越远的过去值对现值的影响越小。
 
 
-#### 偏自相关系数
+### 偏自相关系数
 
 1. 定义
 
 对于平稳$AR(p)$序列，所谓滞后k偏自相关系数就是指在给定中间k-1个随机变量${x_{t - 1}},{x_{t - 2}}, \cdots ,{x_{t - k + 1}}$的条件下，或者说，在剔除了中间k-1个随机变量的干扰之后，${x_{t - k}}$对$x_t$影响的相关度量。用数学语言描述就是
 \[{\rho _{{x_t},{x_{t - k}}\left| {{x_{t - 1}}, \cdots ,{x_{t - k + 1}}} \right.}} = \frac{{E[({x_t} - \hat E{x_t})({x_{t - k}} - \hat E{x_{t - k}})]}}{{E[{{({x_{t - k}} - \hat E{x_{t - k}})}^2}}}\]
-式中，$\hat E{x_t} = E[{x_t}\left| {{x_{t - 1}}, \cdots ,{x_{t - k + 1}}} \right.]        ,        \hat E{x_{t - k}} = E[{x_{t - k}}\left| {{x_{t - 1}}, \cdots ,{x_{t - k + 1}}} \right.]$
+式中， $\hat E{x_t} = E[{x_t}\left| {{x_{t - 1}}, \cdots ,{x_{t - k + 1}}} \right.]        ,        \hat E{x_{t - k}} = E[{x_{t - k}}\left| {{x_{t - 1}}, \cdots ,{x_{t - k + 1}}} \right.]$
+
+___
 
 2. 偏自相关系数的计算
 
@@ -342,6 +406,8 @@ E[({x_t} - \hat E{x_t})({x_{t - k}} - \hat E{x_{t - k}})] = {\phi _{kk}}E[{({x_{
 
 上式说明滞后k偏自相关系数实际上就等于k阶自回归模型第k个回归系数${\phi _{kk}}$的值。
 
+___
+
 3. Yule-Walker方程组
 
 在${x_t} = {\phi _{k1}}{x_{t - 1}} + {\phi _{k2}}{x_{t - 2}} +  \cdots {\phi _{k(k - 1)}}{x_{t - k + 1}} + {\phi _{kk}}{x_{t - k}}$方程等号两边同时乘以$x_{t-l}$，并取期望，得
@@ -356,6 +422,8 @@ E[({x_t} - \hat E{x_t})({x_{t - k}} - \hat E{x_{t - k}})] = {\phi _{kk}}E[{({x_{
 \end{array}} \right.\]
 
 解Yule-Walker方程组可以得到参数$({\phi _{k1}},{\phi _{k2}}, \cdots ,{\phi _{kk}})'$           的解，最后一个参数的解即为延迟K偏自相关系数
+
+___
 
 用矩阵形式表示
 
@@ -375,8 +443,10 @@ E[({x_t} - \hat E{x_t})({x_{t - k}} - \hat E{x_{t - k}})] = {\phi _{kk}}E[{({x_{
  \vdots \\
 {{\rho _k}}
 \end{array}} \right)\]
-根据Cramer法则 $$          {\phi _{kk}} = \frac{{{D_k}}}{D}$$ 
-其中$$D = \left| {\begin{array}{*{20}{c}}
+根据Cramer法则 
+$$          {\phi _{kk}} = \frac{{{D_k}}}{D}$$ 
+其中
+$$D = \left| {\begin{array}{*{20}{c}}
 1&{{\rho _1}}& \cdots &{{\rho _{k - 1}}}\\
 {{\rho _1}}&1& \cdots &{{\rho _{k - 2}}}\\
  \vdots & \vdots & \vdots & \vdots \\
@@ -388,9 +458,11 @@ E[({x_t} - \hat E{x_t})({x_{t - k}} - \hat E{x_{t - k}})] = {\phi _{kk}}E[{({x_{
 {{\rho _{k - 1}}}&{{\rho _{k - 2}}}& \cdots &{{\rho _k}}
 \end{array}} \right|$$
 
+___
+
 4. AR模型偏自相关系数的截尾性
 
-平稳AR(p)模型的偏自相关系数具有p步截尾性，所谓p步截尾指${\phi _{kk}}=
+平稳AR(p)模型的偏自相关系数具有p步截尾性，所谓p步截尾指 ${\phi _{kk}}=
 0(\forall k > p)$
 
 AR(1)模型偏自相关系数的计算
@@ -517,6 +589,8 @@ arima(xt, order = c(0, 0, 2),include.mean = F)
   MA(1)可逆条件：$- 1 < {\theta _1} < 1$
 
   MA(2)可逆条件：$\left| {{\theta _2}} \right| < 1,且{\theta _2} \pm {\theta _{\rm{1}}} < 1$
+
+___
 
 - 逆函数递推公式
 
@@ -655,9 +729,7 @@ q阶移动平均系数多项式：$\Theta (B) = 1 - {\theta _1}B - {\theta _2}{B
 
 ## 建模步骤
 
-
-
-![](./建模步骤.png)
+![](./model_step.png)
 
 样本自相关系数
 
@@ -679,9 +751,11 @@ $${\hat \varphi _{kk}} = \frac{{{{\hat D}_k}}}{{\hat D}}$$
 
 - 定阶存在的困难：
 
-由于样本的随机性，样本的相关系数不会呈现出理论截尾的完美情况，本应截尾的${\hat \rho _k}$或${\hat \varphi _{kk}}$仍会呈现出小值振荡的情况。
+由于样本的随机性，样本的相关系数不会呈现出理论截尾的完美情况，本应截尾的 ${\hat
+\rho _k}$ 或 ${\hat \varphi _{kk}}$ 仍会呈现出小值振荡的情况。
 
-由于平稳时间序列通常都具有短期相关性，随着延迟阶数$k \to \infty $，${\hat \rho _k}$与${\hat \varphi _{kk}}$都会衰减至零值附近作小值波动。
+由于平稳时间序列通常都具有短期相关性，随着延迟阶数 $k \to \infty$ ， ${\hat \rho
+_k}$ 与 ${\hat \varphi _{kk}}$ 都会衰减至零值附近作小值波动。
 
 - 样本相关系数的近似分布
 
@@ -811,7 +885,7 @@ $$L({\hat \beta _1},{\hat \beta _2}, \cdots ,{\hat \beta _k};{x_1},\tilde x) = \
 \frac{\partial }{{\partial \sigma _\varepsilon ^2}}l(\tilde \beta ;\tilde x) = \frac{n}{{2\sigma _\varepsilon ^2}} - \frac{{S(\tilde \beta )}}{{2\sigma _\varepsilon ^4}} = 0\\
 \frac{\partial }{{\partial \tilde \beta }}l(\tilde \beta ;\tilde x) = \frac{1}{2}\frac{{\partial \ln \left| \Omega  \right|}}{{\partial \tilde \beta }} + \frac{1}{{2\sigma _\varepsilon ^2}}\frac{{\partial S(\tilde \beta )}}{{\partial \tilde \beta }} = 0
 \end{array} \right.$$
-由于$S(\tilde \beta )$和$\ln \left| \Omega  \right|$都不是$\tilde \beta $  的显式表达式。因而似然方程组实际上是由p+q+1个超越方程构成，通常需要经过复杂的迭代算法才能求出未知参数的极大似然估计值 
+由于 $S(\tilde \beta )$ 和 $\ln \left| \Omega  \right|$ 都不是 $\tilde \beta$ 的显式表达式。因而似然方程组实际上是由 $p+q+1$ 个超越方程构成，通常需要经过复杂的迭代算法才能求出未知参数的极大似然估计值 
 
 - 优点
 
