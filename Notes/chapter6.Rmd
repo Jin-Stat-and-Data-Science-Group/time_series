@@ -43,14 +43,14 @@ $$\Pr \{ \left| t \right| \le {t_{{\alpha  \mathord{\left /
 - 试验设计思想
 分别拟合两个随机游走序列：
 $$(1){\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {y_t} = {y_{t - 1}} + {\omega _t}{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} (2){\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {x_t} = {x_{t - 1}} + {\upsilon _t}$$
-其中：${\omega _t}\mathop {\rm{\~}}\limits^{iid} N{\rm{(}}0{\rm{,}}\sigma _\omega ^2{\rm{),}}{\upsilon _t}\mathop {\rm{\~}}\limits^{iid} N{\rm{(}}0{\rm{,}}\sigma _\upsilon ^2{\rm{),}}\text{且}Cov({\omega _t},{\upsilon _s}) = 0,{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} \forall t,s \in T$
+其中：${\omega _t} \stackrel{\mathrm{i.i.d}}{\sim} N{\rm{(}}0{\rm{,}}\sigma _\omega ^2{\rm{),}}{\upsilon _t}\stackrel{\mathrm{i.i.d}}{\sim} N{\rm{(}}0{\rm{,}}\sigma _\upsilon ^2{\rm{),}}\text{且}Cov({\omega _t},{\upsilon _s}) = 0,{\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} {\kern 1pt} \forall t,s \in T$
 构建关于的回归模型：${y_t} = {\beta _0} + {\beta _1}{x_t} + {\varepsilon _t}$，并进行参数显著性检验。
 - 试验结果
 由于这是两个独立的随机游走模型，所以理论上它们应该没有任何相关性，即模型检验应该显著支持${\beta_1}{\rm{ = }}0$的假设。如果模拟结果显示拒绝原假设的概率远远大于拒真概率$\alpha$，即认为伪回归显著成立。
 大量随机拟合的结果显示，每100次回归拟合中，平均有75次拒绝${\beta_1}{\rm{=}}0$的假设，拒真概率高达75%。这说明在非平稳的场合，参数显著性检验犯拒真错误的概率远远大于$\alpha$，伪回归显著成立。
 - 伪回归产生原因
 
-![](./6.1.png)
+![](./6_1.png)
 
 # 单位根检验
 由于虚假回归问题的存在，所以在进行动态回归模型拟合时，必须先检验各序列的平稳性。只有当各序列都平稳时，才可以大胆地使用模型拟合多元序列之间的动态回归关系。
@@ -78,7 +78,7 @@ $$t({\phi _1}) = \frac{{{{\hat \phi }_1} - {\phi _1}}}{{S({{\hat \phi }_1})}}$$
 \[t({\phi _1}) = \frac{{{{\hat \phi }_1} }}{{S({{\hat \phi }_1})}}\mathop  \to  \limits^{\text{极限}} N(0,1)\]
 当$\left| {{\phi _1}} \right| < 1$时，
 \[t({\phi _1}) = \frac{{{{\hat \phi }_1} - {\phi _1}}}{{S({{\hat \phi }_1})}}\mathop  \to  \limits^{\text{渐进}} N(0,1)\]
-当$\left| {{\phi _1}} \right| = 1$时，$\left {{\phi _1}} \right$的渐进分布将不再为正态分布。为了区分于传统的t分布检验统计量，记\[\tau  = \frac{{\left| {{{\hat \phi }_1}} \right| - 1}}{{S({{\hat \phi }_1})}}\]
+当$\left| {{\phi _1}} \right| = 1$时，${{\phi _1}}$的渐进分布将不再为正态分布。为了区分于传统的t分布检验统计量，记\[\tau  = \frac{{\left| {{{\hat \phi }_1}} \right| - 1}}{{S({{\hat \phi }_1})}}\]
 
 DF检验为单边检验，当显著性水平为$\alpha$时，记$T_{\alpha}$为DF检验的$\alpha$分位点，则
 
