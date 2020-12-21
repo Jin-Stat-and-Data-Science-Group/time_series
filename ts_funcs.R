@@ -36,3 +36,16 @@ LB.test = function (x,k){
     result = c(LB, p.v)
     return(data.frame(result,row.names = c('x-squared', 'p-value')))
 }
+
+
+
+#函数六：Invgreen
+Invgreen = function(ar,ma,n){
+    I = 1
+    p = length(ar)
+    q = length(ma)
+    if (n>=p) phi = c(ar,rep(0,n-p)) else phi = ar[1:n]
+    if (n>=q) theta = c(ma,rep(0,n-q)) else theta = ma[1:n]
+    for (k in 1:n) I[1+k] = sum(theta[k:1]*I) - phi[k]
+    return (I)
+  }
