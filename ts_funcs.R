@@ -35,9 +35,18 @@ LB.test = function (x,k){
     return(data.frame(result,row.names = c('x-squared', 'p-value')))
 }
 
+# 函数五：ARMA(p,q)模型的格林函数
+Green = function(ar, ma, n){  # n为得到的系数最后项索引值
+    g = 1
+    p = length(ar)
+    q = length(ma)
+    if (n>=p) phi = c(ar, rep(0, n-p)) else phi = ar[1:n]
+    if (n>=q) theta = c(ma, rep(0, n-q)) else theta = ma[1:n]
+    for (k in 1:n) g[1+k] = sum(phi[k:1]*g) - theta[k]  # 逆向取向量
+    return(g)
+}
 
-
-#函数六：Invgreen
+#函数六：ARMA(p,q)模型的逆函数
 Invgreen = function(ar,ma,n){
     I = 1
     p = length(ar)
