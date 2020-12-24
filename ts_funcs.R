@@ -27,7 +27,7 @@ Q.test = function(x,k){
 LB.test = function (x,k){
     n = length(x)
     rou_k = ACFs(x,k)
-    nk = n - c(1:k)
+    nk = n - 1:k
     lb = rou_k^2/nk
     LB = n*(n+2)*sum(lb)
     p.v = 1 - pchisq(LB, df = k)
@@ -47,7 +47,7 @@ Green = function(ar, ma, n){  # n为得到的系数最后项索引值
 }
 
 #函数六：ARMA(p,q)模型的逆函数
-Invgreen = function(ar,ma,n){
+InvFunc = function(ar,ma,n){
     I = 1
     p = length(ar)
     q = length(ma)
