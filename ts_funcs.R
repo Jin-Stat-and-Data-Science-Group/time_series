@@ -46,7 +46,7 @@ Green = function(ar, ma, n){  # n为得到的系数最后项索引值
     return(g)
 }
 
-#函数六：ARMA(p,q)模型的逆函数
+# 函数六：ARMA(p,q)模型的逆函数
 InvFunc = function(ar,ma,n){
     I = 1
     p = length(ar)
@@ -77,4 +77,17 @@ PACFs = function(x,k){
         pacfs[i] = PACF(x,i)
     }
     return (pacfs)
+}
+
+
+
+# 函数十：ARIMA模型的格林函数
+ArimaGreen = function(ar,ma,n){
+    p = length(ar)
+    q = length(ma)
+    if(n > p) phi = c(ar,rep(0,n-p)) else phi = c(ar)
+    if(n > q) theta = c(ma,rep(0,n-q)) else theta = c(ma)
+    psi = 1
+    for(j in 1:n) psi[1+j] = sum(phi[j:1]*psi) - theta[j]
+    return(psi)
 }
