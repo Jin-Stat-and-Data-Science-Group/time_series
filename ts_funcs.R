@@ -56,3 +56,25 @@ InvFunc = function(ar,ma,n){
     for (k in 1:n) I[1+k] = sum(theta[k:1]*I) - phi[k]
     return (I)
   }
+
+# 函数七：计算时间序列x延迟第k期的偏自相关系数PACF
+PACF = function(x,k){
+    D = matrix(0,k,k)
+    rho = c(0,ACFs(x,k))
+    for (i in 1:k){
+        D[i,(i:k)] = rho[1:(k-i+1)]}
+    Dk = t(D) + D
+    diag(Dk) = 1
+    r = matrix(ACFs(x,k),k,1)
+    phi_kk = tail(solve(Dk,r),1)
+    return(phi_kk)
+}
+
+# 函数八：计算时间序列x延迟前k期的所有偏自相关系数PACFs
+PACFs = function(x,k){
+    pacfs = c()
+    for (i in 1:k){
+        pacfs[i] = PACF(x,i)
+    }
+    return (pacfs)
+}
