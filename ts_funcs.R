@@ -79,7 +79,33 @@ PACFs = function(x,k){
     return (pacfs)
 }
 
-
+#函数九：ARMA模型序列预测
+ARMAForecast = function(arima.model, h, alpha=0.05){ #arima.model为arima函数输出结果
+  ar = arima.model$model$phi
+  ma = -arima.model$model$theta
+  p = length(ar)
+  q = length(ma)
+  green = Green(ar=ar, ma=ma, n=(h-1))
+  sigma2 = arima.model$sigma2
+  epsilon = arima.model$residuals
+  var.et = c() #预测方差
+  res = get(arima.model$series)
+  for (i in 1:h){
+    if (i>q) {
+      len = length(res)
+      res = append(res, sum(ar * res[len:(len-p+1)]))
+    } else {
+      len = length(res)
+      len2 = length(epsilon)
+      res = append(res, (sum(ar * res[len:(len-p+1)]) - sum(ma[i:q]*epsilon[len2:(len2-(q-i))])))
+    }
+    var.et[i] = sum(green[1:i]^2)*sigma2
+  }
+  upper.interval = tail(res,h) + qnorm((1-alpha/2),mean=0,sd=1)*sqrt(var.et)
+  lower.interval = tail(res,h) - qnorm((1-alpha/2),mean=0,sd=1)*sqrt(var.et)
+  result = data.frame('Point Forecast' = tail(res,h), 'Lower' = lower.interval, 'Upper' = upper.interval)
+  return (result)
+}
 
 # 函数十：ARIMA模型的格林函数
 ArimaGreen = function(ar,ma,n){
