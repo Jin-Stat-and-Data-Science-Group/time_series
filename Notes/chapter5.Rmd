@@ -201,7 +201,7 @@ Var(\nabla {x_t}) = Var({\varepsilon _t}) = \sigma _\varepsilon ^2
 ## ARIMA模型建模
 
 ```{r fig1,eval=T, echo=F,fig.cap="ARIMA建模步骤",dev="png",results='markup', cache=F}
-knitr::include_graphics("./ARIMA建模.png")
+knitr::include_graphics("./ARIMA.png")
 ```
 
 ## ARIMA模型预测
@@ -396,7 +396,7 @@ DW统计量和自相关系数的关系
 - DW统计量的判定结果
   
 ```{r fig2,eval=T, echo=F,fig.cap="DW统计量的判定",dev="png",results='markup', cache=F}
-knitr::include_graphics("./DW判定.png")
+knitr::include_graphics("./DW.png")
 ```
   
 - R函数
@@ -660,7 +660,7 @@ GARCH模型类似于对条件方差构造ARMA模型，可以用更简洁的模�
 2. 参数的约束条件一定程度上限制了GARCH模型的适用范围
 3. 它对正负扰动的反应是对称的。
 - 扰动项是真实值与预测值之差。如果扰动项为正，说明真实值比预测值大，对于投资者而言就是获得超预期收益。如果扰动项为负，说明真实值比预测值小，对于投资者而言就是出现了超预期的亏损。
-- 以 模型ARCH（1）为例，$\varepsilon _t^2{\rm{ = }}\phi \varepsilon _{t{\rm{ - }}1}^2$，无论${\varepsilon _{t{\rm{ - }}1}}$是正是负，它对下一期的影响系数都是 $\phi $  。这意味着无论上一期的投资是收益还是亏损，不影响投资人的下一期投资状况，这与实际情况不符。
+- 以 模型ARCH（1）为例，$\varepsilon _t^2{\rm{ = }}\phi \varepsilon _{t{\rm{ - }}1}^2$，无论${\varepsilon _{t{\rm{ - }}1}}$是正是负，它对下一期的影响系数都是 $\phi$  。这意味着无论上一期的投资是收益还是亏损，不影响投资人的下一期投资状况，这与实际情况不符。
 - 大量的实践经验显示，投资人在面对收益和亏损时的反应不是对称的。出现收益时，通常反应比较慢；出现亏损时，通常反应比较快。忽视这种信息的不对称性，有时会影响预测的精度。
 
 ## GARCH衍生模型
