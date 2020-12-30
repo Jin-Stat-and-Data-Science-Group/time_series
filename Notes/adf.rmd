@@ -1,0 +1,98 @@
+---
+title: "6.3.1 自回归的单位根"
+author: "梁依婷"
+date: "2020年12月"
+institute: 中南财经政法大学统计与数学学院
+csl: ./style/chinese-gb7714-2015-numeric.csl
+css: ./style/markdown.css
+bibliography: [./Bibfile.bib]
+eqnPrefixTemplate: ($$i$$)
+link-citations: true
+linkReferences: true
+chapters: true
+tableEqns: false
+autoEqnLabels: false
+classoption: "aspectratio=1610"
+---
+
+# 6.3.1 自回归的单位根
+
+在第6.1节中，我们讨论了使用差分将具有缓慢衰减的样本ACF和接近1的值的非平稳时间序
+列以较小的滞后时间转换为具有快速减少的样本ACF的时间序列的方法。时间序列{$X_t$}的
+差异程度在很大程度上是通过反复应用差异算子直到{$\triangledown^{d}X_t$}的样本ACF
+迅速衰减来确定的。然后可以通过低阶$ARMA(p,q)$过程对差分时间序列进行建模，因此原
+始数据的最终$ARIMA(p,d,q)$模型具有自回归多项式
+$(1-\phi_1z-\cdots-\phi_pz^{p})(1-z)^{d}$(见(6.1.1))，单位圆上有$d$根。在本小节中，我们讨
+论一种更系统的方法来测试自回归多项式的单位根的存在，以便确定是否应区分时间序列。
+这种方法由Dickey和Fuller(1979)率先提出。
+
+令$X_1,\cdots,X_n$为$AR(1)$模型的观测值：
+
+$$
+X_t-\mu=\phi_1(X_{t-1}-\mu)+Z_t, \enspace\enspace   {Z_t}\sim
+WN(0,\sigma^2),\enspace\enspace (6.3.1)
+$$
+
+这里$|\phi_1|<1$并且$\mu = EX_t$。当$n$较大时，$\phi_1$的最大似然估计
+$\hat{\phi}_1$近似于$N(\phi_1,(1-\phi^{2}_1)/n)$。对于单位根情况，此正态近似值不
+再适用，甚至渐近，因此无法用于检验单位根假设$H_0：\phi_1=1 \enspace vs.\enspace H_1：φ_1<1$。要构
+建$H_0$的检验，编写模型(6.3.1)为
+
+$$
+\triangledown{X_t}=X_t-X_{t-1}=\phi^{*}_0+\phi^{*}_{1}X_{t-1}+Z_t,\enspace\enspace
+{Z_t}\sim WN(0,\sigma^2),\enspace\enspace (6.3.2)
+$$
+
+这里$\phi^{*}_0=\mu(1-\phi_1)$并且$\phi^{*}_1=\phi_1-1$。现在令$\hat{\phi}^{*}_1$为
+$\triangledown{X_t}$对$1$和$X_{t-1}$的回归参数$\phi^{*}_1$的普通最小二乘估计。其中
+$\phi^{*}_1$的估计标准误为
+
+$$
+\widehat{SE}(\hat{\phi}^{*}_1)=S(\sum_{t=2}^{n}(X_{t-1}-\bar{X})^{2})^{-1/2},
+$$
+
+这里$S^{2}=\sum_{t=2}^{n}(\triangledown X_t-\hat \phi^{*}_0-\hat\phi^{*}_1X_{t-1})^2/(n-3)$且$\bar{X}$为$X_1,...,X_{n-1}$的样本均值。Dickey和
+Fuller得出当$n \to \infty$的极限分布的t比率为
+
+$$
+\hat \tau _{\mu}:=\hat \phi^{*}_1/\widehat{SE}(\hat \phi^{*}_1)
+\enspace\enspace\enspace\enspace (6.3.3)
+$$
+
+在单位根假设$\phi^{*}_1 = 0$的情况下，可以构造零假设$H_0:\phi_1= 1$的检验。
+$\hat \tau _{\mu}$的极限分布的0.01，0.05和0.10分位数（参见表8.5.2）分别为-3.43，-2.86
+和-2.57。
+
+如果$\hat \tau _{\mu} <-2.86$，则在0.05水平下，增广的Dickey-Fuller检验拒绝单位根
+的零假设。注意，此检验统计量的临界值比从t分布的正态近似值获得的标准临界值-1.645
+小得多，因此，使用正确的极限分布不太可能会拒绝单位根假设。
+
+上面的过程可以扩展到{$X_t$}遵循$AR(p)$模型且均值为$\mu$的情况
+
+$$
+X_t-\mu=\phi_1(X_{t-1}-\mu)+\cdots+\phi_p(X_{t-p}-\mu)+Z_t,\quad{Z_t}∼WN(0,\sigma^2)
+$$
+
+这个模型可以重新写为(参考问题6.2)
+
+$$
+\triangledown X_t=\phi_0^*+\phi_1^*X_{t-1}+\phi_2^*\triangledown X_{t-1}+\cdots+\phi_p^*\triangledown X_{t-p+1}+Z_t,
+\enspace\enspace (6.3.4)
+$$
+
+这里
+$\phi_0=\mu(1-\phi_1-\cdots-\phi_p),\phi_1^*=\sum_{i=1}^{p}\phi_i-1,\phi_j^*=-\sum_{i=j}^{p}\phi_i,j=2,...,p$。
+如果自回归多项式的单位根中存在1，则$0=\phi(1)=-\phi^{*}_1$，并且差分序列
+{$\triangledown X_{t}$}是一个$AR(p-1)$过程。 因此，检验自回归多项式中单位根为1的假设等同于
+检验$\phi^{*}_1=0$。如在$AR(1)$的示例中一样，可以将$\phi^{*}_1$估计为$\triangledown X_t$
+对$1，X_{t-1}，\triangledown X_{t-1}，...，\triangledown X_{t-p+1}$的OLS回归中的$X_{t-1}$的系数。对
+于较大的$n$，t比率
+
+$$
+\hat\tau_\mu:= \hat\phi_1^*/\widehat{SE}( \hat\phi_1^*),
+\enspace\enspace\enspace\enspace (6.3.5)
+$$
+
+这里$\widehat{SE}( \hat\phi_1^*)$是$\hat\phi_1^*$的估计标准误，具有与
+（6.3.3）中的检验统计量相同的极限分布。在这种情况下，增广的Dickey–Fuller检验的使
+用与使用检验统计量（6.3.5）和上面给出的截止值的$AR(1)$情形完全相同。

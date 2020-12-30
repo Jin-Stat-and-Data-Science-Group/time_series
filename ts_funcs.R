@@ -125,3 +125,71 @@ ArimaGreen = function(ar,ma,d,k){
     for(j in 1:k) psi[1+j] = sum(phi[j:1]*psi) + theta[j]
     return(psi)
 }
+
+
+# 函数十一：AR(p)的ADF检验函数
+
+ADF = function (x, lag, type = c('nc', 'c', 'ct')) {
+    x_diff = diff(x)    # x的一阶差分
+    n = length(x)       # 样本数
+    X_d = matrix(, n-lag, lag)   # x的一阶差分矩阵
+    for (i in 1:lag) X_d[, i] = x_diff[(lag-i+1):(n-i)]
+    y_diff = X_d[, 1]             # 构造回归模型因变量
+    x.lag = x[lag:(n-1)]         # 自变量一；对应回归系数为ρ
+    t = (lag+1):n
+    if (lag > 1) {
+        x_d.lag = X_d[, 2:lag]   # 自变量二；对应回归系数为β_j
+        if (type == 'nc') {       # nc: 无常数均值，无趋势类型
+            res = lm(y_diff ~ x.lag - 1 + x_d.lag)}     
+        if (type == 'c') {        # c: 有常数均值，无趋势类型
+            res = lm(y_diff ~ x.lag + 1 + x_d.lag)}
+        if (type == 'ct') {       # ct: 有常数均值，有趋势类型
+            res = lm(y_diff ~ x.lag + 1 + t + x_d.lag)}
+    }
+    else {        # lag=1时，x_d.lag不存在
+        if (type == 'nc') res = lm(y_diff ~ x.lag - 1)
+        if (type == 'c')  res = lm(y_diff ~ x.lag + 1)
+        if (type == 'ct') res = lm(y_diff ~ x.lag + 1 + t)
+    }
+    res.sum = summary(res)
+    if (type == "nc") ρ_loc = 1 else ρ_loc = 2
+    adf = res.sum$coefficients[ρ_loc, 1] / res.sum$coefficients[ρ_loc, 2]     # ρ估计值 / ρ样本标准差 
+    if (type == "nc") {
+        table = rbind(c(-2.65, -2.26, -1.95, -1.6, -0.47, 0.92, 
+            1.33, 1.7, 2.15), c(-2.62, -2.25, -1.95, -1.61, -0.49, 
+            0.91, 1.31, 1.66, 2.08), c(-2.6, -2.24, -1.95, -1.61, 
+            -0.5, 0.9, 1.29, 1.64, 2.04), c(-2.58, -2.24, -1.95, 
+            -1.62, -0.5, 0.89, 1.28, 1.63, 2.02), c(-2.58, -2.23, 
+            -1.95, -1.62, -0.5, 0.89, 1.28, 1.62, 2.01), c(-2.58, 
+            -2.23, -1.95, -1.62, -0.51, 0.89, 1.28, 1.62, 2.01))}
+    if (type == "c") {
+        table = rbind(c(-3.75, -3.33, -2.99, -2.64, -1.53, 
+            -0.37, 0, 0.34, 0.71), c(-3.59, -3.23, -2.93, -2.6, 
+            -1.55, -0.41, -0.04, 0.28, 0.66), c(-3.5, -3.17, 
+            -2.9, -2.59, -1.56, -0.42, -0.06, 0.26, 0.63), c(-3.45, 
+            -3.14, -2.88, -2.58, -1.56, -0.42, -0.07, 0.24, 0.62), 
+            c(-3.44, -3.13, -2.87, -2.57, -1.57, -0.44, -0.07, 
+            0.24, 0.61), c(-3.42, -3.12, -2.86, -2.57, -1.57, 
+            -0.44, -0.08, 0.23, 0.6))}
+    if (type == "ct") {
+        table = rbind(c(-4.38, -3.95, -3.6, -3.24, -2.14, -1.14, 
+            -0.81, -0.5, -0.15), c(-4.16, -3.8, -3.5, -3.18, 
+            -2.16, -1.19, -0.87, -0.58, -0.24), c(-4.05, -3.73, 
+            -3.45, -3.15, -2.17, -1.22, -0.9, -0.62, -0.28), 
+            c(-3.98, -3.69, -3.42, -3.13, -2.18, -1.23, -0.92, 
+            -0.64, -0.31), c(-3.97, -3.67, -3.42, -3.13, 
+            -2.18, -1.24, -0.93, -0.65, -0.32), c(-3.96, 
+            -3.67, -3.41, -3.13, -2.18, -1.25, -0.94, -0.66, -0.32))}
+    pvalue <- function(table, stat) {
+        Ncol <- ncol(table)
+        Size <- c(25, 50, 100, 250, 500, 1e+05)
+        Percnt <- c(0.01, 0.025, 0.05, 0.1, 0.5, 0.9, 0.95, 0.975, 0.99)
+        intplSize <- numeric(Ncol)
+        for (j in 1:Ncol) intplSize[j] <- approx(Size, table[, 
+            j], n-1, rule = 2)$y
+        approx(intplSize, Percnt, stat, rule = 2)$y
+    }
+    PVAL = pvalue(table, adf)
+    ADFTest = c(lag, type, round(adf, 4), round(PVAL, 4))   # 保留四位小数
+    return(data.frame(ADFTest, row.names = c('Lag:', 'Type:', 'ADF:', 'P.value:')))
+}
