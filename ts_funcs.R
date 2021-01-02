@@ -110,22 +110,14 @@ ARMAForecast = function(arima.model, h, alpha=0.05){ #arima.model为arima函数�
 # 函数十：ARIMA模型的格林函数
 ### 函数说明：ar为PhiB各项系数，ma为ThetaB各项系数，如PhiB=1-0.8*B，则ar=c(1,-0.8)，依此类推
 ArimaGreen = function(ar,ma,d,k){
-    p = length(ar)
-    q = length(ma)
     require(polynom)
     par = as.polynomial(ar)
-    pma = as.polynomial(ma)
     b = c()
-    for(i in 1:d) b[i] = (-1)^(d+i-1)*choose(d,i)
-    pb = as.polynomial(c(1,b))
+    for(i in 0:d) b[i+1] = (-1)^i*choose(d,i)
+    pb = as.polynomial(b)
     phi = -unclass(par*pb)[-1]
-    if(k > p) phi = c(phi,rep(0,k-p)) else phi = c(phi)
-    if(k > q) theta = c(ma[-1],rep(0,k-q+1)) else theta = c(ma[-1])
-    psi = 1
-    for(j in 1:k) psi[1+j] = sum(phi[j:1]*psi) + theta[j]
-    return(psi)
+    Green(phi,-ma[-1],k)
 }
-
 
 # 函数十一：AR(p)的ADF检验函数
 
