@@ -184,3 +184,15 @@ ADF = function (x, lag, type = c('nc', 'c', 'ct')) {
     ADFTest = c(lag, type, round(adf, 4), round(PVAL, 4))   # 保留四位小数
     return(data.frame(ADFTest, row.names = c('Lag:', 'Type:', 'ADF:', 'P.value:')))
 }
+
+# 函数十二：arima系数检验函数
+
+arima_test = function(result,P){
+    Coef = result$coef
+    Se = sqrt(diag(result$var.coef))
+    N = length(result$residuals)
+    m = length(result$coef)-1
+    t_pvalue = Coef/Se
+    t_test = pt(abs(t_pvalue),df=(N-m),lower.tail = F)
+    return(t_test<P)
+}
