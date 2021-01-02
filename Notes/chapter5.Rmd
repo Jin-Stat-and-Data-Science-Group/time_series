@@ -302,7 +302,7 @@ arima(x,order=c(p,d,q),include.mean=,method=,transform.pars=,fixed=)
 \[{x_t} = {S_t} + {T_t} + {I_t}\]
 
 简单季节模型通过简单的趋势差分、季节差分之后序列即可转化为平稳，它的模型结构通常如下 
-\[{\nabla _D}{\nabla ^d}{x_t} = \frac{{\Theta (B)}}{{\Phi (B)}}{\varepsilon _t}\]
+\[{\nabla_D}{\nabla ^d}{x_t} = \frac{{\Theta (B)}}{{\Phi (B)}}{\varepsilon _t}\]
 式中，D为周期步长，d为提取趋势信息所用的差分阶数
 ```
 arima(x,order=c(p,d,q),include.mean=,method=,transform.pars=,fixed=,seasonal=)
@@ -338,7 +338,6 @@ $$\begin{array}{l}{\Theta(B)=1-\theta_{1} B-\cdots-\theta_{q} B^{q}} \\ {\Phi(B)
 \[{\varepsilon _t} = {\phi _1}{\varepsilon _{t - 1}} +  \cdots  + {\phi _p}{\varepsilon _{t - p}} + {a_t}\]
 
 - (残差)自回归模型(auto-regressive model)
-
 \[\left\{ \begin{array}{l}
   {x_t} = {T_t} + {S_t} + {\varepsilon _t}\\
 {\varepsilon _t} = {\phi _1}{\varepsilon _{t - 1}} +  \cdots  + {\phi _p}{\varepsilon _{t - p}} + {a_t}\\
@@ -431,8 +430,7 @@ $$Var({\varepsilon _t}) = h(t)$$
 
 # 方差齐性变换
 ## 使用场合
-- 序列显示出显著的异方差性，且方差与均值之间具有某种函数关系$$\sigma _t^2 = h({\mu 
-_t}) $ $其中:$ (.)$是某个已知函数
+- 序列显示出显著的异方差性，且方差与均值之间具有某种函数关系$$\sigma _t^2 = h({\mu _t}) $ $其中:$ (.)$是某个已知函数
 
 
 ## 处理思路
@@ -537,13 +535,13 @@ Portmantea Q检验（Mcleod & Li,1983)
 {H_0}:{\rho _1} = {\rho _2} =  \cdots  = {\rho _q} = 0 \leftrightarrow {H_1}:{\rho _1},{\rho _2}, \cdots ,{\rho _q}不全为零
 \end{array}\]
 - Portmantea Q检验统计量：
-$ $
+$$
 Q(q)=n(n+2) \sum_{i=1}^{q} \frac{p_{i}^{2}}{n-i}
-$  $
+$$
 n为观察值序列长度；$ rho_i$为残差序列延迟i阶自相关系数，有
-$ $
+$$
 \rho_{i}=\sqrt{\frac{\sum_{t=i+1}^{n}\left(\varepsilon_{t}^{2}-\widehat{\sigma}^{2}\right)\left(\varepsilon_{t-i}^{2}-\widehat{\sigma}^{2}\right)}{\sum_{t=1}^{n}\left(\varepsilon_{t}^{2}-\widehat{\sigma}^{2}\right)^{2}}}, \quad \widehat{\sigma}^{2}=\frac{\sum_{t=1}^{n} \varepsilon_{t}^{2}}{n}
-$  $
+$$
 原假设成立时，Portmantea Q检验统计量近似服从自由度为q-1的$ \chi ^2}$分布
 $$
 Q(q) \dot{\sim} \chi^{2}(q-1)
