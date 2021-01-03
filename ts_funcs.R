@@ -86,13 +86,13 @@ ARMAForecast = function(arima.model, h, alpha=0.05){ #arima.model为arima函数�
   q = length(ma)
   green = Green(ar=ar, ma=ma, n=(h-1))
   sigma2 = arima.model$sigma2
-  epsilon = append(arima.model$residuals, rep(0,h))
+  epsilon = c(arima.model$residuals, rep(0,h))
   var.et = c() #预测方差
   res = get(arima.model$series)
   for (i in 1:h){
       len = length(res)
       len2 = length(epsilon)
-      res = append(res, (sum(ar * res[len:(len-p+1)]) - sum(ma*epsilon[((len2-h)+(i-1)):((len2-h)-(q-i))])))
+      res = c(res, (sum(ar * res[len:(len-p+1)]) - sum(ma*epsilon[((len2-h)+(i-1)):((len2-h)-(q-i))])))
       var.et[i] = sum(green[1:i]^2)*sigma2
   }
   upper.interval = tail(res,h) + qnorm((1-alpha/2),mean=0,sd=1)*sqrt(var.et)
